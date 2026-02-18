@@ -120,6 +120,50 @@
       background: #667eea;
       color: white;
     }
+    
+    .edit-mode {
+      display: none;
+    }
+    
+    .edit-mode.active {
+      display: block;
+    }
+    
+    .view-mode.hidden {
+      display: none;
+    }
+    
+    textarea.editor {
+      width: 100%;
+      min-height: 400px;
+      padding: 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      resize: vertical;
+      margin-bottom: 15px;
+    }
+    
+    textarea.editor:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    .edit-controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    button.edit-btn {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    
+    button.edit-btn:hover {
+      box-shadow: 0 10px 20px rgba(245, 87, 108, 0.4);
+    }
   </style>
 </head>
 <body>
@@ -127,8 +171,20 @@
     <h1>🎓 Generated Activity</h1>
     <p class="subtitle">Your lesson activity is ready</p>
     
-    <div id="activityContent">
-      <!-- Activity content will be displayed here -->
+    <div class="edit-controls">
+      <button id="toggleEditBtn" class="edit-btn">✏️ Edit</button>
+    </div>
+    
+    <div id="viewMode" class="view-mode">
+      <div id="activityContent">
+        <!-- Activity content will be displayed here -->
+      </div>
+    </div>
+    
+    <div id="editMode" class="edit-mode">
+      <textarea id="activityEditor" class="editor"></textarea>
+      <button id="saveBtn">💾 Save Changes</button>
+      <button id="cancelBtn" class="secondary">✖ Cancel</button>
     </div>
     
     <div class="action-buttons">
@@ -222,12 +278,13 @@
     }
     
     // Load activity data from sessionStorage
-    const activityData = sessionStorage.getItem('activityData');
+    let activityData = sessionStorage.getItem('activityData');
+    let currentData = null;
     
     if (activityData) {
       try {
-        const data = JSON.parse(activityData);
-        document.getElementById('activityContent').innerHTML = formatActivityContent(data.generatedContent);
+        currentData = JSON.parse(activityData);
+        document.getElementById('activityContent').innerHTML = formatActivityContent(currentData.generatedContent);
       } catch (error) {
         document.getElementById('activityContent').innerHTML = `
           <div class="activity-section">
@@ -239,6 +296,167 @@
       // No data found, redirect to image selection
       window.location.href = '/image-activity';
     }
+    
+    // Convert JSON to human-readable text
+    function jsonToText(jsonString) {
+      let content = jsonString.trim();
+      content = content.replace(/^```json\s*/i, '');
+      content = content.replace(/^```\s*/i, '');
+      content = content.replace(/```\s*$/i, '');
+      content = content.trim();
+      
+      try {
+        const data = JSON.parse(content);
+        const activityContent = data.tasks || data.exercises || data.activity_components || data;
+        let text = '';
+        
+        // Multiple choice sentences
+        const multiChoice = activityContent.multiple_choice_blanks || activityContent.multiple_choice_sentences || data.multiple_choice_sentences || data.multiple_choice_blanks;
+        if (multiChoice && multiChoice.length > 0) {
+          text += '=== MULTIPLE CHOICE SENTENCES ===\n\n';
+          multiChoice.forEach((item, index) => {
+            text += `${index + 1}. ${item.sentence}\n`;
+            item.options.forEach((option, optIndex) => {
+              const marker = item.correct_option === optIndex ? '[CORRECT]' : '';
+              text += `   ${String.fromCharCode(97 + optIndex)}) ${option} ${marker}\n`;
+            });
+            text += '\n';
+          });
+        }
+        
+        // Open question
+        const openQ = activityContent.open_question || data.open_question;
+        if (openQ) {
+          text += '=== OPEN QUESTION ===\n\n';
+          if (typeof openQ === 'string') {
+            text += openQ + '\n';
+          } else if (openQ.question) {
+            text += openQ.question + '\n';
+            if (openQ.guidance) {
+              text += `(Guidance: ${openQ.guidance})\n`;
+            }
+          }
+        }
+        
+        return text;
+      } catch (e) {
+        return content;
+      }
+    }
+    
+    // Convert human-readable text back to JSON
+    function textToJson(text) {
+      const lines = text.split('\n');
+      const result = {
+        multiple_choice_sentences: [],
+        open_question: ''
+      };
+      
+      let currentSection = null;
+      let currentQuestion = null;
+      
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        
+        if (line === '=== MULTIPLE CHOICE SENTENCES ===') {
+          currentSection = 'multiple_choice';
+          continue;
+        } else if (line === '=== OPEN QUESTION ===') {
+          currentSection = 'open_question';
+          continue;
+        }
+        
+        if (!line) continue;
+        
+        if (currentSection === 'multiple_choice') {
+          // Check if it's a numbered sentence
+          const sentenceMatch = line.match(/^\d+\.\s+(.+)$/);
+          if (sentenceMatch) {
+            if (currentQuestion) {
+              result.multiple_choice_sentences.push(currentQuestion);
+            }
+            currentQuestion = {
+              sentence: sentenceMatch[1],
+              options: [],
+              correct_option: 0
+            };
+          } else {
+            // Check if it's an option
+            const optionMatch = line.match(/^([a-d])\)\s+(.+?)(?:\s+\[CORRECT\])?$/);
+            if (optionMatch && currentQuestion) {
+              const optionText = optionMatch[2].trim();
+              const isCorrect = line.includes('[CORRECT]');
+              currentQuestion.options.push(optionText);
+              if (isCorrect) {
+                currentQuestion.correct_option = currentQuestion.options.length - 1;
+              }
+            }
+          }
+        } else if (currentSection === 'open_question') {
+          if (!line.startsWith('(Guidance:')) {
+            result.open_question += (result.open_question ? ' ' : '') + line;
+          }
+        }
+      }
+      
+      // Add last question if exists
+      if (currentQuestion) {
+        result.multiple_choice_sentences.push(currentQuestion);
+      }
+      
+      return result;
+    }
+    
+    // Edit mode functionality
+    const toggleEditBtn = document.getElementById('toggleEditBtn');
+    const viewMode = document.getElementById('viewMode');
+    const editMode = document.getElementById('editMode');
+    const activityEditor = document.getElementById('activityEditor');
+    const saveBtn = document.getElementById('saveBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    
+    toggleEditBtn.addEventListener('click', () => {
+      viewMode.classList.add('hidden');
+      editMode.classList.add('active');
+      toggleEditBtn.style.display = 'none';
+      
+      // Load current content into editor (as readable text)
+      if (currentData && currentData.generatedContent) {
+        activityEditor.value = jsonToText(currentData.generatedContent);
+      }
+    });
+    
+    saveBtn.addEventListener('click', () => {
+      try {
+        // Parse the edited text back to JSON
+        const editedText = activityEditor.value;
+        const parsed = textToJson(editedText);
+        
+        // Update the current data
+        currentData.generatedContent = JSON.stringify(parsed);
+        
+        // Save back to sessionStorage
+        sessionStorage.setItem('activityData', JSON.stringify(currentData));
+        
+        // Update the view
+        document.getElementById('activityContent').innerHTML = formatActivityContent(currentData.generatedContent);
+        
+        // Switch back to view mode
+        viewMode.classList.remove('hidden');
+        editMode.classList.remove('active');
+        toggleEditBtn.style.display = 'block';
+        
+      } catch (error) {
+        alert('Error saving changes. Please check your edits.\n\n' + error.message);
+      }
+    });
+    
+    cancelBtn.addEventListener('click', () => {
+      // Switch back to view mode without saving
+      viewMode.classList.remove('hidden');
+      editMode.classList.remove('active');
+      toggleEditBtn.style.display = 'block';
+    });
   </script>
 </body>
 </html>

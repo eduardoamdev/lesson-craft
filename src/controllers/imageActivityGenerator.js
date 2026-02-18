@@ -1,6 +1,3 @@
-const fs = require('fs');
-const path = require('path');
-
 async function callDeepSeekAPI(description) {
   const apiKey = process.env.DEEPSEEK_API_KEY;
   const apiUrl = 'https://api.deepseek.com/v1/chat/completions';
@@ -87,32 +84,16 @@ async function generateImageActivity(req, res) {
 
     console.log('Generated content from DeepSeek API:', generatedContent);
 
-    // Create storage directory if it doesn't exist
-    const storageDir = path.join(__dirname, '../../storage/temp');
-    if (!fs.existsSync(storageDir)) {
-      fs.mkdirSync(storageDir, { recursive: true });
-    }
-
-    // Save to JSON file with timestamp
-    const timestamp = Date.now();
-    const filename = `activity_${timestamp}.json`;
-    const filePath = path.join(storageDir, filename);
-
     const activityData = {
-      timestamp,
+      timestamp: Date.now(),
       description,
       generatedContent,
       createdAt: new Date().toISOString()
     };
 
-    fs.writeFileSync(filePath, JSON.stringify(activityData, null, 2));
-
-    console.log(`Activity saved to: ${filePath}`);
-
     res.json({
       success: true,
       message: 'Activity generated successfully',
-      filename,
       data: activityData
     });
 
