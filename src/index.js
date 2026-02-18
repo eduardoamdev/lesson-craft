@@ -53,13 +53,14 @@ require('dotenv').config();
 const WebSocket = require('ws');
 const fs = require('fs');
 const path = require('path');
+const { exec } = require('child_process');
+const { promisify } = require('util');
 
-async function callTelnyxAPI() {
-  const apiKey = process.env.TELNYX_API_KEY;
-  const voiceId = 'Telnyx.NaturalHD.astra';
+const execPromise = promisify(exec);
+
+// Function to synthesize speech for a single text with a specific voice
+function synthesizeSpeech(text, voiceId, apiKey) {
   const wsUrl = `wss://api.telnyx.com/v2/text-to-speech/speech?voice=${voiceId}`;
-
-  const message = 'This is a test text';
 
   return new Promise((resolve, reject) => {
     const ws = new WebSocket(wsUrl, {
@@ -69,25 +70,22 @@ async function callTelnyxAPI() {
     });
 
     let audioBuffer = Buffer.alloc(0);
-    let audioFrameCount = 0;
     let stopFrameSent = false;
 
     ws.on('open', () => {
-      console.log('Connected to Telnyx TTS WebSocket');
+      console.log(`Connected to Telnyx TTS WebSocket (voice: ${voiceId})`);
       
       // 1. Send initialization frame
       ws.send(JSON.stringify({ text: ' ' }));
-      console.log('Sent: Initialization frame');
       
       // 2. Send text frame
-      ws.send(JSON.stringify({ text: message }));
-      console.log('Sent: Text frame');
+      ws.send(JSON.stringify({ text: text }));
+      console.log(`Sent text: "${text}"`);
       
-      // 3. Send stop frame after a short delay to let all text be processed
+      // 3. Send stop frame after a short delay
       setTimeout(() => {
         if (!stopFrameSent) {
           ws.send(JSON.stringify({ text: '' }));
-          console.log('Sent: Stop frame');
           stopFrameSent = true;
         }
       }, 1000);
@@ -97,29 +95,13 @@ async function callTelnyxAPI() {
       const frame = JSON.parse(data.toString());
       
       if (frame.audio) {
-        audioFrameCount++;
         const audioBytes = Buffer.from(frame.audio, 'base64');
         audioBuffer = Buffer.concat([audioBuffer, audioBytes]);
-        
-        console.log(`Received: Audio frame #${audioFrameCount} (${audioBytes.length} bytes)`);
       }
     });
 
     ws.on('close', () => {
-      console.log('Connection closed');
-      console.log(`Total audio buffer size: ${audioBuffer.length} bytes`);
-      
-      // Save buffer to mp3 file in audio folder
-      const audioDir = path.join(__dirname, 'audio');
-      if (!fs.existsSync(audioDir)) {
-        fs.mkdirSync(audioDir, { recursive: true });
-      }
-      
-      const timestamp = Date.now();
-      const audioPath = path.join(audioDir, `tts_${timestamp}.mp3`);
-      fs.writeFileSync(audioPath, audioBuffer);
-      
-      console.log(`Audio saved to: ${audioPath}`);
+      console.log(`Connection closed for voice ${voiceId} (${audioBuffer.length} bytes)`);
       resolve(audioBuffer);
     });
 
@@ -128,6 +110,71 @@ async function callTelnyxAPI() {
       reject(error);
     });
   });
+}
+
+async function callTelnyxAPI() {
+  const apiKey = process.env.TELNYX_API_KEY;
+  const maleVoice = 'Telnyx.NaturalHD.andersen_johan';
+  const femaleVoice = 'Telnyx.NaturalHD.astra';
+
+  // Supermarket conversation - 8 messages, 4 each
+  const conversation = [
+    { speaker: 'Customer', voice: femaleVoice, text: 'Excuse me, where can I find the milk?' },
+    { speaker: 'Employee', voice: maleVoice, text: 'The dairy section is in aisle 3, on the left side.' },
+    { speaker: 'Customer', voice: femaleVoice, text: 'Thank you! And do you have any fresh bread?' },
+    { speaker: 'Employee', voice: maleVoice, text: 'Yes, we have fresh bread at the bakery section, right at the back of the store.' },
+    { speaker: 'Customer', voice: femaleVoice, text: 'Perfect! Is there a special offer on fruits today?' },
+    { speaker: 'Employee', voice: maleVoice, text: 'Actually, yes! We have a buy two get one free deal on apples and oranges.' },
+    { speaker: 'Customer', voice: femaleVoice, text: "That's great! I'll take advantage of that. Where do I pay?" },
+    { speaker: 'Employee', voice: maleVoice, text: 'The checkout counters are at the front. Have a nice day!' }
+  ];
+
+  try {
+    const audioDir = path.join(__dirname, 'audio');
+    if (!fs.existsSync(audioDir)) {
+      fs.mkdirSync(audioDir, { recursive: true });
+    }
+
+    const timestamp = Date.now();
+    const tempFiles = [];
+
+    // Generate audio for each line in sequence
+    for (let i = 0; i < conversation.length; i++) {
+      const line = conversation[i];
+      console.log(`\nGenerating audio for ${line.speaker}: "${line.text}"`);
+      const audioBuffer = await synthesizeSpeech(line.text, line.voice, apiKey);
+      
+      // Save individual audio file
+      const tempFile = path.join(audioDir, `temp_${timestamp}_${i}.mp3`);
+      fs.writeFileSync(tempFile, audioBuffer);
+      tempFiles.push(tempFile);
+      console.log(`Saved temporary file: ${tempFile}`);
+    }
+
+    // Create ffmpeg concat file list
+    const concatListPath = path.join(audioDir, `concat_${timestamp}.txt`);
+    const concatContent = tempFiles.map(f => `file '${path.basename(f)}'`).join('\n');
+    fs.writeFileSync(concatListPath, concatContent);
+
+    // Merge audio files using ffmpeg with re-encoding for smooth transitions
+    const outputPath = path.join(audioDir, `supermarket_conversation_${timestamp}.mp3`);
+    console.log('\nMerging audio files with ffmpeg...');
+    
+    await execPromise(`ffmpeg -f concat -safe 0 -i "${concatListPath}" -acodec libmp3lame -b:a 192k "${outputPath}"`, {
+      cwd: audioDir
+    });
+
+    // Clean up temporary files
+    tempFiles.forEach(f => fs.unlinkSync(f));
+    fs.unlinkSync(concatListPath);
+    
+    console.log(`\n✓ Supermarket conversation saved to: ${outputPath}`);
+    
+    return outputPath;
+  } catch (error) {
+    console.error('Error generating audio:', error.message);
+    throw error;
+  }
 }
 
 callTelnyxAPI();
