@@ -1,0 +1,130 @@
+const fs = require('fs');
+const path = require('path');
+
+async function callDeepSeekAPI(description) {
+  const apiKey = process.env.DEEPSEEK_API_KEY;
+  const apiUrl = 'https://api.deepseek.com/v1/chat/completions';
+
+  // Pre-built prompt template with placeholder for image description
+  const promptTemplate = `We are in the context of a particular English lesson. The activity is "Commenting on the image". Between B1 and B2 level. 
+
+The description of the image is: "${description}"
+
+I want you to provide the texts for the activity:
+1. Sentences with blanks where words can be filled in, with multiple choice options below each sentence. IMPORTANT: Randomize the position of the correct answer in each multiple choice question - do NOT always place it first.
+2. One open question about describing the image with student's own words.
+
+You MUST respond with ONLY valid JSON following this exact structure (no additional properties):
+{
+  "multiple_choice_sentences": [
+    {
+      "sentence": "The sentence with a __________ blank.",
+      "options": ["option1", "option2", "option3", "option4"],
+      "correct_option": 0
+    }
+  ],
+  "open_question": "Your open-ended question here."
+}
+
+Important: 
+- Use "multiple_choice_sentences" (not multiple_choice_blanks or any other name)
+- Use "open_question" as a string (not an object)
+- "correct_option" must be a number (0 for first option, 1 for second, etc.)
+- Do not add any extra properties or wrap this in any other object`;
+
+  try {
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'text',
+                text: promptTemplate
+              }
+            ]
+          }
+        ],
+        temperature: 1.3
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error('API Error Details:', errorData);
+      throw new Error(`HTTP error! status: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
+    }
+
+    const data = await response.json();
+    const answer = data.choices[0].message.content;
+    
+    return answer;
+  } catch (error) {
+    console.error('Error calling DeepSeek API:', error.message);
+    throw error;
+  }
+}
+
+async function generateImageActivity(req, res) {
+  try {
+    const { description } = req.body;
+
+    if (!description) {
+      return res.status(400).json({ error: 'Image description is required' });
+    }
+
+    console.log('Generating activity for image description:', description);
+
+    // Call DeepSeek API
+    const generatedContent = await callDeepSeekAPI(description);
+
+    console.log('Generated content from DeepSeek API:', generatedContent);
+
+    // Create storage directory if it doesn't exist
+    const storageDir = path.join(__dirname, '../../storage/temp');
+    if (!fs.existsSync(storageDir)) {
+      fs.mkdirSync(storageDir, { recursive: true });
+    }
+
+    // Save to JSON file with timestamp
+    const timestamp = Date.now();
+    const filename = `activity_${timestamp}.json`;
+    const filePath = path.join(storageDir, filename);
+
+    const activityData = {
+      timestamp,
+      description,
+      generatedContent,
+      createdAt: new Date().toISOString()
+    };
+
+    fs.writeFileSync(filePath, JSON.stringify(activityData, null, 2));
+
+    console.log(`Activity saved to: ${filePath}`);
+
+    res.json({
+      success: true,
+      message: 'Activity generated successfully',
+      filename,
+      data: activityData
+    });
+
+  } catch (error) {
+    console.error('Error generating activity:', error);
+    res.status(500).json({ 
+      error: 'Failed to generate activity',
+      details: error.message 
+    });
+  }
+}
+
+module.exports = {
+  generateImageActivity
+};
