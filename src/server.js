@@ -11,6 +11,7 @@ const PORT = process.env.PORT || 3000;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
+app.use('/data', express.static(path.join(__dirname, '../data')));
 
 // View engine setup
 app.set('view engine', 'ejs');
@@ -18,7 +19,15 @@ app.set('views', path.join(__dirname, 'views'));
 
 // Routes
 app.get('/', (req, res) => {
-  res.render('index', { title: 'Lesson Craft' });
+  res.render('home', { title: 'Lesson Craft' });
+});
+
+app.get('/image-activity', (req, res) => {
+  res.render('image-selection', { title: 'Select Image - Lesson Craft' });
+});
+
+app.get('/activity-display', (req, res) => {
+  res.render('activity-display', { title: 'Activity - Lesson Craft' });
 });
 
 app.use('/api', imageActivityGeneratorRoutes);
