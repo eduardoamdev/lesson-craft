@@ -108,10 +108,38 @@
       font-weight: 600;
     }
     
+    .edit-controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
     .pdf-controls, .audio-controls {
       display: flex;
       gap: 10px;
       margin-bottom: 20px;
+    }
+    
+    [contenteditable="true"] {
+      outline: 2px dashed #667eea;
+      outline-offset: 2px;
+      padding: 4px;
+      border-radius: 4px;
+      background: #fff9e6;
+      cursor: text;
+    }
+    
+    [contenteditable="true"]:focus {
+      outline: 2px solid #667eea;
+      background: #fffbf0;
+    }
+    
+    .edit-mode .conversation-exchange {
+      background: #f0f8ff;
+    }
+    
+    .edit-mode .question-item {
+      background: #f0f8ff;
     }
     
     button {
@@ -226,6 +254,11 @@
     
     <div id="statusMessage" class="message"></div>
     
+    <div class="edit-controls">
+      <button id="editModeBtn">✏️ Edit Mode</button>
+      <button id="saveChangesBtn" style="display: none;">💾 Save Changes</button>
+    </div>
+    
     <div class="pdf-controls">
       <button id="generatePdfBtn" class="pdf-btn">📄 Generate PDF</button>
       <button id="downloadPdfBtn" class="download-btn" style="display: none;">⬇️ Download PDF</button>
@@ -260,6 +293,7 @@
     let currentData = null;
     let currentPdfId = null;
     let currentAudioId = null;
+    let isEditMode = false;
     
     // Load conversation data
     const conversationData = sessionStorage.getItem('conversationData');
@@ -277,10 +311,13 @@
       let html = '';
       
       currentData.conversation.forEach((exchange, index) => {
+        const editableName = isEditMode ? 'contenteditable="true"' : '';
+        const editableText = isEditMode ? 'contenteditable="true"' : '';
+        
         html += `
-          <div class="conversation-exchange">
-            <div class="speaker-name">${exchange.speaker}:</div>
-            <div class="speaker-text">${exchange.text}</div>
+          <div class="conversation-exchange" data-index="${index}">
+            <div class="speaker-name" ${editableName} data-field="speaker">${exchange.speaker}:</div>
+            <div class="speaker-text" ${editableText} data-field="text">${exchange.text}</div>
           </div>
         `;
       });
@@ -293,15 +330,18 @@
       let html = '';
       
       currentData.questions.forEach((q, index) => {
+        const editableQuestion = isEditMode ? 'contenteditable="true"' : '';
+        const editableOption = isEditMode ? 'contenteditable="true"' : '';
+        
         html += `
-          <div class="question-item">
-            <div class="question-text">${index + 1}. ${q.question}</div>
+          <div class="question-item" data-index="${index}">
+            <div class="question-text" ${editableQuestion} data-field="question">${index + 1}. ${q.question}</div>
             <ul class="options-list">
         `;
         
         q.options.forEach((option, optIndex) => {
           const isCorrect = optIndex === q.correctAnswer;
-          html += `<li class="${isCorrect ? 'correct' : ''}">
+          html += `<li class="${isCorrect ? 'correct' : ''}" ${editableOption} data-field="option" data-option-index="${optIndex}">
             ${String.fromCharCode(97 + optIndex)}) ${option}${isCorrect ? ' ✓' : ''}
           </li>`;
         });
@@ -310,6 +350,88 @@
       });
       
       container.innerHTML = html;
+    }
+    
+    function toggleEditMode() {
+      isEditMode = !isEditMode;
+      const editModeBtn = document.getElementById('editModeBtn');
+      const saveChangesBtn = document.getElementById('saveChangesBtn');
+      const container = document.querySelector('.container');
+      
+      if (isEditMode) {
+        editModeBtn.textContent = '👁️ View Mode';
+        saveChangesBtn.style.display = 'block';
+        container.classList.add('edit-mode');
+        showMessage('Edit mode enabled. Click on text to edit.', 'info');
+      } else {
+        editModeBtn.textContent = '✏️ Edit Mode';
+        saveChangesBtn.style.display = 'none';
+        container.classList.remove('edit-mode');
+        showMessage('Edit mode disabled.', 'info');
+      }
+      
+      // Refresh display with edit mode
+      displayConversation();
+      displayQuestions();
+    }
+    
+    function saveChanges() {
+      try {
+        // Extract conversation changes
+        const conversationExchanges = document.querySelectorAll('#conversationContent .conversation-exchange');
+        conversationExchanges.forEach((exchange, index) => {
+          const speakerElem = exchange.querySelector('[data-field="speaker"]');
+          const textElem = exchange.querySelector('[data-field="text"]');
+          
+          if (speakerElem && textElem) {
+            // Remove the colon if present
+            const speakerText = speakerElem.textContent.trim().replace(/:$/, '');
+            currentData.conversation[index].speaker = speakerText;
+            currentData.conversation[index].text = textElem.textContent.trim();
+          }
+        });
+        
+        // Extract question changes
+        const questionItems = document.querySelectorAll('#questionsContent .question-item');
+        questionItems.forEach((item, qIndex) => {
+          const questionElem = item.querySelector('[data-field="question"]');
+          if (questionElem) {
+            // Remove question number prefix (e.g., "1. ")
+            const questionText = questionElem.textContent.trim().replace(/^\d+\.\s*/, '');
+            currentData.questions[qIndex].question = questionText;
+          }
+          
+          // Extract option changes
+          const optionElems = item.querySelectorAll('[data-field="option"]');
+          optionElems.forEach((optionElem, optIndex) => {
+            // Remove letter prefix and checkmark (e.g., "a) ", " ✓")
+            const optionText = optionElem.textContent.trim()
+              .replace(/^[a-z]\)\s*/, '')
+              .replace(/\s*✓\s*$/, '');
+            currentData.questions[qIndex].options[optIndex] = optionText;
+          });
+        });
+        
+        // Save updated data to sessionStorage
+        sessionStorage.setItem('conversationData', JSON.stringify(currentData));
+        
+        // Clear old PDF/Audio since content changed
+        sessionStorage.removeItem('currentConversationPdfId');
+        sessionStorage.removeItem('currentConversationAudioId');
+        currentPdfId = null;
+        currentAudioId = null;
+        document.getElementById('downloadPdfBtn').style.display = 'none';
+        document.getElementById('downloadAudioBtn').style.display = 'none';
+        
+        // Exit edit mode and refresh display
+        isEditMode = false;
+        toggleEditMode();
+        
+        showMessage('Changes saved successfully!', 'success');
+      } catch (error) {
+        console.error('Error saving changes:', error);
+        showMessage('Error saving changes: ' + error.message, 'error');
+      }
     }
     
     function showMessage(message, type = 'info') {
@@ -424,6 +546,10 @@
         showMessage('Download started...', 'success');
       }
     });
+    
+    // Edit Mode functionality
+    document.getElementById('editModeBtn').addEventListener('click', toggleEditMode);
+    document.getElementById('saveChangesBtn').addEventListener('click', saveChanges);
     
     // Check for existing PDF/Audio that match the current conversation
     const storedPdfId = sessionStorage.getItem('currentConversationPdfId');
