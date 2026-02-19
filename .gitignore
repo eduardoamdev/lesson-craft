@@ -1,4 +1,8 @@
 node_modules/
 .env
-src/audio/
-src/images/
+
+# Ignore contents of data folders but keep the folders
+data/audio/*
+!data/audio/.gitkeep
+data/images/*
+!data/images/.gitkeep
