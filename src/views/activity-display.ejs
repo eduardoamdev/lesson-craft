@@ -348,6 +348,15 @@
       try {
         currentData = JSON.parse(activityData);
         document.getElementById('activityContent').innerHTML = formatActivityContent(currentData.generatedContent);
+        
+        // Clear old PDF ID when loading new activity
+        // Check if this is a different activity by comparing timestamps
+        const lastActivityTimestamp = sessionStorage.getItem('lastActivityTimestamp');
+        if (lastActivityTimestamp !== String(currentData.timestamp)) {
+          // This is a new activity, clear the old PDF ID
+          sessionStorage.removeItem('currentPdfId');
+          sessionStorage.setItem('lastActivityTimestamp', currentData.timestamp);
+        }
       } catch (error) {
         document.getElementById('activityContent').innerHTML = `
           <div class="activity-section">
@@ -524,11 +533,14 @@
     // PDF functionality
     let currentPdfId = null;
     
-    // Generate unique activity ID based on timestamp and content hash
+    // Generate unique activity ID based on activity timestamp
     function generateActivityId() {
-      const timestamp = Date.now();
-      const contentHash = currentData ? currentData.generatedContent.substring(0, 10) : '';
-      return `activity_${timestamp}_${contentHash.replace(/\W/g, '')}`;
+      // Use the activity's creation timestamp to ensure uniqueness
+      if (currentData && currentData.timestamp) {
+        return `activity_${currentData.timestamp}`;
+      }
+      // Fallback to current timestamp
+      return `activity_${Date.now()}`;
     }
     
     // Show status message
@@ -579,7 +591,8 @@
           body: JSON.stringify({
             activityContent: currentData.generatedContent,
             activityId: activityId,
-            imageTitle: currentData.imageTitle || null
+            imageTitle: currentData.imageTitle || null,
+            customImageBase64: currentData.customImageBase64 || null
           })
         });
         
@@ -632,7 +645,10 @@
     
     // Check if PDF already exists on page load
     const storedPdfId = sessionStorage.getItem('currentPdfId');
-    if (storedPdfId) {
+    const lastActivityTimestamp = sessionStorage.getItem('lastActivityTimestamp');
+    
+    if (storedPdfId && currentData && lastActivityTimestamp === String(currentData.timestamp)) {
+      // Only check for PDF if it's for the current activity
       fetch(`/api/check-pdf/${storedPdfId}`)
         .then(response => response.json())
         .then(result => {
@@ -640,11 +656,18 @@
             currentPdfId = storedPdfId;
             downloadPdfBtn.style.display = 'block';
             showMessage('A PDF for this activity is available for download', 'success');
+          } else {
+            // PDF expired or doesn't exist, clear the stored ID
+            sessionStorage.removeItem('currentPdfId');
           }
         })
         .catch(error => {
           console.error('Error checking PDF:', error);
+          sessionStorage.removeItem('currentPdfId');
         });
+    } else {
+      // Different activity or no stored PDF ID
+      sessionStorage.removeItem('currentPdfId');
     }
   </script>
 </body>

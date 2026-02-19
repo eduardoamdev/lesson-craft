@@ -6,5 +6,13 @@
   {
     "title": "puppies.jpg",
     "description": "The image shows four puppies inside a basket in a sunny day. The basket is on the grass."
+  },
+  {
+    "title": "manhattan.jpeg",
+    "description": "This is an image about the panoramic landscape of Manhattan. We can see sky scrappers like the Empire State in a sunny lovely day."
+  },
+  {
+    "title": "forest.jpeg",
+    "description": "This image represents a forest. There are plenty of trees with no leaves. The weather is sunny."
   }
 ]

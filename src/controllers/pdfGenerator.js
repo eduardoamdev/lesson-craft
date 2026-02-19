@@ -26,7 +26,7 @@ async function imageToBase64(imageTitle) {
 }
 
 // Helper function to format activity content as HTML
-async function formatActivityAsHTML(content, imageTitle = null) {
+async function formatActivityAsHTML(content, imageTitle = null, customImageBase64 = null) {
   let cleanContent = content.trim();
   cleanContent = cleanContent.replace(/^```json\s*/i, '');
   cleanContent = cleanContent.replace(/^```\s*/i, '');
@@ -120,8 +120,14 @@ async function formatActivityAsHTML(content, imageTitle = null) {
         <h1>🎓 Lesson Craft Activity</h1>
     `;
     
-    // Add image if provided
-    if (imageTitle) {
+    // Add image - prioritize custom image, then gallery image
+    if (customImageBase64) {
+      html += `
+        <div class="activity-image">
+          <img src="${customImageBase64}" alt="Activity Image" />
+        </div>
+      `;
+    } else if (imageTitle) {
       const base64Image = await imageToBase64(imageTitle);
       if (base64Image) {
         html += `
@@ -197,7 +203,7 @@ async function formatActivityAsHTML(content, imageTitle = null) {
 // Generate PDF from activity data
 async function generatePDF(req, res) {
   try {
-    const { activityContent, activityId, imageTitle } = req.body;
+    const { activityContent, activityId, imageTitle, customImageBase64 } = req.body;
     
     if (!activityContent) {
       return res.status(400).json({ 
@@ -212,7 +218,8 @@ async function generatePDF(req, res) {
     // Format content as HTML
     console.log('Formatting activity content...');
     console.log('Image title:', imageTitle);
-    const htmlContent = await formatActivityAsHTML(activityContent, imageTitle);
+    console.log('Custom image:', customImageBase64 ? 'provided' : 'none');
+    const htmlContent = await formatActivityAsHTML(activityContent, imageTitle, customImageBase64);
     console.log('HTML content length:', htmlContent.length);
     console.log('HTML preview:', htmlContent.substring(0, 200));
     

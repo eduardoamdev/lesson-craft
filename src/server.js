@@ -4,13 +4,14 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const imageActivityGeneratorRoutes = require('./routes/imageActivityGenerator');
 const pdfGeneratorRoutes = require('./routes/pdfGenerator');
+const imageUploadRoutes = require('./routes/imageUpload');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json({ limit: '50mb' })); // Increased limit for base64 images
+app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 app.use(express.static(path.join(__dirname, '../public')));
 app.use('/data', express.static(path.join(__dirname, '../data')));
 
@@ -33,6 +34,7 @@ app.get('/activity-display', (req, res) => {
 
 app.use('/api', imageActivityGeneratorRoutes);
 app.use('/api', pdfGeneratorRoutes);
+app.use('/api', imageUploadRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
