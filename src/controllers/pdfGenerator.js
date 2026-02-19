@@ -265,11 +265,22 @@ async function generatePDF(req, res) {
     
     console.log('PDF generated successfully, buffer size:', pdfBuffer.length);
     
+    // Generate user-friendly filename
+    let pdfFilename;
+    if (imageTitle) {
+      // Remove file extension and sanitize for filename
+      const imageName = path.basename(imageTitle, path.extname(imageTitle));
+      const sanitizedName = imageName.replace(/[^a-zA-Z0-9_-]/g, '_');
+      pdfFilename = `activity_${sanitizedName}.pdf`;
+    } else {
+      pdfFilename = `activity_${pdfId}.pdf`;
+    }
+    
     // Store PDF in memory (with timestamp for cleanup)
     pdfStore.set(pdfId, {
       buffer: pdfBuffer,
       createdAt: Date.now(),
-      filename: `lesson_craft_activity_${pdfId}.pdf`
+      filename: pdfFilename
     });
     
     // Optional: Clean up old PDFs (older than 1 hour)
