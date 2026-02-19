@@ -323,7 +323,10 @@
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ description: selectedImage.description })
+          body: JSON.stringify({ 
+            description: selectedImage.description,
+            imageTitle: selectedImage.title
+          })
         });
         
         const data = await response.json();

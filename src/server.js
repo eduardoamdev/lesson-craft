@@ -3,6 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const imageActivityGeneratorRoutes = require('./routes/imageActivityGenerator');
+const pdfGeneratorRoutes = require('./routes/pdfGenerator');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -31,6 +32,7 @@ app.get('/activity-display', (req, res) => {
 });
 
 app.use('/api', imageActivityGeneratorRoutes);
+app.use('/api', pdfGeneratorRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

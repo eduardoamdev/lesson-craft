@@ -164,6 +164,62 @@
     button.edit-btn:hover {
       box-shadow: 0 10px 20px rgba(245, 87, 108, 0.4);
     }
+    
+    .pdf-controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    button.pdf-btn {
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    }
+    
+    button.pdf-btn:hover {
+      box-shadow: 0 10px 20px rgba(56, 239, 125, 0.4);
+    }
+    
+    button.download-btn {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+    
+    button.download-btn:hover {
+      box-shadow: 0 10px 20px rgba(0, 242, 254, 0.4);
+    }
+    
+    .message {
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-weight: 500;
+      display: none;
+    }
+    
+    .message.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      display: block;
+    }
+    
+    .message.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+      display: block;
+    }
+    
+    .message.info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+      display: block;
+    }
+    
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body>
@@ -171,8 +227,15 @@
     <h1>🎓 Generated Activity</h1>
     <p class="subtitle">Your lesson activity is ready</p>
     
+    <div id="statusMessage" class="message"></div>
+    
     <div class="edit-controls">
       <button id="toggleEditBtn" class="edit-btn">✏️ Edit</button>
+    </div>
+    
+    <div class="pdf-controls">
+      <button id="generatePdfBtn" class="pdf-btn">📄 Generate PDF</button>
+      <button id="downloadPdfBtn" class="download-btn" style="display: none;">⬇️ Download PDF</button>
     </div>
     
     <div id="viewMode" class="view-mode">
@@ -457,6 +520,132 @@
       editMode.classList.remove('active');
       toggleEditBtn.style.display = 'block';
     });
+    
+    // PDF functionality
+    let currentPdfId = null;
+    
+    // Generate unique activity ID based on timestamp and content hash
+    function generateActivityId() {
+      const timestamp = Date.now();
+      const contentHash = currentData ? currentData.generatedContent.substring(0, 10) : '';
+      return `activity_${timestamp}_${contentHash.replace(/\W/g, '')}`;
+    }
+    
+    // Show status message
+    function showMessage(message, type = 'info') {
+      const statusMessage = document.getElementById('statusMessage');
+      statusMessage.textContent = message;
+      statusMessage.className = `message ${type}`;
+      
+      // Auto-hide success/info messages after 5 seconds
+      if (type === 'success' || type === 'info') {
+        setTimeout(() => {
+          statusMessage.className = 'message';
+        }, 5000);
+      }
+    }
+    
+    // Generate PDF button handler
+    const generatePdfBtn = document.getElementById('generatePdfBtn');
+    const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+    
+    generatePdfBtn.addEventListener('click', async () => {
+      if (!currentData || !currentData.generatedContent) {
+        showMessage('No activity content available to generate PDF', 'error');
+        return;
+      }
+      
+      try {
+        // Disable button and show loading state
+        generatePdfBtn.disabled = true;
+        generatePdfBtn.textContent = '⏳ Generating PDF...';
+        showMessage('Generating PDF, please wait...', 'info');
+        
+        // Generate activity ID
+        const activityId = generateActivityId();
+        
+        console.log('Generating PDF with data:', {
+          activityId,
+          contentLength: currentData.generatedContent ? currentData.generatedContent.length : 0,
+          contentPreview: currentData.generatedContent ? currentData.generatedContent.substring(0, 100) : 'none'
+        });
+        
+        // Send request to generate PDF
+        const response = await fetch('/api/generate-pdf', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            activityContent: currentData.generatedContent,
+            activityId: activityId,
+            imageTitle: currentData.imageTitle || null
+          })
+        });
+        
+        // Check if response is ok
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Server error:', errorText);
+          throw new Error(`Server returned ${response.status}: ${errorText}`);
+        }
+        
+        const result = await response.json();
+        console.log('PDF generation result:', result);
+        
+        if (result.success) {
+          currentPdfId = result.pdfId;
+          showMessage('PDF generated successfully! You can now download it.', 'success');
+          
+          // Show download button
+          downloadPdfBtn.style.display = 'block';
+          
+          // Store PDF ID in sessionStorage for persistence
+          sessionStorage.setItem('currentPdfId', currentPdfId);
+        } else {
+          showMessage(`Failed to generate PDF: ${result.message}`, 'error');
+        }
+        
+      } catch (error) {
+        console.error('Error generating PDF:', error);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+        showMessage('Error: ' + error.message, 'error');
+      } finally {
+        // Re-enable button
+        generatePdfBtn.disabled = false;
+        generatePdfBtn.textContent = '📄 Generate PDF';
+      }
+    });
+    
+    // Download PDF button handler
+    downloadPdfBtn.addEventListener('click', () => {
+      if (!currentPdfId) {
+        showMessage('No PDF available to download', 'error');
+        return;
+      }
+      
+      // Trigger download
+      window.location.href = `/api/download-pdf/${currentPdfId}`;
+      showMessage('Download started...', 'success');
+    });
+    
+    // Check if PDF already exists on page load
+    const storedPdfId = sessionStorage.getItem('currentPdfId');
+    if (storedPdfId) {
+      fetch(`/api/check-pdf/${storedPdfId}`)
+        .then(response => response.json())
+        .then(result => {
+          if (result.exists) {
+            currentPdfId = storedPdfId;
+            downloadPdfBtn.style.display = 'block';
+            showMessage('A PDF for this activity is available for download', 'success');
+          }
+        })
+        .catch(error => {
+          console.error('Error checking PDF:', error);
+        });
+    }
   </script>
 </body>
 </html>

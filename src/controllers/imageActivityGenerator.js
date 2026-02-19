@@ -71,7 +71,7 @@ Important:
 
 async function generateImageActivity(req, res) {
   try {
-    const { description } = req.body;
+    const { description, imageTitle } = req.body;
 
     if (!description) {
       return res.status(400).json({ error: 'Image description is required' });
@@ -87,6 +87,7 @@ async function generateImageActivity(req, res) {
     const activityData = {
       timestamp: Date.now(),
       description,
+      imageTitle: imageTitle || null,
       generatedContent,
       createdAt: new Date().toISOString()
     };
