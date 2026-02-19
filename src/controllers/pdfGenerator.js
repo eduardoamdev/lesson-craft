@@ -354,8 +354,208 @@ function cleanupOldPDFs() {
   }
 }
 
+// Generate PDF from conversation data
+async function generateConversationPDF(req, res) {
+  try {
+    const { conversation, questions, activityId } = req.body;
+    
+    if (!conversation || !questions) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Conversation and questions are required' 
+      });
+    }
+    
+    const pdfId = activityId || `conversation_${Date.now()}`;
+    
+    console.log('Generating conversation PDF...');
+    
+    // Create HTML for conversation PDF
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <style>
+          body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+          }
+          h1 {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+          }
+          .section {
+            margin-bottom: 35px;
+          }
+          .section h2 {
+            color: #764ba2;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #764ba2;
+            padding-bottom: 8px;
+          }
+          .conversation-exchange {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+          }
+          .speaker-name {
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+          }
+          .speaker-text {
+            color: #333;
+            line-height: 1.6;
+          }
+          .question-item {
+            margin-bottom: 25px;
+            padding: 18px;
+            background: #f0f0f0;
+            border-radius: 8px;
+          }
+          .question-text {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+            font-size: 1.1em;
+          }
+          .options-list {
+            list-style: none;
+            padding-left: 0;
+          }
+          .options-list li {
+            padding: 8px;
+            margin-bottom: 5px;
+            background: white;
+            border-radius: 4px;
+          }
+          .correct {
+            background: #d4edda !important;
+            font-weight: bold;
+            color: #155724;
+          }
+          .timestamp {
+            text-align: center;
+            color: #999;
+            font-size: 0.9em;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+          }
+        </style>
+      </head>
+      <body>
+        <h1>💬 Lesson Craft - Conversation Activity</h1>
+        
+        <div class="section">
+          <h2>Conversation</h2>
+          ${conversation.map(exchange => `
+            <div class="conversation-exchange">
+              <div class="speaker-name">${exchange.speaker}:</div>
+              <div class="speaker-text">${exchange.text}</div>
+            </div>
+          `).join('')}
+        </div>
+        
+        <div class="section">
+          <h2>Comprehension Questions</h2>
+          ${questions.map((q, index) => `
+            <div class="question-item">
+              <div class="question-text">${index + 1}. ${q.question}</div>
+              <ul class="options-list">
+                ${q.options.map((option, optIndex) => `
+                  <li class="${optIndex === q.correctAnswer ? 'correct' : ''}">
+                    ${String.fromCharCode(97 + optIndex)}) ${option}
+                    ${optIndex === q.correctAnswer ? ' ✓' : ''}
+                  </li>
+                `).join('')}
+              </ul>
+            </div>
+          `).join('')}
+        </div>
+        
+        <div class="timestamp">
+          Generated on ${new Date().toLocaleString()}
+        </div>
+      </body>
+      </html>
+    `;
+    
+    // Launch puppeteer and generate PDF
+    const browser = await puppeteer.launch({
+      headless: true,
+      executablePath: '/usr/bin/google-chrome',
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote',
+        '--disable-gpu'
+      ]
+    });
+    
+    const page = await browser.newPage();
+    await page.setContent(htmlContent, {
+      waitUntil: 'networkidle0'
+    });
+    
+    const pdfBuffer = await page.pdf({
+      format: 'A4',
+      margin: {
+        top: '20mm',
+        right: '15mm',
+        bottom: '20mm',
+        left: '15mm'
+      },
+      printBackground: true,
+      preferCSSPageSize: false
+    });
+    
+    await browser.close();
+    
+    if (!pdfBuffer || pdfBuffer.length === 0) {
+      throw new Error('Generated PDF buffer is empty');
+    }
+    
+    console.log('Conversation PDF generated successfully');
+    
+    // Store PDF
+    pdfStore.set(pdfId, {
+      buffer: pdfBuffer,
+      createdAt: Date.now(),
+      filename: `conversation_activity_${pdfId}.pdf`
+    });
+    
+    cleanupOldPDFs();
+    
+    res.json({ 
+      success: true, 
+      message: 'PDF generated successfully',
+      pdfId: pdfId
+    });
+    
+  } catch (error) {
+    console.error('Error generating conversation PDF:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to generate PDF: ' + error.message 
+    });
+  }
+}
+
 module.exports = {
   generatePDF,
   downloadPDF,
-  checkPDF
+  checkPDF,
+  generateConversationPDF
 };

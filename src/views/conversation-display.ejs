@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conversation - Lesson Craft</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 900px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+    
+    h1 {
+      color: #667eea;
+      margin-bottom: 10px;
+      font-size: 2.5em;
+      text-align: center;
+    }
+    
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 1.1em;
+      text-align: center;
+    }
+    
+    .section {
+      margin-bottom: 35px;
+    }
+    
+    .section h2 {
+      color: #764ba2;
+      margin-bottom: 20px;
+      font-size: 1.5em;
+      border-bottom: 2px solid #764ba2;
+      padding-bottom: 8px;
+    }
+    
+    .conversation-exchange {
+      margin-bottom: 15px;
+      padding: 15px;
+      background: #f9f9f9;
+      border-left: 4px solid #667eea;
+      border-radius: 4px;
+    }
+    
+    .speaker-name {
+      font-weight: 700;
+      color: #667eea;
+      margin-bottom: 5px;
+    }
+    
+    .speaker-text {
+      color: #333;
+      line-height: 1.6;
+    }
+    
+    .question-item {
+      margin-bottom: 25px;
+      padding: 20px;
+      background: #f0f0f0;
+      border-radius: 8px;
+    }
+    
+    .question-text {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 12px;
+      font-size: 1.1em;
+    }
+    
+    .options-list {
+      list-style: none;
+      padding-left: 0;
+    }
+    
+    .options-list li {
+      padding: 10px;
+      margin-bottom: 6px;
+      background: white;
+      border-radius: 4px;
+      border: 2px solid transparent;
+    }
+    
+    .options-list li.correct {
+      border-color: #27ae60;
+      background: #d4edda;
+      font-weight: 600;
+    }
+    
+    .pdf-controls, .audio-controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      flex: 1;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    button.pdf-btn {
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    }
+    
+    button.audio-btn {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    
+    button.download-btn {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+    
+    button.secondary {
+      background: #f5f5f5;
+      color: #667eea;
+      border: 2px solid #667eea;
+    }
+    
+    button.secondary:hover {
+      background: #667eea;
+      color: white;
+    }
+    
+    .message {
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-weight: 500;
+      display: none;
+    }
+    
+    .message.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      display: block;
+    }
+    
+    .message.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+      display: block;
+    }
+    
+    .message.info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+      display: block;
+    }
+    
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid white;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-right: 8px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+    }
+    
+    .action-buttons button,
+    .action-buttons a {
+      flex: 1;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>💬 Generated Conversation</h1>
+    <p class="subtitle">Your conversation activity is ready</p>
+    
+    <div id="statusMessage" class="message"></div>
+    
+    <div class="pdf-controls">
+      <button id="generatePdfBtn" class="pdf-btn">📄 Generate PDF</button>
+      <button id="downloadPdfBtn" class="download-btn" style="display: none;">⬇️ Download PDF</button>
+    </div>
+    
+    <div class="audio-controls">
+      <button id="generateAudioBtn" class="audio-btn">🎵 Generate Audio</button>
+      <button id="downloadAudioBtn" class="download-btn" style="display: none;">⬇️ Download Audio</button>
+    </div>
+    
+    <div class="section">
+      <h2>Conversation</h2>
+      <div id="conversationContent"></div>
+    </div>
+    
+    <div class="section">
+      <h2>Comprehension Questions</h2>
+      <div id="questionsContent"></div>
+    </div>
+    
+    <div class="action-buttons">
+      <a href="/conversation-activity">
+        <button class="secondary">← New Conversation</button>
+      </a>
+      <a href="/">
+        <button class="secondary">🏠 Home</button>
+      </a>
+    </div>
+  </div>
+  
+  <script>
+    let currentData = null;
+    let currentPdfId = null;
+    let currentAudioId = null;
+    
+    // Load conversation data
+    const conversationData = sessionStorage.getItem('conversationData');
+    
+    if (!conversationData) {
+      window.location.href = '/conversation-activity';
+    } else {
+      currentData = JSON.parse(conversationData);
+      displayConversation();
+      displayQuestions();
+    }
+    
+    function displayConversation() {
+      const container = document.getElementById('conversationContent');
+      let html = '';
+      
+      currentData.conversation.forEach((exchange, index) => {
+        html += `
+          <div class="conversation-exchange">
+            <div class="speaker-name">${exchange.speaker}:</div>
+            <div class="speaker-text">${exchange.text}</div>
+          </div>
+        `;
+      });
+      
+      container.innerHTML = html;
+    }
+    
+    function displayQuestions() {
+      const container = document.getElementById('questionsContent');
+      let html = '';
+      
+      currentData.questions.forEach((q, index) => {
+        html += `
+          <div class="question-item">
+            <div class="question-text">${index + 1}. ${q.question}</div>
+            <ul class="options-list">
+        `;
+        
+        q.options.forEach((option, optIndex) => {
+          const isCorrect = optIndex === q.correctAnswer;
+          html += `<li class="${isCorrect ? 'correct' : ''}">
+            ${String.fromCharCode(97 + optIndex)}) ${option}${isCorrect ? ' ✓' : ''}
+          </li>`;
+        });
+        
+        html += '</ul></div>';
+      });
+      
+      container.innerHTML = html;
+    }
+    
+    function showMessage(message, type = 'info') {
+      const statusMessage = document.getElementById('statusMessage');
+      statusMessage.textContent = message;
+      statusMessage.className = `message ${type}`;
+      
+      if (type === 'success' || type === 'info') {
+        setTimeout(() => {
+          statusMessage.className = 'message';
+        }, 5000);
+      }
+    }
+    
+    // PDF Generation
+    document.getElementById('generatePdfBtn').addEventListener('click', async () => {
+      const generatePdfBtn = document.getElementById('generatePdfBtn');
+      const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+      
+      generatePdfBtn.disabled = true;
+      generatePdfBtn.innerHTML = '<span class="spinner"></span>Generating PDF...';
+      showMessage('Generating PDF, please wait...', 'info');
+      
+      try {
+        const response = await fetch('/api/generate-conversation-pdf', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            conversation: currentData.conversation,
+            questions: currentData.questions,
+            activityId: `conversation_${currentData.timestamp}`
+          })
+        });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Failed to generate PDF: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          currentPdfId = result.pdfId;
+          downloadPdfBtn.style.display = 'block';
+          showMessage('PDF generated successfully!', 'success');
+          sessionStorage.setItem('currentConversationPdfId', currentPdfId);
+        } else {
+          throw new Error(result.message || 'Failed to generate PDF');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        showMessage('Error: ' + error.message, 'error');
+      } finally {
+        generatePdfBtn.disabled = false;
+        generatePdfBtn.textContent = '📄 Generate PDF';
+      }
+    });
+    
+    document.getElementById('downloadPdfBtn').addEventListener('click', () => {
+      if (currentPdfId) {
+        window.location.href = `/api/download-pdf/${currentPdfId}`;
+        showMessage('Download started...', 'success');
+      }
+    });
+    
+    // Audio Generation
+    document.getElementById('generateAudioBtn').addEventListener('click', async () => {
+      const generateAudioBtn = document.getElementById('generateAudioBtn');
+      const downloadAudioBtn = document.getElementById('downloadAudioBtn');
+      
+      generateAudioBtn.disabled = true;
+      generateAudioBtn.innerHTML = '<span class="spinner"></span>Generating audio...';
+      showMessage('Generating audio, this may take a minute...', 'info');
+      
+      try {
+        const response = await fetch('/api/generate-conversation-audio', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            conversation: currentData.conversation,
+            audioId: `conversation_${currentData.timestamp}`
+          })
+        });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Failed to generate audio: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          currentAudioId = result.audioId;
+          downloadAudioBtn.style.display = 'block';
+          showMessage('Audio generated successfully!', 'success');
+          sessionStorage.setItem('currentConversationAudioId', currentAudioId);
+        } else {
+          throw new Error(result.message || 'Failed to generate audio');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        showMessage('Error: ' + error.message, 'error');
+      } finally {
+        generateAudioBtn.disabled = false;
+        generateAudioBtn.textContent = '🎵 Generate Audio';
+      }
+    });
+    
+    document.getElementById('downloadAudioBtn').addEventListener('click', () => {
+      if (currentAudioId) {
+        window.location.href = `/api/download-conversation-audio/${currentAudioId}`;
+        showMessage('Download started...', 'success');
+      }
+    });
+    
+    // Check for existing PDF/Audio
+    const storedPdfId = sessionStorage.getItem('currentConversationPdfId');
+    if (storedPdfId) {
+      currentPdfId = storedPdfId;
+      document.getElementById('downloadPdfBtn').style.display = 'block';
+    }
+    
+    const storedAudioId = sessionStorage.getItem('currentConversationAudioId');
+    if (storedAudioId) {
+      currentAudioId = storedAudioId;
+      document.getElementById('downloadAudioBtn').style.display = 'block';
+    }
+  </script>
+</body>
+</html>

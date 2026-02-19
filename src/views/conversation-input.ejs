@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conversation Activity - Lesson Craft</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 700px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+    
+    h1 {
+      color: #667eea;
+      margin-bottom: 10px;
+      font-size: 2.5em;
+      text-align: center;
+    }
+    
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 1.1em;
+      text-align: center;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 1.1em;
+    }
+    
+    textarea {
+      width: 100%;
+      min-height: 200px;
+      padding: 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 16px;
+      resize: vertical;
+      transition: border-color 0.3s;
+    }
+    
+    textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    .example {
+      background: #f9f9f9;
+      padding: 15px;
+      border-left: 4px solid #667eea;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+    
+    .example h3 {
+      color: #667eea;
+      font-size: 0.9em;
+      margin-bottom: 8px;
+    }
+    
+    .example p {
+      color: #666;
+      font-size: 0.9em;
+      line-height: 1.5;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+    }
+    
+    .action-buttons button,
+    .action-buttons a {
+      flex: 1;
+      text-decoration: none;
+    }
+    
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 14px 30px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    button:active {
+      transform: translateY(0);
+    }
+    
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    button.secondary {
+      background: #f5f5f5;
+      color: #667eea;
+      border: 2px solid #667eea;
+    }
+    
+    button.secondary:hover {
+      background: #667eea;
+      color: white;
+    }
+    
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-right: 10px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .error-message {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    
+    .error-message.show {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>💬 Conversation Activity</h1>
+    <p class="subtitle">Describe the conversation you want to generate</p>
+    
+    <div id="errorMessage" class="error-message"></div>
+    
+    <div class="example">
+      <h3>💡 Example</h3>
+      <p>A conversation between a customer and an employee at a supermarket. The customer is looking for products and asking about special offers. The conversation should be friendly and natural, appropriate for B1-B2 level English learners.</p>
+    </div>
+    
+    <div class="form-group">
+      <label for="conversationDescription">Conversation Description</label>
+      <textarea 
+        id="conversationDescription" 
+        placeholder="Describe the type of conversation you want to generate. Include details about:
+- Who are the speakers? (e.g., teacher-student, customer-waiter, friends)
+- What is the context? (e.g., at a restaurant, in a classroom, at the airport)
+- What topic should they discuss?
+- What level? (B1, B2, etc.)
+- Any specific situations or vocabulary you want included?"
+      ></textarea>
+    </div>
+    
+    <div class="action-buttons">
+      <a href="/">
+        <button class="secondary">← Back</button>
+      </a>
+      <button id="generateBtn">Generate Conversation</button>
+    </div>
+  </div>
+  
+  <script>
+    document.getElementById('generateBtn').addEventListener('click', async () => {
+      const description = document.getElementById('conversationDescription').value.trim();
+      const generateBtn = document.getElementById('generateBtn');
+      const errorMessage = document.getElementById('errorMessage');
+      
+      // Clear previous error
+      errorMessage.classList.remove('show');
+      
+      // Validation
+      if (!description) {
+        errorMessage.textContent = 'Please describe the conversation you want to generate.';
+        errorMessage.classList.add('show');
+        return;
+      }
+      
+      if (description.length < 20) {
+        errorMessage.textContent = 'Please provide a more detailed description (at least 20 characters).';
+        errorMessage.classList.add('show');
+        return;
+      }
+      
+      // Show loading state
+      generateBtn.disabled = true;
+      generateBtn.innerHTML = '<span class="spinner"></span>Generating conversation...';
+      
+      try {
+        const response = await fetch('/api/generate-conversation', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ description })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          // Store the result and navigate to display page
+          sessionStorage.setItem('conversationData', JSON.stringify(data.data));
+          window.location.href = '/conversation-display';
+        } else {
+          throw new Error(data.error || 'Failed to generate conversation');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        errorMessage.textContent = error.message;
+        errorMessage.classList.add('show');
+        generateBtn.disabled = false;
+        generateBtn.innerHTML = 'Generate Conversation';
+      }
+    });
+  </script>
+</body>
+</html>
