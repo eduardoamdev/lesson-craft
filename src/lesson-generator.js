@@ -130,7 +130,7 @@ async function callTelnyxAPI() {
   ];
 
   try {
-    const audioDir = path.join(__dirname, 'audio');
+    const audioDir = path.join(__dirname, '..', 'data', 'audio');
     if (!fs.existsSync(audioDir)) {
       fs.mkdirSync(audioDir, { recursive: true });
     }

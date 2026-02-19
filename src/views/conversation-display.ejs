@@ -425,17 +425,27 @@
       }
     });
     
-    // Check for existing PDF/Audio
+    // Check for existing PDF/Audio that match the current conversation
     const storedPdfId = sessionStorage.getItem('currentConversationPdfId');
-    if (storedPdfId) {
-      currentPdfId = storedPdfId;
-      document.getElementById('downloadPdfBtn').style.display = 'block';
-    }
+    const lastConversationTimestamp = sessionStorage.getItem('lastConversationTimestamp');
     
-    const storedAudioId = sessionStorage.getItem('currentConversationAudioId');
-    if (storedAudioId) {
-      currentAudioId = storedAudioId;
-      document.getElementById('downloadAudioBtn').style.display = 'block';
+    // If this is a new conversation, clear old PDF/Audio IDs
+    if (lastConversationTimestamp !== String(currentData.timestamp)) {
+      sessionStorage.removeItem('currentConversationPdfId');
+      sessionStorage.removeItem('currentConversationAudioId');
+      sessionStorage.setItem('lastConversationTimestamp', currentData.timestamp);
+    } else {
+      // Restore PDF/Audio IDs for current conversation
+      if (storedPdfId) {
+        currentPdfId = storedPdfId;
+        document.getElementById('downloadPdfBtn').style.display = 'block';
+      }
+      
+      const storedAudioId = sessionStorage.getItem('currentConversationAudioId');
+      if (storedAudioId) {
+        currentAudioId = storedAudioId;
+        document.getElementById('downloadAudioBtn').style.display = 'block';
+      }
     }
   </script>
 </body>

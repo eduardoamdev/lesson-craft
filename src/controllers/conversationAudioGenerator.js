@@ -14,7 +14,7 @@ const audioStore = new Map();
 const TELNYX_API_KEY = process.env.TELNYX_API_KEY;
 
 // Audio directory
-const AUDIO_DIR = path.join(__dirname, '..', 'audio');
+const AUDIO_DIR = path.join(__dirname, '..', '..', 'data', 'audio');
 
 // Ensure audio directory exists
 if (!fsSync.existsSync(AUDIO_DIR)) {
@@ -222,9 +222,10 @@ async function cleanupTempFiles(files) {
 /**
  * Clean up old audio files (older than 1 hour)
  */
-function cleanupOldAudioFiles() {
+async function cleanupOldAudioFiles() {
   const oneHourAgo = Date.now() - (60 * 60 * 1000);
   
+  // Clean up tracked conversation files
   for (const [audioId, audioData] of audioStore.entries()) {
     if (audioData.createdAt < oneHourAgo) {
       // Delete file from disk
@@ -239,6 +240,29 @@ function cleanupOldAudioFiles() {
       // Remove from store
       audioStore.delete(audioId);
     }
+  }
+  
+  // Also clean up any orphaned temp files or concat lists
+  try {
+    const files = await fs.readdir(AUDIO_DIR);
+    const now = Date.now();
+    
+    for (const file of files) {
+      // Check for temp files or concat list files
+      if (file.startsWith('temp_') || file.startsWith('concat_')) {
+        const filepath = path.join(AUDIO_DIR, file);
+        const stats = await fs.stat(filepath);
+        const fileAge = now - stats.mtimeMs;
+        
+        // Delete if older than 1 hour
+        if (fileAge > (60 * 60 * 1000)) {
+          await fs.unlink(filepath);
+          console.log(`Cleaned up orphaned file: ${file}`);
+        }
+      }
+    }
+  } catch (error) {
+    console.warn('Error during orphaned file cleanup:', error.message);
   }
 }
 
