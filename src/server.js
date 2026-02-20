@@ -11,10 +11,10 @@ const videoActivityGeneratorRoutes = require('./routes/videoActivityGenerator');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const JSON_LIMIT_DEFAULT = process.env.JSON_LIMIT_DEFAULT || '5mb';
+const JSON_LIMIT_LARGE = process.env.JSON_LIMIT_LARGE || '50mb';
 
 // Middleware
-app.use(bodyParser.json({ limit: '50mb' })); // Increased limit for base64 images
-app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 app.use(express.static(path.join(__dirname, '../public')));
 app.use('/data', express.static(path.join(__dirname, '../data')));
 
@@ -47,9 +47,23 @@ app.get('/video-activity', (req, res) => {
   res.render('video-activity-input', { title: 'Video Activity - Lesson Craft' });
 });
 
+app.use(
+  '/api',
+  bodyParser.json({ limit: JSON_LIMIT_LARGE }),
+  bodyParser.urlencoded({ extended: true, limit: JSON_LIMIT_LARGE }),
+  imageUploadRoutes
+);
+app.use(
+  '/api',
+  bodyParser.json({ limit: JSON_LIMIT_LARGE }),
+  bodyParser.urlencoded({ extended: true, limit: JSON_LIMIT_LARGE }),
+  pdfGeneratorRoutes
+);
+
+app.use(bodyParser.json({ limit: JSON_LIMIT_DEFAULT }));
+app.use(bodyParser.urlencoded({ extended: true, limit: JSON_LIMIT_DEFAULT }));
+
 app.use('/api', imageActivityGeneratorRoutes);
-app.use('/api', pdfGeneratorRoutes);
-app.use('/api', imageUploadRoutes);
 app.use('/api', conversationGeneratorRoutes);
 app.use('/api', conversationAudioGeneratorRoutes);
 app.use('/api', videoActivityGeneratorRoutes);
