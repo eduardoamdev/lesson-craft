@@ -7,6 +7,7 @@ const pdfGeneratorRoutes = require('./routes/pdfGenerator');
 const imageUploadRoutes = require('./routes/imageUpload');
 const conversationGeneratorRoutes = require('./routes/conversationGenerator');
 const conversationAudioGeneratorRoutes = require('./routes/conversationAudioGenerator');
+const videoActivityGeneratorRoutes = require('./routes/videoActivityGenerator');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -42,11 +43,16 @@ app.get('/conversation-display', (req, res) => {
   res.render('conversation-display', { title: 'Conversation - Lesson Craft' });
 });
 
+app.get('/video-activity', (req, res) => {
+  res.render('video-activity-input', { title: 'Video Activity - Lesson Craft' });
+});
+
 app.use('/api', imageActivityGeneratorRoutes);
 app.use('/api', pdfGeneratorRoutes);
 app.use('/api', imageUploadRoutes);
 app.use('/api', conversationGeneratorRoutes);
 app.use('/api', conversationAudioGeneratorRoutes);
+app.use('/api', videoActivityGeneratorRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

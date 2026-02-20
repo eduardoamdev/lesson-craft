@@ -55,6 +55,34 @@ Generate an English lesson activity from an image description.
 }
 ```
 
+### POST /api/generate-video-activity
+
+Generate an English lesson activity from a YouTube video transcript.
+
+**Request Body:**
+```json
+{
+  "youtubeUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Video activity generated successfully",
+  "data": {
+    "timestamp": 1234567890,
+    "youtubeUrl": "...",
+    "videoId": "...",
+    "transcriptText": "...",
+    "generatedContent": "...",
+    "activitySource": "video",
+    "createdAt": "2026-02-20T12:00:00.000Z"
+  }
+}
+```
+
 **Response:**
 ```json
 {
@@ -81,6 +109,7 @@ Generate an English lesson activity from an image description.
 ## Features
 
 - ✅ Image-based activity generation using DeepSeek AI
+- ✅ YouTube transcript-based activity generation
 - ✅ Activities stored as JSON in `/storage/temp`
 - ✅ Web interface with EJS templates
 - ✅ RESTful API endpoints

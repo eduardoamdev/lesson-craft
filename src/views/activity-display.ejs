@@ -251,8 +251,8 @@
     </div>
     
     <div class="action-buttons">
-      <a href="/image-activity">
-        <button class="secondary">← Select Another Image</button>
+      <a id="backToSourceLink" href="/image-activity">
+        <button id="backToSourceBtn" class="secondary">← Select Another Image</button>
       </a>
       <a href="/">
         <button>🏠 Home</button>
@@ -343,6 +343,25 @@
     // Load activity data from sessionStorage
     let activityData = sessionStorage.getItem('activityData');
     let currentData = null;
+
+    function configureBackToSource() {
+      const backLink = document.getElementById('backToSourceLink');
+      const backBtn = document.getElementById('backToSourceBtn');
+
+      if (!currentData || !currentData.activitySource) {
+        backLink.href = '/image-activity';
+        backBtn.textContent = '← Select Another Image';
+        return;
+      }
+
+      if (currentData.activitySource === 'video') {
+        backLink.href = '/video-activity';
+        backBtn.textContent = '← Try Another Video';
+      } else {
+        backLink.href = '/image-activity';
+        backBtn.textContent = '← Select Another Image';
+      }
+    }
     
     if (activityData) {
       try {
@@ -357,6 +376,8 @@
           sessionStorage.removeItem('currentPdfId');
           sessionStorage.setItem('lastActivityTimestamp', currentData.timestamp);
         }
+
+        configureBackToSource();
       } catch (error) {
         document.getElementById('activityContent').innerHTML = `
           <div class="activity-section">
@@ -366,7 +387,7 @@
       }
     } else {
       // No data found, redirect to image selection
-      window.location.href = '/image-activity';
+      window.location.href = '/';
     }
     
     // Convert JSON to human-readable text
