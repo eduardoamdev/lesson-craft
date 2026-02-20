@@ -6,21 +6,29 @@ A web application for generating English lesson activities using AI.
 
 ```
 lesson-craft/
+├── data/
+│   ├── audio/                             # Generated conversation audio files
+│   └── images/                            # Image assets + images.json metadata
+├── public/                                # Static assets (CSS, JS, images)
 ├── src/
 │   ├── server.js                          # Express server entry point
-│   ├── index.js                           # Legacy TTS audio generator
-│   ├── lesson-generator.js                # Lesson generator with TTS
 │   ├── controllers/
-│   │   └── imageActivityGenerator.js      # Controller for image activity generation
+│   │   ├── imageActivityGenerator.js      # Image-based activity generation
+│   │   ├── videoActivityGenerator.js      # YouTube transcript activity generation
+│   │   ├── conversationGenerator.js       # Conversation activity generation
+│   │   ├── conversationAudioGenerator.js  # Conversation TTS/audio generation
+│   │   ├── imageUpload.js                 # Custom image upload handler
+│   │   └── pdfGenerator.js                # PDF generation/download
 │   ├── routes/
-│   │   └── imageActivityGenerator.js      # Routes for image activity API
-│   ├── views/
-│   │   └── index.ejs                      # Main frontend view
-│   ├── audio/                             # Generated audio files
-│   └── images/                            # Image assets
-├── storage/
-│   └── temp/                              # Temporary storage for generated activities
-├── public/                                # Static assets (CSS, JS, images)
+│   │   ├── imageActivityGenerator.js
+│   │   ├── videoActivityGenerator.js
+│   │   ├── conversationGenerator.js
+│   │   ├── conversationAudioGenerator.js
+│   │   ├── imageUpload.js
+│   │   └── pdfGenerator.js
+│   ├── utils/
+│   └── views/                             # EJS templates
+├── test-pdf-full.js                       # PDF generation integration script
 ├── .env                                   # Environment variables
 └── package.json
 
@@ -33,14 +41,13 @@ Create a `.env` file in the root directory with:
 ```env
 DEEPSEEK_API_KEY=your_deepseek_api_key
 TELNYX_API_KEY=your_telnyx_api_key
-PORT=3000
+PORT=3000 # optional (defaults to 3000)
 ```
 
 ## Available Scripts
 
 - `npm start` - Start the Express server
 - `npm run server` - Start the server with nodemon (auto-reload)
-- `npm run dev` - Run the legacy TTS generator
 
 ## API Endpoints
 
@@ -52,6 +59,21 @@ Generate an English lesson activity from an image description.
 ```json
 {
   "description": "Five people gathered in an office in what appears to be a work meeting..."
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Activity generated successfully",
+  "data": {
+    "timestamp": 1234567890,
+    "description": "...",
+    "imageTitle": null,
+    "generatedContent": "...",
+    "createdAt": "2026-02-18T10:30:00.000Z"
+  }
 }
 ```
 
@@ -83,20 +105,41 @@ Generate an English lesson activity from a YouTube video transcript.
 }
 ```
 
-**Response:**
-```json
-{
-  "success": true,
-  "message": "Activity generated successfully",
-  "filename": "activity_1234567890.json",
-  "data": {
-    "timestamp": 1234567890,
-    "description": "...",
-    "generatedContent": "...",
-    "createdAt": "2026-02-18T10:30:00.000Z"
-  }
-}
-```
+### POST /api/generate-conversation
+
+Generate a conversation-based English activity.
+
+### POST /api/generate-conversation-audio
+
+Generate TTS audio from conversation lines.
+
+### GET /api/download-conversation-audio/:audioId
+
+Download generated conversation audio.
+
+### GET /api/check-conversation-audio/:audioId
+
+Check if generated conversation audio is ready.
+
+### POST /api/upload-custom-image
+
+Upload a custom image and register it in `data/images/images.json`.
+
+### POST /api/generate-pdf
+
+Generate a PDF from activity content.
+
+### POST /api/generate-conversation-pdf
+
+Generate a PDF for conversation activities.
+
+### GET /api/download-pdf/:pdfId
+
+Download a generated PDF.
+
+### GET /api/check-pdf/:pdfId
+
+Check if a generated PDF is ready.
 
 ## Usage
 
@@ -110,10 +153,10 @@ Generate an English lesson activity from a YouTube video transcript.
 
 - ✅ Image-based activity generation using DeepSeek AI
 - ✅ YouTube transcript-based activity generation
-- ✅ Activities stored as JSON in `/storage/temp`
+- ✅ Conversation activity + audio generation (Telnyx)
+- ✅ Custom image uploads stored in `/data/images`
 - ✅ Web interface with EJS templates
-- ✅ RESTful API endpoints
-- ✅ Text-to-Speech conversation generation with Telnyx
+- ✅ PDF generation and download endpoints
 
 ## Next Steps
 

@@ -4,7 +4,6 @@
   "description": "",
   "main": "src/server.js",
   "scripts": {
-    "dev": "node src/lesson-generator.js",
     "start": "node src/server.js",
     "server": "nodemon src/server.js"
   },
