@@ -40,6 +40,7 @@ Create a `.env` file in the root directory with:
 
 ```env
 DEEPSEEK_API_KEY=your_deepseek_api_key
+DEEPSEEK_TIMEOUT_MS=30000 # optional timeout for DeepSeek requests in milliseconds
 TELNYX_API_KEY=your_telnyx_api_key
 PORT=3000 # optional (defaults to 3000)
 JSON_LIMIT_DEFAULT=5mb # optional (default for most JSON/urlencoded routes)
