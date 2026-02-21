@@ -152,6 +152,69 @@ Check if a generated PDF is ready.
 4. Open your browser to `http://localhost:3000`
 5. Enter an image description and click "Generate Activity"
 
+## Production Artifacts Created on Server
+
+When deploying on Ubuntu with `systemd` + `nginx`, some files/folders are created on the server and are not part of this git repository.
+
+### Service and reverse proxy files
+
+- `/etc/systemd/system/lesson-craft.service`  
+  Runs the Node app as a background service (auto-start on reboot, auto-restart on failure).
+- `/etc/nginx/sites-available/lesson-craft`  
+  Nginx virtual host that proxies requests to `http://127.0.0.1:3000`.
+- `/etc/nginx/sites-enabled/lesson-craft` (symlink)  
+  Enables the Nginx site.
+
+### Runtime directories under app root
+
+- `/var/www/lesson-craft/.config`
+- `/var/www/lesson-craft/.cache`
+- `/var/www/lesson-craft/.local`
+
+These are runtime folders used by browser/Puppeteer processes in production (for cache/config/temp metadata). They are environment-specific and should not be committed.
+
+Why these are usually not necessary in local development:
+
+- In production, the app runs as a `systemd` service user (for example `www-data`) with `HOME` and XDG paths pointing inside `/var/www/lesson-craft`.
+- Chrome/Puppeteer then needs writable app-local directories for runtime data (`.config`, `.cache`, `.local`).
+- Locally, you normally run `npm start` or `npm run server` as your own user, which already has writable default paths in your home directory (for example `/home/<user>/.config`, `/home/<user>/.cache`, `/home/<user>/.local`).
+- Because of that, creating `/var/www/lesson-craft/.config`, `/var/www/lesson-craft/.cache`, and `/var/www/lesson-craft/.local` on your local machine is usually unnecessary unless you replicate the same production service setup.
+
+## Redeploy Checklist (Production)
+
+Run from the droplet after pushing new code:
+
+```bash
+cd /var/www/lesson-craft
+sudo git pull
+sudo npm ci --omit=dev
+sudo chown -R www-data:www-data /var/www/lesson-craft
+sudo systemctl restart lesson-craft
+```
+
+If you changed the `systemd` unit file:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl restart lesson-craft
+```
+
+If you changed Nginx config:
+
+```bash
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+Quick validation:
+
+```bash
+sudo systemctl status lesson-craft --no-pager -l
+sudo systemctl status nginx --no-pager -l
+curl -i http://127.0.0.1:3000/
+curl -i http://127.0.0.1/
+```
+
 ## Features
 
 - ✅ Image-based activity generation using DeepSeek AI
