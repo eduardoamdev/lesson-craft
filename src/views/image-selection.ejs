@@ -515,6 +515,32 @@
       currentIndex = index;
       updateCarousel();
     }
+
+    async function postJson(url, payload) {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const contentType = response.headers.get('content-type') || '';
+      let data;
+
+      if (contentType.includes('application/json')) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        data = { error: text || `Request failed with status ${response.status}` };
+      }
+
+      if (!response.ok) {
+        throw new Error(data.error || data.message || `Request failed with status ${response.status}`);
+      }
+
+      return data;
+    }
     
     document.getElementById('prevBtn').addEventListener('click', () => {
       if (currentIndex > 0) {
@@ -539,28 +565,20 @@
       generateBtn.innerHTML = '<span class="spinner"></span>Generating...';
       
       try {
-        const response = await fetch('/api/generate-image-activity', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ 
-            description: selectedImage.description,
-            imageTitle: selectedImage.title
-          })
+        const data = await postJson('/api/generate-image-activity', {
+          description: selectedImage.description,
+          imageTitle: selectedImage.title
         });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-          // Store the result in sessionStorage and navigate to display page
-          sessionStorage.setItem('activityData', JSON.stringify(data.data));
-          window.location.href = '/activity-display';
-        } else {
-          throw new Error(data.error || 'Failed to generate activity');
-        }
+
+        // Store the result in sessionStorage and navigate to display page
+        sessionStorage.setItem('activityData', JSON.stringify(data.data));
+        window.location.href = '/activity-display';
       } catch (error) {
-        alert(error.message);
+        const message = error?.message === 'Failed to fetch'
+          ? 'Could not reach the server. Make sure the app is running and try again.'
+          : error.message;
+
+        alert(message);
         generateBtn.disabled = false;
         generateBtn.innerHTML = 'Generate Activity';
       }
@@ -589,27 +607,12 @@
       try {
         // First, upload and save the image to the server
         console.log('Uploading image to server...');
-        const uploadResponse = await fetch('/api/upload-custom-image', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ 
-            imageBase64: customImageBase64,
-            description: description,
-            originalFileName: originalFileName
-          })
+        const uploadData = await postJson('/api/upload-custom-image', {
+          imageBase64: customImageBase64,
+          description: description,
+          originalFileName: originalFileName
         });
-        
-        console.log('Upload response status:', uploadResponse.status);
-        
-        if (!uploadResponse.ok) {
-          const errorText = await uploadResponse.text();
-          console.error('Upload error response:', errorText);
-          throw new Error(`Failed to upload image: ${uploadResponse.status}`);
-        }
-        
-        const uploadData = await uploadResponse.json();
+
         console.log('Upload successful:', uploadData);
         
         console.log('Image uploaded:', uploadData.imageTitle);
@@ -617,28 +620,20 @@
         // Now generate the activity using the saved image
         generateBtn.innerHTML = '<span class="spinner"></span>Generating activity...';
         
-        const response = await fetch('/api/generate-image-activity', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ 
-            description: description,
-            imageTitle: uploadData.imageTitle
-          })
+        const data = await postJson('/api/generate-image-activity', {
+          description: description,
+          imageTitle: uploadData.imageTitle
         });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-          // Store the result in sessionStorage and navigate to display page
-          sessionStorage.setItem('activityData', JSON.stringify(data.data));
-          window.location.href = '/activity-display';
-        } else {
-          throw new Error(data.error || 'Failed to generate activity');
-        }
+
+        // Store the result in sessionStorage and navigate to display page
+        sessionStorage.setItem('activityData', JSON.stringify(data.data));
+        window.location.href = '/activity-display';
       } catch (error) {
-        alert(error.message);
+        const message = error?.message === 'Failed to fetch'
+          ? 'Could not reach the server. Make sure the app is running and try again.'
+          : error.message;
+
+        alert(message);
         generateBtn.disabled = false;
         generateBtn.innerHTML = 'Generate Activity';
       }

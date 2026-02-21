@@ -2,6 +2,10 @@ async function callDeepSeekAPI(description) {
   const apiKey = process.env.DEEPSEEK_API_KEY;
   const apiUrl = 'https://api.deepseek.com/v1/chat/completions';
 
+  if (!apiKey) {
+    throw new Error('DEEPSEEK_API_KEY is not configured');
+  }
+
   // Pre-built prompt template with placeholder for image description
   const promptTemplate = `We are in the context of a particular English lesson. The activity is "Commenting on the image". Between B1 and B2 level. 
 
@@ -30,6 +34,10 @@ Important:
 - Do not add any extra properties or wrap this in any other object`;
 
   try {
+    const abortController = new AbortController();
+    const timeoutMs = Number(process.env.DEEPSEEK_TIMEOUT_MS || 30000);
+    const timeoutId = setTimeout(() => abortController.abort(), timeoutMs);
+
     const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
@@ -41,25 +49,35 @@ Important:
         messages: [
           {
             role: 'user',
-            content: [
-              {
-                type: 'text',
-                text: promptTemplate
-              }
-            ]
+            content: promptTemplate
           }
         ],
         temperature: 1.3
-      })
+      }),
+      signal: abortController.signal
     });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('API Error Details:', errorData);
-      throw new Error(`HTTP error! status: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
+    clearTimeout(timeoutId);
+
+    const rawBody = await response.text();
+    let parsedBody;
+    try {
+      parsedBody = JSON.parse(rawBody);
+    } catch {
+      parsedBody = null;
     }
 
-    const data = await response.json();
+    if (!response.ok) {
+      const apiError = parsedBody?.error?.message || parsedBody?.message || rawBody || 'Unknown error';
+      console.error('API Error Details:', parsedBody || rawBody);
+      throw new Error(`HTTP error! status: ${response.status} - ${apiError}`);
+    }
+
+    const data = parsedBody;
+    if (!data?.choices?.[0]?.message?.content) {
+      throw new Error('DeepSeek returned an unexpected response format');
+    }
+
     const answer = data.choices[0].message.content;
     
     return answer;
