@@ -40,6 +40,18 @@ JSON_LIMIT_LARGE=50mb # optional (used for upload/PDF routes)
 - `npm start` — Start the Express server
 - `npm run server` — Start the server with nodemon (auto-reload)
 
+**Recent Changes & Developer Notes**
+
+- Replaced the generic `activity-display.ejs` with two specific pages:
+  - `image-display.ejs` — view/edit generated image activities
+  - `video-display.ejs` — view/edit generated video activities
+- The old `activity-display.ejs` was removed; routes and redirects were updated so image flows go to `/image-display` and video flows go to `/video-display`.
+- Client-side handoff: generated image/video responses are stored in `sessionStorage.activityData`. Conversation flows use `sessionStorage.conversationData`.
+- DeepSeek responses may be wrapped in markdown code fences or extra text; the display pages extract the JSON block before parsing to tolerate that format.
+- Edit mode: teachers can mark/unmark correct answers only in edit mode. Marks are saved into the activity JSON and persisted via `sessionStorage`, and are included when generating PDFs.
+
+If you update or add new display pages, keep the `sessionStorage` keys and `generatedContent` shape consistent so the views render and save correctly.
+
 ## API Endpoints
 
 ### POST /api/generate-image-activity

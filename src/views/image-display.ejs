@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Activity - Lesson Craft</title>
+  <style>
+    /* Reused conversation-display styles (kept concise) */
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:Segoe UI,Tahoma,Helvetica,Arial; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px}
+    .container{background:white;border-radius:16px;padding:32px;max-width:900px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+    h1{color:#667eea;margin-bottom:8px;font-size:2em;text-align:center}
+    .subtitle{color:#666;margin-bottom:20px;text-align:center}
+    .section{margin-bottom:24px}
+    .section h2{color:#764ba2;margin-bottom:12px}
+    .question-item{margin-bottom:16px;padding:12px;background:#f7f7f7;border-radius:8px}
+    .question-text{font-weight:600;margin-bottom:8px}
+    .options-list{list-style:none;padding-left:0}
+    .options-list li{padding:8px;margin-bottom:6px;background:#fff;border-radius:6px;border:2px solid transparent}
+    .options-list li.correct{background:#d4edda;border-color:#27ae60;font-weight:600}
+    .edit-controls{display:flex;gap:10px;margin-bottom:12px}
+    .pdf-controls{display:flex;gap:10px;margin-bottom:12px}
+    button{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;border:none;padding:10px 18px;border-radius:8px;cursor:pointer}
+    button.secondary{background:#f5f5f5;color:#667eea;border:2px solid #667eea}
+    .message{padding:10px;border-radius:6px;margin-bottom:12px;display:none}
+    .message.info{display:block;background:#d1ecf1;color:#0c5460}
+    .action-buttons{display:flex;gap:12px;margin-top:18px}
+    .action-buttons a{flex:1;text-decoration:none}
+    img.preview{max-width:100%;border-radius:8px;margin-bottom:12px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🖼️ Generated Image Activity</h1>
+    <p class="subtitle">View and edit the generated image activity</p>
+
+    <div id="statusMessage" class="message"></div>
+
+    <div class="edit-controls">
+      <button id="editModeBtn">✏️ Edit Mode</button>
+      <button id="saveChangesBtn" style="display:none;">💾 Save Changes</button>
+    </div>
+
+    <div class="pdf-controls">
+      <button id="generatePdfBtn">📄 Generate PDF</button>
+      <button id="downloadPdfBtn" style="display:none;">⬇️ Download PDF</button>
+    </div>
+
+    <div class="section">
+      <h2>Activity</h2>
+      <div id="activityContent"></div>
+    </div>
+
+    <div class="section">
+      <h2>Comprehension Questions</h2>
+      <div id="questionsContent"></div>
+    </div>
+
+    <div class="action-buttons">
+      <a href="/image-activity"><button class="secondary">← New Image</button></a>
+      <a href="/"><button class="secondary">🏠 Home</button></a>
+    </div>
+  </div>
+
+  <script>
+    let currentData = null;
+    let currentPdfId = null;
+    let isEditMode = false;
+
+    const raw = sessionStorage.getItem('activityData');
+    if (!raw) {
+      window.location.href = '/image-activity';
+    } else {
+      try {
+        currentData = JSON.parse(raw);
+      } catch (e) {
+        console.error('Invalid activityData', e);
+        window.location.href = '/image-activity';
+      }
+    }
+
+    function extractJsonString(raw) {
+      if (!raw) return null;
+      // Remove triple backticks and leading descriptive text
+      let s = String(raw).trim();
+      s = s.replace(/^```(?:json)?\s*/i, '');
+      s = s.replace(/\s*```$/i, '');
+
+      // If the string contains a JSON object, try to find the first {...} block
+      const firstBrace = s.indexOf('{');
+      const lastBrace = s.lastIndexOf('}');
+      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+        return s.slice(firstBrace, lastBrace + 1);
+      }
+
+      return s;
+    }
+
+    function parseGenerated() {
+      if (!currentData) return {};
+      const raw = currentData.generatedContent || '';
+      const jsonStr = extractJsonString(raw);
+      if (!jsonStr) return {};
+      try { return JSON.parse(jsonStr); } catch (e) {
+        console.error('Failed to parse generatedContent JSON:', e, jsonStr);
+        return {};
+      }
+    }
+
+    function displayActivity() {
+      const container = document.getElementById('activityContent');
+      const parsed = parseGenerated();
+      let html = '';
+      // show image preview if available
+      if (currentData.customImageBase64) {
+        html += `<img class="preview" src="${currentData.customImageBase64}">`;
+      } else if (currentData.imageTitle) {
+        html += `<img class="preview" src="/data/images/${currentData.imageTitle}">`;
+      }
+
+      // show any description or open_question
+      if (parsed.open_question) {
+        const oq = typeof parsed.open_question === 'string' ? parsed.open_question : (parsed.open_question.question || '');
+        html += `<p style="margin-top:8px">${oq}</p>`;
+      } else if (parsed.description) {
+        html += `<p style="margin-top:8px">${parsed.description}</p>`;
+      }
+
+      container.innerHTML = html;
+    }
+
+    function displayQuestions() {
+      const container = document.getElementById('questionsContent');
+      const parsed = parseGenerated();
+      const multi = parsed.multiple_choice_sentences || parsed.multiple_choice_blanks || [];
+      let html = '';
+      multi.forEach((q, qIndex) => {
+        html += `<div class="question-item" data-index="${qIndex}">`;
+        const questionText = q.sentence || q.question || '';
+        const editableQ = isEditMode ? 'contenteditable="true"' : '';
+        html += `<div class="question-text" ${editableQ} data-field="question">${qIndex+1}. ${questionText}</div>`;
+        html += '<ul class="options-list">';
+        (q.options || []).forEach((opt, optIndex) => {
+          const isCorrect = (typeof q.correct_option === 'number' && q.correct_option === optIndex) || (typeof q.correct_option === 'string' && q.correct_option === opt);
+          const optionTextEditable = isEditMode ? 'contenteditable="true"' : '';
+          html += `<li class="${isCorrect ? 'correct' : ''}" data-field="option" data-option-index="${optIndex}">`;
+          html += `<span class="option-label">${String.fromCharCode(97+optIndex)})</span> `;
+          html += `<span class="option-text" ${optionTextEditable}>${opt}</span>`;
+          html += `<span class="option-check">${isCorrect ? ' ✓' : ''}</span>`;
+          html += `</li>`;
+        });
+        html += '</ul></div>';
+      });
+
+      container.innerHTML = html;
+      attachOptionControls();
+    }
+
+    function attachOptionControls() {
+      const questionItems = document.querySelectorAll('#questionsContent .question-item');
+      questionItems.forEach((item, qIndex) => {
+        const optionElems = item.querySelectorAll('[data-field="option"]');
+        optionElems.forEach((optionElem, optIndex) => {
+          const existing = optionElem.querySelector('.mark-btn'); if (existing) existing.remove();
+          if (isEditMode) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'mark-btn';
+            btn.style.cssText = 'margin-left:10px;padding:4px 8px;border-radius:6px;border:1px solid #667eea;background:#fff;color:#667eea;cursor:pointer;font-weight:600;';
+            btn.textContent = optionElem.classList.contains('correct') ? 'Unmark' : 'Mark';
+            btn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); toggleOptionCorrectness(qIndex, optIndex); });
+            optionElem.appendChild(btn);
+          }
+        });
+      });
+    }
+
+    function toggleOptionCorrectness(questionIndex, optIndex) {
+      const questionItem = document.querySelector(`#questionsContent .question-item[data-index="${questionIndex}"]`);
+      if (!questionItem) return;
+      const optionElems = questionItem.querySelectorAll('[data-field="option"]');
+      const target = optionElems[optIndex]; if (!target) return;
+      const textSpan = target.querySelector('.option-text');
+      const checkSpan = target.querySelector('.option-check');
+      const already = target.classList.contains('correct');
+      if (already) {
+        target.classList.remove('correct');
+        if (checkSpan) checkSpan.textContent = '';
+      } else {
+        optionElems.forEach((el, idx) => {
+          const cs = el.querySelector('.option-check');
+          if (idx === optIndex) {
+            el.classList.add('correct');
+            if (cs) cs.textContent = ' ✓';
+          } else {
+            el.classList.remove('correct');
+            if (cs) cs.textContent = '';
+          }
+        });
+      }
+      attachOptionControls();
+    }
+
+    function toggleEditMode() {
+      isEditMode = !isEditMode;
+      const editModeBtn = document.getElementById('editModeBtn');
+      const saveChangesBtn = document.getElementById('saveChangesBtn');
+      const pdfControlsEl = document.querySelector('.pdf-controls');
+      if (isEditMode) { editModeBtn.textContent = '👁️ View Mode'; saveChangesBtn.style.display='inline-block'; if(pdfControlsEl) pdfControlsEl.style.display='none'; showMessage('Edit mode enabled. Click to edit.','info'); }
+      else { editModeBtn.textContent = '✏️ Edit Mode'; saveChangesBtn.style.display='none'; if(pdfControlsEl) pdfControlsEl.style.display='flex'; showMessage('Edit mode disabled.','info'); }
+      displayActivity(); displayQuestions();
+    }
+
+    function saveChanges() {
+      try {
+        const parsed = parseGenerated();
+        const qItems = document.querySelectorAll('#questionsContent .question-item');
+        parsed.multiple_choice_sentences = [];
+        qItems.forEach((item, qIndex) => {
+          const qTextEl = item.querySelector('[data-field="question"]');
+          const qText = qTextEl ? qTextEl.textContent.replace(/^\d+\.\s*/,'').trim() : '';
+          const opts = [];
+          let correctIdx = null;
+          const optionEls = item.querySelectorAll('[data-field="option"]');
+          optionEls.forEach((optEl, idx) => {
+            const textSpan = optEl.querySelector('.option-text');
+            const txt = textSpan ? textSpan.textContent.trim() : optEl.textContent.replace(/^[a-z]\)\s*/,'').replace(/\s*✓\s*$/,'').trim();
+            opts.push(txt);
+            if (optEl.classList.contains('correct')) correctIdx = idx;
+          });
+          parsed.multiple_choice_sentences.push({ sentence: qText, options: opts, correct_option: correctIdx });
+        });
+
+        currentData.generatedContent = JSON.stringify(parsed);
+        sessionStorage.setItem('activityData', JSON.stringify(currentData));
+        // Clear old PDF id for this activity
+        sessionStorage.removeItem('currentPdfId');
+        document.getElementById('downloadPdfBtn').style.display='none';
+        isEditMode = false; toggleEditMode();
+        showMessage('Changes saved successfully!','success');
+      } catch (err) { console.error(err); showMessage('Error saving changes: '+err.message,'error'); }
+    }
+
+    function showMessage(msg, type='info'){
+      const el = document.getElementById('statusMessage'); el.textContent = msg; el.className = 'message '+type; if(type==='info'){ setTimeout(()=>{ el.className='message'; },4000); }
+    }
+
+    // PDF generation (generic)
+    document.getElementById('generatePdfBtn').addEventListener('click', async ()=>{
+      const btn = document.getElementById('generatePdfBtn'); btn.disabled = true; btn.textContent = '⏳ Generating PDF...'; showMessage('Generating PDF...','info');
+      try{
+        const response = await fetch('/api/generate-pdf', { method:'POST', headers:{ 'Content-Type':'application/json'}, body: JSON.stringify({ activityContent: currentData.generatedContent, activityId: `activity_${currentData.timestamp}`, imageTitle: currentData.imageTitle || null, customImageBase64: currentData.customImageBase64 || null }) });
+        if (!response.ok) throw new Error('PDF generation failed');
+        const result = await response.json(); if (result.success){ currentPdfId = result.pdfId; sessionStorage.setItem('currentPdfId', currentPdfId); document.getElementById('downloadPdfBtn').style.display='inline-block'; showMessage('PDF generated successfully!','success'); } else throw new Error(result.message || 'Failed');
+      } catch (err){ console.error(err); showMessage('Error: '+err.message,'error'); } finally { btn.disabled = false; btn.textContent = '📄 Generate PDF'; }
+    });
+
+    document.getElementById('downloadPdfBtn').addEventListener('click', ()=>{ const id = sessionStorage.getItem('currentPdfId'); if(id) window.location.href=`/api/download-pdf/${id}`; });
+
+    document.getElementById('editModeBtn').addEventListener('click', toggleEditMode);
+    document.getElementById('saveChangesBtn').addEventListener('click', saveChanges);
+
+    // Init
+    displayActivity(); displayQuestions();
+    // Restore PDF state if exists for this activity
+    const storedPdf = sessionStorage.getItem('currentPdfId'); if(storedPdf && String(currentData.timestamp)===String(sessionStorage.getItem('lastActivityTimestamp'))){ currentPdfId=storedPdf; document.getElementById('downloadPdfBtn').style.display='inline-block'; }
+    else { sessionStorage.setItem('lastActivityTimestamp', currentData.timestamp); }
+  </script>
+</body>
+</html>

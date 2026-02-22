@@ -35,6 +35,14 @@ app.get('/activity-display', (req, res) => {
   res.render('activity-display', { title: 'Activity - Lesson Craft' });
 });
 
+app.get('/image-display', (req, res) => {
+  res.render('image-display', { title: 'Image Activity - Lesson Craft' });
+});
+
+app.get('/video-display', (req, res) => {
+  res.render('video-display', { title: 'Video Activity - Lesson Craft' });
+});
+
 app.get('/conversation-activity', (req, res) => {
   res.render('conversation-input', { title: 'Conversation Activity - Lesson Craft' });
 });

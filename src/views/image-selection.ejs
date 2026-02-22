@@ -572,7 +572,7 @@
 
         // Store the result in sessionStorage and navigate to display page
         sessionStorage.setItem('activityData', JSON.stringify(data.data));
-        window.location.href = '/activity-display';
+        window.location.href = '/image-display';
       } catch (error) {
         const message = error?.message === 'Failed to fetch'
           ? 'Could not reach the server. Make sure the app is running and try again.'
@@ -627,7 +627,7 @@
 
         // Store the result in sessionStorage and navigate to display page
         sessionStorage.setItem('activityData', JSON.stringify(data.data));
-        window.location.href = '/activity-display';
+        window.location.href = '/image-display';
       } catch (error) {
         const message = error?.message === 'Failed to fetch'
           ? 'Could not reach the server. Make sure the app is running and try again.'
