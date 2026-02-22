@@ -246,6 +246,7 @@
     
     <div id="editMode" class="edit-mode">
       <textarea id="activityEditor" class="editor"></textarea>
+      <div id="structuredEditor" style="display:none; margin-top:12px;"></div>
       <button id="saveBtn">💾 Save Changes</button>
       <button id="cancelBtn" class="secondary">✖ Cancel</button>
     </div>
@@ -516,15 +517,30 @@
       // Load current content into editor (as readable text)
       if (currentData && currentData.generatedContent) {
         activityEditor.value = jsonToText(currentData.generatedContent);
+        // Also build a structured editor for multiple choice content to allow mark/unmark
+        try {
+          const parsed = JSON.parse(currentData.generatedContent);
+          buildStructuredEditor(parsed);
+        } catch (e) {
+          // ignore
+          document.getElementById('structuredEditor').style.display = 'none';
+        }
       }
     });
     
     saveBtn.addEventListener('click', () => {
       try {
-        // Parse the edited text back to JSON
-        const editedText = activityEditor.value;
-        const parsed = textToJson(editedText);
-        
+        // If a structured editor is present, prefer its values to preserve markings
+        const structured = document.getElementById('structuredEditor');
+        let parsed;
+        if (structured && structured.style.display !== 'none' && structured.dataset.source === 'multiple_choice') {
+          parsed = readStructuredEditor();
+        } else {
+          // Parse the edited text back to JSON
+          const editedText = activityEditor.value;
+          parsed = textToJson(editedText);
+        }
+
         // Update the current data
         currentData.generatedContent = JSON.stringify(parsed);
         
@@ -562,6 +578,117 @@
       }
       // Fallback to current timestamp
       return `activity_${Date.now()}`;
+    }
+
+    // Build a simple structured editor for multiple-choice content
+    function buildStructuredEditor(parsedContent) {
+      const container = document.getElementById('structuredEditor');
+      container.innerHTML = '';
+
+      const activity = parsedContent.tasks || parsedContent.exercises || parsedContent.activity_components || parsedContent;
+      const multiChoice = activity.multiple_choice_blanks || activity.multiple_choice_sentences || parsedContent.multiple_choice_sentences || parsedContent.multiple_choice_blanks;
+      if (!multiChoice || multiChoice.length === 0) {
+        container.style.display = 'none';
+        container.dataset.source = '';
+        return;
+      }
+
+      container.style.display = 'block';
+      container.dataset.source = 'multiple_choice';
+
+      multiChoice.forEach((item, qIndex) => {
+        const qDiv = document.createElement('div');
+        qDiv.style.marginBottom = '12px';
+        qDiv.innerHTML = `<div style="font-weight:700; margin-bottom:6px">${qIndex + 1}. ${item.sentence}</div>`;
+
+        const ul = document.createElement('ul');
+        ul.style.listStyle = 'none';
+        ul.style.paddingLeft = '0';
+
+        item.options.forEach((opt, optIndex) => {
+          const li = document.createElement('li');
+          li.style.padding = '6px';
+          li.style.marginBottom = '6px';
+          li.style.border = '1px solid #e6e6e6';
+          li.style.borderRadius = '6px';
+          li.dataset.optionIndex = optIndex;
+          li.dataset.questionIndex = qIndex;
+
+          const isCorrect = (typeof item.correct_option === 'number' && item.correct_option === optIndex) || (typeof item.correct_option === 'string' && item.correct_option === opt);
+
+          const textSpan = document.createElement('span');
+          textSpan.textContent = `${String.fromCharCode(97 + optIndex)}) ${opt}`;
+          textSpan.style.marginRight = '10px';
+
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.textContent = isCorrect ? 'Unmark' : 'Mark';
+          btn.style.cssText = 'padding:4px 8px;border-radius:6px;border:1px solid #667eea;background:#fff;color:#667eea;cursor:pointer;font-weight:600;';
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            toggleStructuredMark(qIndex, optIndex);
+          });
+
+          if (isCorrect) li.style.background = '#d4edda';
+
+          li.appendChild(textSpan);
+          li.appendChild(btn);
+          ul.appendChild(li);
+        });
+
+        qDiv.appendChild(ul);
+        container.appendChild(qDiv);
+      });
+    }
+
+    function toggleStructuredMark(questionIndex, optIndex) {
+      const container = document.getElementById('structuredEditor');
+      const questionDivs = Array.from(container.children);
+      const qDiv = questionDivs[questionIndex];
+      if (!qDiv) return;
+      const lis = qDiv.querySelectorAll('li');
+      lis.forEach((li, idx) => {
+        const btn = li.querySelector('button');
+        if (idx === optIndex) {
+          const marked = li.style.background === 'rgb(212, 237, 218)' || li.style.background === '#d4edda';
+          if (marked) {
+            li.style.background = '';
+            btn.textContent = 'Mark';
+          } else {
+            li.style.background = '#d4edda';
+            btn.textContent = 'Unmark';
+          }
+        } else {
+          // unmark others
+          li.style.background = '';
+          const b = li.querySelector('button'); if (b) b.textContent = 'Mark';
+        }
+      });
+    }
+
+    function readStructuredEditor() {
+      const container = document.getElementById('structuredEditor');
+      const parsed = { multiple_choice_sentences: [] };
+      if (!container || container.dataset.source !== 'multiple_choice') return parsed;
+
+      const qDivs = Array.from(container.children);
+      qDivs.forEach((qDiv) => {
+        const sentence = qDiv.querySelector('div').textContent.replace(/^\d+\.\s*/, '').trim();
+        const opts = [];
+        let correctIdx = null;
+        const lis = qDiv.querySelectorAll('li');
+        lis.forEach((li, idx) => {
+          const txt = li.querySelector('span').textContent.replace(/^[a-d]\)\s*/, '').trim();
+          opts.push(txt);
+          if (li.style.background === 'rgb(212, 237, 218)' || li.style.background === '#d4edda') {
+            correctIdx = idx;
+          }
+        });
+        const qObj = { sentence: sentence, options: opts, correct_option: correctIdx === null ? null : correctIdx };
+        parsed.multiple_choice_sentences.push(qObj);
+      });
+
+      return parsed;
     }
     
     // Show status message

@@ -350,6 +350,65 @@
       });
       
       container.innerHTML = html;
+      // After rendering, add per-option controls when in edit mode
+      attachOptionControls();
+    }
+
+    function attachOptionControls() {
+      // For each question, add a small mark/unmark button when edit mode is active
+      const questionItems = document.querySelectorAll('#questionsContent .question-item');
+      questionItems.forEach((item, qIndex) => {
+        const optionElems = item.querySelectorAll('[data-field="option"]');
+        optionElems.forEach((optionElem, optIndex) => {
+          // Remove existing control if any
+          const existing = optionElem.querySelector('.mark-btn');
+          if (existing) existing.remove();
+
+          if (isEditMode) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'mark-btn';
+            btn.style.cssText = 'margin-left:10px;padding:4px 8px;border-radius:6px;border:1px solid #667eea;background:#fff;color:#667eea;cursor:pointer;font-weight:600;';
+            btn.textContent = optionElem.classList.contains('correct') ? 'Unmark' : 'Mark';
+            btn.addEventListener('click', (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              toggleOptionCorrectness(qIndex, optIndex);
+            });
+            optionElem.appendChild(btn);
+          }
+        });
+      });
+    }
+
+    function toggleOptionCorrectness(questionIndex, optIndex) {
+      const questionItem = document.querySelector(`#questionsContent .question-item[data-index=\"${questionIndex}\"]`);
+      if (!questionItem) return;
+      const optionElems = questionItem.querySelectorAll('[data-field="option"]');
+      const target = optionElems[optIndex];
+      if (!target) return;
+
+      const alreadyCorrect = target.classList.contains('correct');
+      if (alreadyCorrect) {
+        // Unmark
+        target.classList.remove('correct');
+        // Remove checkmark from text
+        target.textContent = target.textContent.replace(/\s*✓\s*$/, '');
+      } else {
+        // Mark this option as correct and unmark others
+        optionElems.forEach((el, idx) => {
+          if (idx === optIndex) {
+            el.classList.add('correct');
+            if (!/\u2713/.test(el.textContent)) el.textContent = el.textContent + ' ✓';
+          } else {
+            el.classList.remove('correct');
+            el.textContent = el.textContent.replace(/\s*✓\s*$/, '');
+          }
+        });
+      }
+
+      // Re-attach controls so buttons reflect new state
+      attachOptionControls();
     }
     
     function toggleEditMode() {
@@ -410,6 +469,14 @@
               .replace(/\s*✓\s*$/, '');
             currentData.questions[qIndex].options[optIndex] = optionText;
           });
+          // Determine which option (if any) is marked as correct in the DOM
+          const marked = item.querySelector('[data-field="option"].correct');
+          if (marked) {
+            const idx = Number(marked.getAttribute('data-option-index'));
+            currentData.questions[qIndex].correctAnswer = Number.isFinite(idx) ? idx : null;
+          } else {
+            currentData.questions[qIndex].correctAnswer = null;
+          }
         });
         
         // Save updated data to sessionStorage
