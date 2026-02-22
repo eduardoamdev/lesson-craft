@@ -416,17 +416,25 @@
       const editModeBtn = document.getElementById('editModeBtn');
       const saveChangesBtn = document.getElementById('saveChangesBtn');
       const container = document.querySelector('.container');
+      const pdfControlsEl = document.querySelector('.pdf-controls');
+      const audioControlsEl = document.querySelector('.audio-controls');
       
       if (isEditMode) {
         editModeBtn.textContent = '👁️ View Mode';
         saveChangesBtn.style.display = 'block';
         container.classList.add('edit-mode');
         showMessage('Edit mode enabled. Click on text to edit.', 'info');
+        // Hide PDF and audio controls while editing
+        if (pdfControlsEl) pdfControlsEl.style.display = 'none';
+        if (audioControlsEl) audioControlsEl.style.display = 'none';
       } else {
         editModeBtn.textContent = '✏️ Edit Mode';
         saveChangesBtn.style.display = 'none';
         container.classList.remove('edit-mode');
         showMessage('Edit mode disabled.', 'info');
+        // Restore PDF and audio controls when leaving edit mode
+        if (pdfControlsEl) pdfControlsEl.style.display = 'flex';
+        if (audioControlsEl) audioControlsEl.style.display = 'flex';
       }
       
       // Refresh display with edit mode
