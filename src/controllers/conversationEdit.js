@@ -68,12 +68,22 @@ exports.handleEditConversation = (req, res) => {
   if (!Array.isArray(conversation)) conversation = Object.values(conversation);
   if (!Array.isArray(questions)) questions = Object.values(questions);
 
-  // Convert string indices to numbers for correctAnswer
-  questions = questions.map(q => ({
-    ...q,
-    correctAnswer: typeof q.correctAnswer === 'string' ? parseInt(q.correctAnswer, 10) : q.correctAnswer,
-    options: Array.isArray(q.options) ? q.options : Object.values(q.options || {})
-  }));
+  // Convert string indices to numbers for correctAnswer, allow unmarked (null)
+  questions = questions.map(q => {
+    let correctAnswer = q.correctAnswer;
+    if (typeof correctAnswer === 'string') {
+      if (correctAnswer === '' || correctAnswer === undefined) {
+        correctAnswer = null;
+      } else if (!isNaN(correctAnswer)) {
+        correctAnswer = parseInt(correctAnswer, 10);
+      }
+    }
+    return {
+      ...q,
+      correctAnswer,
+      options: Array.isArray(q.options) ? q.options : Object.values(q.options || {})
+    };
+  });
 
   // Only save if data is not empty
   if (conversation.length > 0 && questions.length > 0) {

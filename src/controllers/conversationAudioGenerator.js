@@ -27,55 +27,66 @@ if (!fsSync.existsSync(AUDIO_DIR)) {
 async function generateConversationAudio(req, res) {
   try {
     const { conversation, audioId } = req.body;
-    
     if (!conversation || !Array.isArray(conversation)) {
       return res.status(400).json({ 
         success: false, 
         message: 'Conversation array is required' 
       });
     }
-    
     if (!TELNYX_API_KEY) {
       return res.status(500).json({ 
         success: false, 
         message: 'Telnyx API key not configured' 
       });
     }
-    
+    // Assign default voices if missing (alternate voices for speakers)
+    const defaultVoices = [
+      'Telnyx.NaturalHD.astra', // Female
+      'Telnyx.NaturalHD.andersen_johan'   // Male
+    ];
+    let speakerVoiceMap = {};
+    let nextVoiceIdx = 0;
+    const conversationWithVoices = conversation.map((exchange) => {
+      if (!exchange.speaker) return { ...exchange };
+      if (!speakerVoiceMap[exchange.speaker]) {
+        speakerVoiceMap[exchange.speaker] = defaultVoices[nextVoiceIdx % defaultVoices.length];
+        nextVoiceIdx++;
+      }
+      return {
+        ...exchange,
+        voice: exchange.voice || speakerVoiceMap[exchange.speaker]
+      };
+    });
     const finalAudioId = audioId || `conversation_${Date.now()}`;
     const timestamp = Date.now();
     const tempFiles = [];
-    
-    console.log(`Generating audio for conversation (${conversation.length} exchanges)...`);
-    
-    // Generate audio for each conversation exchange
-    for (let i = 0; i < conversation.length; i++) {
-      const exchange = conversation[i];
-      
+    console.log(`Generating audio for conversation (${conversationWithVoices.length} exchanges)...`);
+    for (let i = 0; i < conversationWithVoices.length; i++) {
+      const exchange = conversationWithVoices[i];
       if (!exchange.text || !exchange.voice) {
         console.warn(`Skipping exchange ${i}: missing text or voice`);
         continue;
       }
-      
-      console.log(`\nGenerating audio ${i + 1}/${conversation.length}: ${exchange.speaker}`);
+      console.log(`\nGenerating audio ${i + 1}/${conversationWithVoices.length}: ${exchange.speaker}`);
       console.log(`Voice: ${exchange.voice}`);
       console.log(`Text: ${exchange.text.substring(0, 50)}...`);
-      
+        // Log the information being sent to Telnyx
+        console.log('This is the information we are sending to Telnyx:', {
+          text: exchange.text,
+          voice: exchange.voice
+        });
       try {
         const audioBuffer = await synthesizeSpeech(
           exchange.text, 
           exchange.voice, 
           TELNYX_API_KEY
         );
-        
-        // Save individual audio file
         const tempFile = path.join(AUDIO_DIR, `temp_${timestamp}_${i}.mp3`);
         await fs.writeFile(tempFile, audioBuffer);
         tempFiles.push(tempFile);
         console.log(`✓ Saved temporary file: ${path.basename(tempFile)}`);
       } catch (error) {
         console.error(`Error generating audio for exchange ${i}:`, error);
-        // Clean up temp files created so far
         await cleanupTempFiles(tempFiles);
         throw new Error(`Failed to generate audio for exchange ${i}: ${error.message}`);
       }
@@ -112,7 +123,7 @@ async function generateConversationAudio(req, res) {
       throw new Error('Failed to merge audio files: ' + error.message);
     }
     
-    // Clean up temporary files
+    // Clean up temporary files after merging
     await cleanupTempFiles(tempFiles);
     await fs.unlink(concatListPath).catch(() => {});
     

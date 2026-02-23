@@ -251,6 +251,12 @@
   <div class="container">
     <h1>💬 Generated Conversation</h1>
     <p class="subtitle">Your conversation activity is ready</p>
+    <div class="pdf-controls" style="display:flex; gap:10px; margin-bottom:20px;">
+      <button id="generatePdfBtn" class="pdf-btn">📄 Generate PDF</button>
+      <button id="downloadPdfBtn" class="download-btn" style="display:none">⬇️ Download PDF</button>
+      <button id="generateAudioBtn" class="audio-btn">🔊 Generate Audio</button>
+      <button id="downloadAudioBtn" class="download-btn" style="display:none">⬇️ Download Audio</button>
+    </div>
     
     <div class="section">
       <h2>Conversation</h2>
@@ -294,6 +300,99 @@
       <a href="/conversation/edit">
         <button>✏️ Edit Conversation</button>
       </a>
+      <div id="statusMessage" class="message info" style="display:none"></div>
     </div>
 </body>
+<script>
+// Helper to show status messages
+function showMessage(msg, type = 'info') {
+  const el = document.getElementById('statusMessage');
+  el.textContent = msg;
+  el.className = 'message ' + type;
+  el.style.display = 'block';
+  if (type === 'info') setTimeout(() => { el.style.display = 'none'; }, 4000);
+}
+
+// Get conversation and questions from server-rendered data
+const conversation = <%- JSON.stringify(conversation) %>;
+const questions = <%- JSON.stringify(questions) %>;
+let currentPdfId = null;
+let currentAudioId = null;
+
+// PDF generation
+document.getElementById('generatePdfBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('generatePdfBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Generating PDF...';
+  showMessage('Generating PDF...', 'info');
+  try {
+    const response = await fetch('/api/generate-conversation-pdf', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ conversation, questions })
+    });
+    const result = await response.json();
+    if (result.success && result.pdfId) {
+      currentPdfId = result.pdfId;
+      document.getElementById('downloadPdfBtn').style.display = 'inline-block';
+      showMessage('PDF generated successfully!', 'success');
+    } else {
+      throw new Error(result.message || 'Failed to generate PDF');
+    }
+  } catch (err) {
+    showMessage('Error: ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '📄 Generate PDF';
+  }
+});
+
+// PDF download
+document.getElementById('downloadPdfBtn').addEventListener('click', () => {
+  if (currentPdfId) {
+    window.open(`/api/download-pdf/${currentPdfId}`, '_blank');
+  } else {
+    showMessage('No PDF available to download', 'error');
+  }
+});
+
+// Audio generation
+document.getElementById('generateAudioBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('generateAudioBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Generating Audio...';
+  showMessage('Generating audio...', 'info');
+  try {
+    // Deep clone to avoid mutation issues
+    const conversationToSend = JSON.parse(JSON.stringify(conversation));
+    const response = await fetch('/api/generate-conversation-audio', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ conversation: conversationToSend })
+    });
+    const result = await response.json();
+    if (result.success && result.audioId) {
+      currentAudioId = result.audioId;
+      document.getElementById('downloadAudioBtn').style.display = 'inline-block';
+      showMessage('Audio generated successfully!', 'success');
+    } else {
+      throw new Error(result.message || 'Failed to generate audio');
+    }
+  } catch (err) {
+    showMessage('Error: ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🔊 Generate Audio';
+  }
+});
+
+// Audio download
+document.getElementById('downloadAudioBtn').addEventListener('click', () => {
+  if (currentAudioId) {
+    window.open(`/api/download-conversation-audio/${currentAudioId}`, '_blank');
+  } else {
+    showMessage('No audio available to download', 'error');
+  }
+});
+</script>
 </html>

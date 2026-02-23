@@ -198,11 +198,16 @@
             <ul class="options-list">
               <% q.options.forEach(function(opt, oIdx) { %>
                 <li class="<%= q.correctAnswer === oIdx ? 'correct' : '' %>">
-                  <input class="correct-radio" type="radio" name="questions[<%= qIdx %>][correctAnswer]" value="<%= oIdx %>" <%= q.correctAnswer === oIdx ? 'checked' : '' %> required />
+                  <input class="correct-radio" type="radio" name="questions[<%= qIdx %>][correctAnswer]" value="<%= oIdx %>" <%= q.correctAnswer === oIdx ? 'checked' : '' %> />
                   <span><%= String.fromCharCode(97 + oIdx) %>)</span>
                   <input class="option-input" type="text" name="questions[<%= qIdx %>][options][]" value="<%= opt %>" required />
                 </li>
               <% }); %>
+              <!-- None option for unmarking -->
+              <li class="<%= (q.correctAnswer === undefined || q.correctAnswer === null || q.correctAnswer === '' || isNaN(q.correctAnswer)) ? 'correct' : '' %>">
+                <input class="correct-radio" type="radio" name="questions[<%= qIdx %>][correctAnswer]" value="" <%= (q.correctAnswer === undefined || q.correctAnswer === null || q.correctAnswer === '' || isNaN(q.correctAnswer)) ? 'checked' : '' %> />
+                <span>None</span>
+              </li>
             </ul>
           </div>
         <% }); %>

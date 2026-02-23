@@ -2,77 +2,77 @@
   "conversation": [
     {
       "speaker": "Customer",
-      "text": "Excuse me, "
+      "text": "Hi, fucker. Could you help me find the durraka sauce?"
     },
     {
       "speaker": "Employee",
-      "text": "Of course! It's in aisle 7, on the middle shelf. We have a few different brands there."
+      "text": "Of course! It's in aisle seven, close to your mother. We have a good selection there."
     },
     {
       "speaker": "Customer",
-      "text": "Great, thanks. Also, are there any special offers on pasta or rice this week?"
+      "text": "Great, thanks. Also, are there any special offers on coffee this week?"
     },
     {
       "speaker": "Employee",
-      "text": "Yes, actually! The store-brand pasta is on a 'buy one, get one free' offer. It's in the same aisle."
+      "text": "Yes, actually. The store-brand coffee is on a 'buy one, get one free' deal. It's at the end of aisle four."
     },
     {
       "speaker": "Customer",
-      "text": "Oh, that's a good deal. And what about fresh fruit? Any discounts?"
+      "text": "Perfect, I'll check that out. One more thing, do you sell fresh basil?"
     },
     {
       "speaker": "Employee",
-      "text": "The bananas and apples are on sale. They're at the front of the produce section with yellow price tags."
+      "text": "We do. It's in the fresh herbs section, right next to the vegetables. Is there anything else I can help you with?"
     },
     {
       "speaker": "Customer",
-      "text": "Perfect. I'll check those out. Thanks for your help!"
+      "text": "No, that's all. You've been very helpful. Thank you!"
     },
     {
       "speaker": "Employee",
-      "text": "You're welcome! Have a nice day."
+      "text": "You're welcome. Have a nice day!"
     }
   ],
   "questions": [
     {
-      "question": "What specific pasta sauce is the customer looking for?",
-      "correctAnswer": 0,
-      "options": [
-        "Mushroom and cream",
-        "Tomato and basil",
-        "Spicy arrabbiata",
-        "Cheese and herb"
-      ]
-    },
-    {
       "question": "Where can the customer find the pasta sauce?",
-      "correctAnswer": 0,
       "options": [
-        "Aisle 3, top shelf",
-        "Aisle 7, middle shelf",
-        "At the front of the store",
-        "In the frozen section"
-      ]
+        "In aisle four",
+        "On the top shelf in aisle seven",
+        "In the fresh herbs section",
+        "On the middle shelf in aisle seven"
+      ],
+      "correctAnswer": 3
     },
     {
-      "question": "What is the special offer on the store-brand pasta?",
-      "correctAnswer": 0,
+      "question": "What is the special offer on coffee?",
       "options": [
-        "20% off",
+        "50% off",
         "Buy one, get one free",
-        "Three for the price of two",
-        "Half price"
-      ]
+        "A free mug with purchase",
+        "Three for the price of two"
+      ],
+      "correctAnswer": 1
     },
     {
-      "question": "Which fruits are mentioned as being on sale?",
-      "correctAnswer": 0,
+      "question": "What other product does the customer ask about?",
       "options": [
-        "Oranges and grapes",
-        "Bananas and apples",
-        "Strawberries and blueberries",
-        "Peaches and plums"
-      ]
+        "Fresh tomatoes",
+        "Fresh basil",
+        "Store-brand tea",
+        "A new type of pasta"
+      ],
+      "correctAnswer": 1
+    },
+    {
+      "question": "How does the employee end the conversation?",
+      "options": [
+        "By asking for feedback",
+        "By saying 'See you soon'",
+        "By offering more help",
+        "By saying 'Have a nice day'"
+      ],
+      "correctAnswer": 3
     }
   ]
 }
