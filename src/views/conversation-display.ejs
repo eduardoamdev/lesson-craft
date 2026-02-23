@@ -324,7 +324,7 @@ document.getElementById('generatePdfBtn').addEventListener('click', async () => 
   const btn = document.getElementById('generatePdfBtn');
   btn.disabled = true;
   btn.textContent = '⏳ Generating PDF...';
-  showMessage('Generating PDF...', 'info');
+  // Removed info message for PDF generation
   try {
     const response = await fetch('/api/generate-conversation-pdf', {
       method: 'POST',
@@ -335,7 +335,6 @@ document.getElementById('generatePdfBtn').addEventListener('click', async () => 
     if (result.success && result.pdfId) {
       currentPdfId = result.pdfId;
       document.getElementById('downloadPdfBtn').style.display = 'inline-block';
-      showMessage('PDF generated successfully!', 'success');
     } else {
       throw new Error(result.message || 'Failed to generate PDF');
     }
@@ -361,7 +360,7 @@ document.getElementById('generateAudioBtn').addEventListener('click', async () =
   const btn = document.getElementById('generateAudioBtn');
   btn.disabled = true;
   btn.textContent = '⏳ Generating Audio...';
-  showMessage('Generating audio...', 'info');
+  // Removed info message for audio generation
   try {
     // Deep clone to avoid mutation issues
     const conversationToSend = JSON.parse(JSON.stringify(conversation));
@@ -374,7 +373,6 @@ document.getElementById('generateAudioBtn').addEventListener('click', async () =
     if (result.success && result.audioId) {
       currentAudioId = result.audioId;
       document.getElementById('downloadAudioBtn').style.display = 'inline-block';
-      showMessage('Audio generated successfully!', 'success');
     } else {
       throw new Error(result.message || 'Failed to generate audio');
     }
