@@ -192,6 +192,17 @@ async function generateConversation(req, res) {
       createdAt: new Date().toISOString()
     };
 
+    // Write to temp file for display route
+    const fs = require('fs');
+    const path = require('path');
+    try {
+      fs.writeFileSync(path.join(__dirname, '../../data/conversationData.json'), JSON.stringify({
+        conversation: conversationWithVoices,
+        questions: parsedData.questions
+      }), 'utf8');
+    } catch (err) {
+      console.error('Failed to write conversationData.json:', err);
+    }
     res.json({
       success: true,
       message: 'Conversation generated successfully',

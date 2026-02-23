@@ -7,12 +7,17 @@ const pdfGeneratorRoutes = require('./routes/pdfGenerator');
 const imageUploadRoutes = require('./routes/imageUpload');
 const conversationGeneratorRoutes = require('./routes/conversationGenerator');
 const conversationAudioGeneratorRoutes = require('./routes/conversationAudioGenerator');
+const conversationEditRoutes = require('./routes/conversationEdit');
 const videoActivityGeneratorRoutes = require('./routes/videoActivityGenerator');
 
+
 const app = express();
-const PORT = process.env.PORT || 3000;
 const JSON_LIMIT_DEFAULT = process.env.JSON_LIMIT_DEFAULT || '5mb';
 const JSON_LIMIT_LARGE = process.env.JSON_LIMIT_LARGE || '50mb';
+app.use(bodyParser.json({ limit: JSON_LIMIT_DEFAULT }));
+app.use(bodyParser.urlencoded({ extended: true, limit: JSON_LIMIT_DEFAULT }));
+app.use('/', conversationEditRoutes);
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(express.static(path.join(__dirname, '../public')));
@@ -47,8 +52,28 @@ app.get('/conversation-activity', (req, res) => {
   res.render('conversation-input', { title: 'Conversation Activity - Lesson Craft' });
 });
 
+const fs = require('fs');
 app.get('/conversation-display', (req, res) => {
-  res.render('conversation-display', { title: 'Conversation - Lesson Craft' });
+  // Try to get conversation data from sessionStorage (client-side) is not possible on server,
+  // so as a workaround, check if a temp file exists (or use another backend mechanism).
+  // For now, try to read from a temp file if it exists (simulate persistence for demo).
+  let conversation = null;
+  let questions = null;
+  try {
+    if (fs.existsSync(path.join(__dirname, '../data/conversationData.json'))) {
+      const data = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/conversationData.json'), 'utf8'));
+      conversation = data.conversation;
+      questions = data.questions;
+    }
+  } catch (e) {
+    conversation = null;
+    questions = null;
+  }
+  res.render('conversation-display', {
+    title: 'Conversation - Lesson Craft',
+    conversation,
+    questions
+  });
 });
 
 app.get('/video-activity', (req, res) => {

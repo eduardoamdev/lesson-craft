@@ -1,0 +1,78 @@
+{
+  "conversation": [
+    {
+      "speaker": "Customer",
+      "text": "Excuse me, "
+    },
+    {
+      "speaker": "Employee",
+      "text": "Of course! It's in aisle 7, on the middle shelf. We have a few different brands there."
+    },
+    {
+      "speaker": "Customer",
+      "text": "Great, thanks. Also, are there any special offers on pasta or rice this week?"
+    },
+    {
+      "speaker": "Employee",
+      "text": "Yes, actually! The store-brand pasta is on a 'buy one, get one free' offer. It's in the same aisle."
+    },
+    {
+      "speaker": "Customer",
+      "text": "Oh, that's a good deal. And what about fresh fruit? Any discounts?"
+    },
+    {
+      "speaker": "Employee",
+      "text": "The bananas and apples are on sale. They're at the front of the produce section with yellow price tags."
+    },
+    {
+      "speaker": "Customer",
+      "text": "Perfect. I'll check those out. Thanks for your help!"
+    },
+    {
+      "speaker": "Employee",
+      "text": "You're welcome! Have a nice day."
+    }
+  ],
+  "questions": [
+    {
+      "question": "What specific pasta sauce is the customer looking for?",
+      "correctAnswer": 0,
+      "options": [
+        "Mushroom and cream",
+        "Tomato and basil",
+        "Spicy arrabbiata",
+        "Cheese and herb"
+      ]
+    },
+    {
+      "question": "Where can the customer find the pasta sauce?",
+      "correctAnswer": 0,
+      "options": [
+        "Aisle 3, top shelf",
+        "Aisle 7, middle shelf",
+        "At the front of the store",
+        "In the frozen section"
+      ]
+    },
+    {
+      "question": "What is the special offer on the store-brand pasta?",
+      "correctAnswer": 0,
+      "options": [
+        "20% off",
+        "Buy one, get one free",
+        "Three for the price of two",
+        "Half price"
+      ]
+    },
+    {
+      "question": "Which fruits are mentioned as being on sale?",
+      "correctAnswer": 0,
+      "options": [
+        "Oranges and grapes",
+        "Bananas and apples",
+        "Strawberries and blueberries",
+        "Peaches and plums"
+      ]
+    }
+  ]
+}

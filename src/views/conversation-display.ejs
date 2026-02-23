@@ -252,33 +252,38 @@
     <h1>💬 Generated Conversation</h1>
     <p class="subtitle">Your conversation activity is ready</p>
     
-    <div id="statusMessage" class="message"></div>
-    
-    <div class="edit-controls">
-      <button id="editModeBtn">✏️ Edit Mode</button>
-      <button id="saveChangesBtn" style="display: none;">💾 Save Changes</button>
-    </div>
-    
-    <div class="pdf-controls">
-      <button id="generatePdfBtn" class="pdf-btn">📄 Generate PDF</button>
-      <button id="downloadPdfBtn" class="download-btn" style="display: none;">⬇️ Download PDF</button>
-    </div>
-    
-    <div class="audio-controls">
-      <button id="generateAudioBtn" class="audio-btn">🎵 Generate Audio</button>
-      <button id="downloadAudioBtn" class="download-btn" style="display: none;">⬇️ Download Audio</button>
-    </div>
-    
     <div class="section">
       <h2>Conversation</h2>
-      <div id="conversationContent"></div>
+      <% if (typeof conversation !== 'undefined' && Array.isArray(conversation)) { %>
+        <% conversation.forEach(function(exchange) { %>
+          <div class="conversation-exchange">
+            <div class="speaker-name"><%= exchange.speaker %>:</div>
+            <div class="speaker-text"><%= exchange.text %></div>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <div>No conversation data available.</div>
+      <% } %>
     </div>
-    
     <div class="section">
       <h2>Comprehension Questions</h2>
-      <div id="questionsContent"></div>
+      <% if (typeof questions !== 'undefined' && Array.isArray(questions)) { %>
+        <% questions.forEach(function(q, index) { %>
+          <div class="question-item">
+            <div class="question-text"><%= (index + 1) + '. ' + q.question %></div>
+            <ul class="options-list">
+              <% q.options.forEach(function(option, optIndex) { %>
+                <li class="<%= optIndex === q.correctAnswer ? 'correct' : '' %>">
+                  <%= String.fromCharCode(97 + optIndex) %>) <%= option %>
+                </li>
+              <% }); %>
+            </ul>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <div>No questions available.</div>
+      <% } %>
     </div>
-    
     <div class="action-buttons">
       <a href="/conversation-activity">
         <button class="secondary">← New Conversation</button>
@@ -286,368 +291,9 @@
       <a href="/">
         <button class="secondary">🏠 Home</button>
       </a>
+      <a href="/conversation/edit">
+        <button>✏️ Edit Conversation</button>
+      </a>
     </div>
-  </div>
-  
-  <script>
-    let currentData = null;
-    let currentPdfId = null;
-    let currentAudioId = null;
-    let isEditMode = false;
-    
-    // Load conversation data
-    const conversationData = sessionStorage.getItem('conversationData');
-    
-    if (!conversationData) {
-      window.location.href = '/conversation-activity';
-    } else {
-      currentData = JSON.parse(conversationData);
-      displayConversation();
-      displayQuestions();
-    }
-    
-    function displayConversation() {
-      const container = document.getElementById('conversationContent');
-      let html = '';
-      
-      currentData.conversation.forEach((exchange, index) => {
-        const editableName = isEditMode ? 'contenteditable="true"' : '';
-        const editableText = isEditMode ? 'contenteditable="true"' : '';
-        
-        html += `
-          <div class="conversation-exchange" data-index="${index}">
-            <div class="speaker-name" ${editableName} data-field="speaker">${exchange.speaker}:</div>
-            <div class="speaker-text" ${editableText} data-field="text">${exchange.text}</div>
-          </div>
-        `;
-      });
-      
-      container.innerHTML = html;
-    }
-    
-    function displayQuestions() {
-      const container = document.getElementById('questionsContent');
-      let html = '';
-      
-      currentData.questions.forEach((q, index) => {
-        const editableQuestion = isEditMode ? 'contenteditable="true"' : '';
-        const editableOption = isEditMode ? 'contenteditable="true"' : '';
-        
-        html += `
-          <div class="question-item" data-index="${index}">
-            <div class="question-text" ${editableQuestion} data-field="question">${index + 1}. ${q.question}</div>
-            <ul class="options-list">
-        `;
-        
-        q.options.forEach((option, optIndex) => {
-          const isCorrect = optIndex === q.correctAnswer;
-          html += `<li class="${isCorrect ? 'correct' : ''}" ${editableOption} data-field="option" data-option-index="${optIndex}">
-            ${String.fromCharCode(97 + optIndex)}) ${option}${isCorrect ? ' ✓' : ''}
-          </li>`;
-        });
-        
-        html += '</ul></div>';
-      });
-      
-      container.innerHTML = html;
-      // After rendering, add per-option controls when in edit mode
-      attachOptionControls();
-    }
-
-    function attachOptionControls() {
-      // For each question, add a small mark/unmark button when edit mode is active
-      const questionItems = document.querySelectorAll('#questionsContent .question-item');
-      questionItems.forEach((item, qIndex) => {
-        const optionElems = item.querySelectorAll('[data-field="option"]');
-        optionElems.forEach((optionElem, optIndex) => {
-          // Remove existing control if any
-          const existing = optionElem.querySelector('.mark-btn');
-          if (existing) existing.remove();
-
-          if (isEditMode) {
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'mark-btn';
-            btn.style.cssText = 'margin-left:10px;padding:4px 8px;border-radius:6px;border:1px solid #667eea;background:#fff;color:#667eea;cursor:pointer;font-weight:600;';
-            btn.textContent = optionElem.classList.contains('correct') ? 'Unmark' : 'Mark';
-            btn.addEventListener('click', (e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              toggleOptionCorrectness(qIndex, optIndex);
-            });
-            optionElem.appendChild(btn);
-          }
-        });
-      });
-    }
-
-    function toggleOptionCorrectness(questionIndex, optIndex) {
-      const questionItem = document.querySelector(`#questionsContent .question-item[data-index=\"${questionIndex}\"]`);
-      if (!questionItem) return;
-      const optionElems = questionItem.querySelectorAll('[data-field="option"]');
-      const target = optionElems[optIndex];
-      if (!target) return;
-
-      const alreadyCorrect = target.classList.contains('correct');
-      if (alreadyCorrect) {
-        // Unmark
-        target.classList.remove('correct');
-        // Remove checkmark from text
-        target.textContent = target.textContent.replace(/\s*✓\s*$/, '');
-      } else {
-        // Mark this option as correct and unmark others
-        optionElems.forEach((el, idx) => {
-          if (idx === optIndex) {
-            el.classList.add('correct');
-            if (!/\u2713/.test(el.textContent)) el.textContent = el.textContent + ' ✓';
-          } else {
-            el.classList.remove('correct');
-            el.textContent = el.textContent.replace(/\s*✓\s*$/, '');
-          }
-        });
-      }
-
-      // Re-attach controls so buttons reflect new state
-      attachOptionControls();
-    }
-    
-    function toggleEditMode() {
-      isEditMode = !isEditMode;
-      const editModeBtn = document.getElementById('editModeBtn');
-      const saveChangesBtn = document.getElementById('saveChangesBtn');
-      const container = document.querySelector('.container');
-      const pdfControlsEl = document.querySelector('.pdf-controls');
-      const audioControlsEl = document.querySelector('.audio-controls');
-      
-      if (isEditMode) {
-        editModeBtn.textContent = '👁️ View Mode';
-        saveChangesBtn.style.display = 'block';
-        container.classList.add('edit-mode');
-        showMessage('Edit mode enabled. Click on text to edit.', 'info');
-        // Hide PDF and audio controls while editing
-        if (pdfControlsEl) pdfControlsEl.style.display = 'none';
-        if (audioControlsEl) audioControlsEl.style.display = 'none';
-      } else {
-        editModeBtn.textContent = '✏️ Edit Mode';
-        saveChangesBtn.style.display = 'none';
-        container.classList.remove('edit-mode');
-        showMessage('Edit mode disabled.', 'info');
-        // Restore PDF and audio controls when leaving edit mode
-        if (pdfControlsEl) pdfControlsEl.style.display = 'flex';
-        if (audioControlsEl) audioControlsEl.style.display = 'flex';
-      }
-      
-      // Refresh display with edit mode
-      displayConversation();
-      displayQuestions();
-    }
-    
-    function saveChanges() {
-      try {
-        // Extract conversation changes
-        const conversationExchanges = document.querySelectorAll('#conversationContent .conversation-exchange');
-        conversationExchanges.forEach((exchange, index) => {
-          const speakerElem = exchange.querySelector('[data-field="speaker"]');
-          const textElem = exchange.querySelector('[data-field="text"]');
-          
-          if (speakerElem && textElem) {
-            // Remove the colon if present
-            const speakerText = speakerElem.textContent.trim().replace(/:$/, '');
-            currentData.conversation[index].speaker = speakerText;
-            currentData.conversation[index].text = textElem.textContent.trim();
-          }
-        });
-        
-        // Extract question changes
-        const questionItems = document.querySelectorAll('#questionsContent .question-item');
-        questionItems.forEach((item, qIndex) => {
-          const questionElem = item.querySelector('[data-field="question"]');
-          if (questionElem) {
-            // Remove question number prefix (e.g., "1. ")
-            const questionText = questionElem.textContent.trim().replace(/^\d+\.\s*/, '');
-            currentData.questions[qIndex].question = questionText;
-          }
-          
-          // Extract option changes
-          const optionElems = item.querySelectorAll('[data-field="option"]');
-          optionElems.forEach((optionElem, optIndex) => {
-            // Remove letter prefix and checkmark (e.g., "a) ", " ✓")
-            const optionText = optionElem.textContent.trim()
-              .replace(/^[a-z]\)\s*/, '')
-              .replace(/\s*✓\s*$/, '');
-            currentData.questions[qIndex].options[optIndex] = optionText;
-          });
-          // Determine which option (if any) is marked as correct in the DOM
-          const marked = item.querySelector('[data-field="option"].correct');
-          if (marked) {
-            const idx = Number(marked.getAttribute('data-option-index'));
-            currentData.questions[qIndex].correctAnswer = Number.isFinite(idx) ? idx : null;
-          } else {
-            currentData.questions[qIndex].correctAnswer = null;
-          }
-        });
-        
-        // Save updated data to sessionStorage
-        sessionStorage.setItem('conversationData', JSON.stringify(currentData));
-        
-        // Clear old PDF/Audio since content changed
-        sessionStorage.removeItem('currentConversationPdfId');
-        sessionStorage.removeItem('currentConversationAudioId');
-        currentPdfId = null;
-        currentAudioId = null;
-        document.getElementById('downloadPdfBtn').style.display = 'none';
-        document.getElementById('downloadAudioBtn').style.display = 'none';
-        
-        // Exit edit mode and refresh display
-        isEditMode = false;
-        toggleEditMode();
-        
-        showMessage('Changes saved successfully!', 'success');
-      } catch (error) {
-        console.error('Error saving changes:', error);
-        showMessage('Error saving changes: ' + error.message, 'error');
-      }
-    }
-    
-    function showMessage(message, type = 'info') {
-      const statusMessage = document.getElementById('statusMessage');
-      statusMessage.textContent = message;
-      statusMessage.className = `message ${type}`;
-      
-      if (type === 'success' || type === 'info') {
-        setTimeout(() => {
-          statusMessage.className = 'message';
-        }, 5000);
-      }
-    }
-    
-    // PDF Generation
-    document.getElementById('generatePdfBtn').addEventListener('click', async () => {
-      const generatePdfBtn = document.getElementById('generatePdfBtn');
-      const downloadPdfBtn = document.getElementById('downloadPdfBtn');
-      
-      generatePdfBtn.disabled = true;
-      generatePdfBtn.innerHTML = '<span class="spinner"></span>Generating PDF...';
-      showMessage('Generating PDF, please wait...', 'info');
-      
-      try {
-        const response = await fetch('/api/generate-conversation-pdf', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            conversation: currentData.conversation,
-            questions: currentData.questions,
-            activityId: `conversation_${currentData.timestamp}`
-          })
-        });
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`Failed to generate PDF: ${response.status}`);
-        }
-        
-        const result = await response.json();
-        
-        if (result.success) {
-          currentPdfId = result.pdfId;
-          downloadPdfBtn.style.display = 'block';
-          showMessage('PDF generated successfully!', 'success');
-          sessionStorage.setItem('currentConversationPdfId', currentPdfId);
-        } else {
-          throw new Error(result.message || 'Failed to generate PDF');
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        showMessage('Error: ' + error.message, 'error');
-      } finally {
-        generatePdfBtn.disabled = false;
-        generatePdfBtn.textContent = '📄 Generate PDF';
-      }
-    });
-    
-    document.getElementById('downloadPdfBtn').addEventListener('click', () => {
-      if (currentPdfId) {
-        window.location.href = `/api/download-pdf/${currentPdfId}`;
-        showMessage('Download started...', 'success');
-      }
-    });
-    
-    // Audio Generation
-    document.getElementById('generateAudioBtn').addEventListener('click', async () => {
-      const generateAudioBtn = document.getElementById('generateAudioBtn');
-      const downloadAudioBtn = document.getElementById('downloadAudioBtn');
-      
-      generateAudioBtn.disabled = true;
-      generateAudioBtn.innerHTML = '<span class="spinner"></span>Generating audio...';
-      showMessage('Generating audio, this may take a minute...', 'info');
-      
-      try {
-        const response = await fetch('/api/generate-conversation-audio', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            conversation: currentData.conversation,
-            audioId: `conversation_${currentData.timestamp}`
-          })
-        });
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`Failed to generate audio: ${response.status}`);
-        }
-        
-        const result = await response.json();
-        
-        if (result.success) {
-          currentAudioId = result.audioId;
-          downloadAudioBtn.style.display = 'block';
-          showMessage('Audio generated successfully!', 'success');
-          sessionStorage.setItem('currentConversationAudioId', currentAudioId);
-        } else {
-          throw new Error(result.message || 'Failed to generate audio');
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        showMessage('Error: ' + error.message, 'error');
-      } finally {
-        generateAudioBtn.disabled = false;
-        generateAudioBtn.textContent = '🎵 Generate Audio';
-      }
-    });
-    
-    document.getElementById('downloadAudioBtn').addEventListener('click', () => {
-      if (currentAudioId) {
-        window.location.href = `/api/download-conversation-audio/${currentAudioId}`;
-        showMessage('Download started...', 'success');
-      }
-    });
-    
-    // Edit Mode functionality
-    document.getElementById('editModeBtn').addEventListener('click', toggleEditMode);
-    document.getElementById('saveChangesBtn').addEventListener('click', saveChanges);
-    
-    // Check for existing PDF/Audio that match the current conversation
-    const storedPdfId = sessionStorage.getItem('currentConversationPdfId');
-    const lastConversationTimestamp = sessionStorage.getItem('lastConversationTimestamp');
-    
-    // If this is a new conversation, clear old PDF/Audio IDs
-    if (lastConversationTimestamp !== String(currentData.timestamp)) {
-      sessionStorage.removeItem('currentConversationPdfId');
-      sessionStorage.removeItem('currentConversationAudioId');
-      sessionStorage.setItem('lastConversationTimestamp', currentData.timestamp);
-    } else {
-      // Restore PDF/Audio IDs for current conversation
-      if (storedPdfId) {
-        currentPdfId = storedPdfId;
-        document.getElementById('downloadPdfBtn').style.display = 'block';
-      }
-      
-      const storedAudioId = sessionStorage.getItem('currentConversationAudioId');
-      if (storedAudioId) {
-        currentAudioId = storedAudioId;
-        document.getElementById('downloadAudioBtn').style.display = 'block';
-      }
-    }
-  </script>
 </body>
 </html>
