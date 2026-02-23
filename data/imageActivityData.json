@@ -1,0 +1,50 @@
+{
+  "activity": {
+    "imageTitle": "football.jpg",
+    "customImageBase64": null,
+    "description": "A player is about to shoot. In the background, we can see the goalkeeper, and to the left, two defenders. They are playing on a grass field.",
+    "open_question": "Look at the image. Describe what is happening in your own words. What do you think will happen next?"
+  },
+  "questions": [
+    {
+      "sentence": "The player with the ball is preparing to __________ towards the goal.",
+      "options": [
+        "shoot",
+        "pass",
+        "defend",
+        "celebrate"
+      ],
+      "correct_option": 0
+    },
+    {
+      "sentence": "In the background, we can see the goalkeeper ready to make a __________.",
+      "options": [
+        "sandwich",
+        "save",
+        "mistake",
+        "substitution"
+      ],
+      "correct_option": 1
+    },
+    {
+      "sentence": "The match is taking place on a __________ field.",
+      "options": [
+        "dirt",
+        "concrete",
+        "grass",
+        "sandy"
+      ],
+      "correct_option": 2
+    },
+    {
+      "sentence": "To the left of the image, there are two __________ trying to stop the attack.",
+      "options": [
+        "forwards",
+        "referees",
+        "defenders",
+        "coaches"
+      ],
+      "correct_option": 2
+    }
+  ]
+}

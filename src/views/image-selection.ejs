@@ -565,13 +565,11 @@
       generateBtn.innerHTML = '<span class="spinner"></span>Generating...';
       
       try {
-        const data = await postJson('/api/generate-image-activity', {
+        await postJson('/api/generate-image-activity', {
           description: selectedImage.description,
           imageTitle: selectedImage.title
         });
-
-        // Store the result in sessionStorage and navigate to display page
-        sessionStorage.setItem('activityData', JSON.stringify(data.data));
+        // No sessionStorage: backend saves activity, just redirect
         window.location.href = '/image-display';
       } catch (error) {
         const message = error?.message === 'Failed to fetch'
@@ -606,27 +604,21 @@
       
       try {
         // First, upload and save the image to the server
-        console.log('Uploading image to server...');
         const uploadData = await postJson('/api/upload-custom-image', {
           imageBase64: customImageBase64,
           description: description,
           originalFileName: originalFileName
         });
 
-        console.log('Upload successful:', uploadData);
-        
-        console.log('Image uploaded:', uploadData.imageTitle);
-        
         // Now generate the activity using the saved image
         generateBtn.innerHTML = '<span class="spinner"></span>Generating activity...';
-        
-        const data = await postJson('/api/generate-image-activity', {
+
+        await postJson('/api/generate-image-activity', {
           description: description,
           imageTitle: uploadData.imageTitle
         });
 
-        // Store the result in sessionStorage and navigate to display page
-        sessionStorage.setItem('activityData', JSON.stringify(data.data));
+        // No sessionStorage: backend saves activity, just redirect
         window.location.href = '/image-display';
       } catch (error) {
         const message = error?.message === 'Failed to fetch'

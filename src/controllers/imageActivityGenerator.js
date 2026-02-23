@@ -1,3 +1,22 @@
+const path = require('path');
+const fs = require('fs');
+
+// Render image-display.ejs with activity and questions from JSON
+function renderImageDisplay(req, res) {
+  const dataPath = path.join(__dirname, '../../data/imageActivityData.json');
+  let activity = null;
+  let questions = [];
+  try {
+    const raw = fs.readFileSync(dataPath, 'utf8');
+    const parsed = JSON.parse(raw);
+    activity = parsed.activity || {};
+    questions = parsed.questions || [];
+  } catch (e) {
+    activity = {};
+    questions = [];
+  }
+  res.render('image-display', { activity, questions });
+}
 async function callDeepSeekAPI(description) {
   const apiKey = process.env.DEEPSEEK_API_KEY;
   const apiUrl = 'https://api.deepseek.com/v1/chat/completions';
@@ -102,18 +121,59 @@ async function generateImageActivity(req, res) {
 
     console.log('Generated content from DeepSeek API:', generatedContent);
 
-    const activityData = {
-      timestamp: Date.now(),
-      description,
+
+
+    // Parse generatedContent robustly (strip triple backticks and extra text)
+    let parsed = {};
+    function extractJsonString(raw) {
+      if (!raw) return null;
+      let s = String(raw).trim();
+      s = s.replace(/^```(?:json)?\s*/i, '');
+      s = s.replace(/\s*```$/i, '');
+      // If the string contains a JSON object, try to find the first {...} block
+      const firstBrace = s.indexOf('{');
+      const lastBrace = s.lastIndexOf('}');
+      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+        return s.slice(firstBrace, lastBrace + 1);
+      }
+      return s;
+    }
+    try {
+      parsed = JSON.parse(extractJsonString(generatedContent));
+    } catch (e) {
+      parsed = {};
+    }
+
+    console.log('Parsed content for activity:', parsed);
+
+    // Prepare activity and questions for display
+    const activity = {
       imageTitle: imageTitle || null,
-      generatedContent,
-      createdAt: new Date().toISOString()
+      customImageBase64: null, // You can enhance this if needed
+      description,
+      open_question: parsed.open_question || ''
     };
+    const questions = parsed.multiple_choice_sentences || [];
+
+    // Save to imageActivityData.json for display route
+    const fs = require('fs');
+    const path = require('path');
+    try {
+      fs.writeFileSync(
+        path.join(__dirname, '../../data/imageActivityData.json'),
+        JSON.stringify({ activity, questions }, null, 2),
+        'utf8'
+      );
+    } catch (err) {
+      console.error('Failed to write imageActivityData.json:', err);
+    }
+
+    console.log('response to be sent to frontend:', { activity, questions });
 
     res.json({
       success: true,
       message: 'Activity generated successfully',
-      data: activityData
+      data: { activity, questions }
     });
 
   } catch (error) {
@@ -126,5 +186,6 @@ async function generateImageActivity(req, res) {
 }
 
 module.exports = {
-  generateImageActivity
+  generateImageActivity,
+  renderImageDisplay
 };

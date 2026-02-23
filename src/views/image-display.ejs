@@ -20,8 +20,35 @@
     .options-list li.correct{background:#d4edda;border-color:#27ae60;font-weight:600}
     .edit-controls{display:flex;gap:10px;margin-bottom:12px}
     .pdf-controls{display:flex;gap:10px;margin-bottom:12px}
-    button{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;border:none;padding:10px 18px;border-radius:8px;cursor:pointer}
-    button.secondary{background:#f5f5f5;color:#667eea;border:2px solid #667eea}
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      border: none;
+      padding: 12px 22px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 1.08em;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(102,126,234,0.10), 0 1.5px 4px rgba(118,75,162,0.08);
+      transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+    }
+    button:hover, button:focus {
+      background: linear-gradient(135deg, #5a67d8 0%, #6c3483 100%);
+      box-shadow: 0 4px 16px rgba(102,126,234,0.18), 0 3px 8px rgba(118,75,162,0.13);
+      outline: none;
+      transform: translateY(-2px) scale(1.03);
+    }
+    button.secondary {
+      background: #fff;
+      color: #764ba2;
+      border: 2px solid #764ba2;
+      box-shadow: 0 1.5px 4px rgba(118,75,162,0.08);
+    }
+    button.secondary:hover, button.secondary:focus {
+      background: #f3e9fa;
+      color: #5a67d8;
+      border-color: #5a67d8;
+    }
     .message{padding:10px;border-radius:6px;margin-bottom:12px;display:none}
     .message.info{display:block;background:#d1ecf1;color:#0c5460}
     .action-buttons{display:flex;gap:12px;margin-top:18px}
@@ -31,51 +58,98 @@
 </head>
 <body>
   <div class="container">
+      <div id="statusMessage" class="message"></div>
     <h1>🖼️ Generated Image Activity</h1>
-    <p class="subtitle">View and edit the generated image activity</p>
-
-    <div id="statusMessage" class="message"></div>
-
-    <div class="edit-controls">
-      <button id="editModeBtn">✏️ Edit Mode</button>
-      <button id="saveChangesBtn" style="display:none;">💾 Save Changes</button>
-    </div>
-
-    <div class="pdf-controls">
-      <button id="generatePdfBtn">📄 Generate PDF</button>
-      <button id="downloadPdfBtn" style="display:none;">⬇️ Download PDF</button>
+    <div class="pdf-controls" style="display:flex; gap:10px; margin-bottom:20px;">
+      <button id="generatePdfBtn" class="pdf-btn">📄 Generate PDF</button>
+      <button id="downloadPdfBtn" class="download-btn" style="display:none">⬇️ Download PDF</button>
     </div>
 
     <div class="section">
       <h2>Activity</h2>
-      <div id="activityContent"></div>
+      <div id="activityContent">
+        <% if (activity) { %>
+          <% if (activity.customImageBase64) { %>
+            <img class="preview" src="<%= activity.customImageBase64 %>" onerror="this.style.display='none';document.getElementById('imageErrorMsg').style.display='block';">
+          <% } else if (activity.imageTitle) { %>
+            <img class="preview" src="/data/images/<%= activity.imageTitle %>" onerror="this.style.display='none';document.getElementById('imageErrorMsg').style.display='block';">
+          <% } %>
+          <div id="imageErrorMsg" style="display:none;color:#c0392b;font-weight:600;margin-bottom:12px;">⚠️ Image could not be loaded.</div>
+          <% if (activity.open_question) { %>
+            <p style="margin-top:8px"><%= activity.open_question %></p>
+          <% } else if (activity.description) { %>
+            <p style="margin-top:8px"><%= activity.description %></p>
+          <% } %>
+        <% } else { %>
+          <div>No activity data available.</div>
+        <% } %>
+      </div>
     </div>
-
     <div class="section">
       <h2>Comprehension Questions</h2>
-      <div id="questionsContent"></div>
+      <div id="questionsContent">
+        <% if (questions && questions.length) { %>
+          <% questions.forEach(function(q, qIndex) { %>
+            <div class="question-item">
+              <div class="question-text"><%= (qIndex+1) + '. ' + (q.sentence || q.question) %></div>
+              <ul class="options-list">
+                <% (q.options || []).forEach(function(opt, optIndex) { %>
+                  <li class="<%= (typeof q.correct_option === 'number' && q.correct_option === optIndex) ? 'correct' : '' %>">
+                    <%= String.fromCharCode(97+optIndex) %>) <%= opt %>
+                    <%= (typeof q.correct_option === 'number' && q.correct_option === optIndex) ? ' ✓' : '' %>
+                  </li>
+                <% }); %>
+              </ul>
+            </div>
+          <% }); %>
+        <% } else { %>
+          <div>No questions available.</div>
+        <% } %>
+      </div>
     </div>
 
+    <% if (activity && activity.open_question) { %>
+      <div class="section">
+        <h2>Open-Ended Question</h2>
+        <div class="question-item">
+          <div class="question-text"><%= activity.open_question %></div>
+        </div>
+      </div>
+    <% } %>
     <div class="action-buttons">
+      <a href="/image-edit"><button>✏️ Edit Image</button></a>
       <a href="/image-activity"><button class="secondary">← New Image</button></a>
       <a href="/"><button class="secondary">🏠 Home</button></a>
     </div>
   </div>
 
   <script>
+
     let currentData = null;
     let currentPdfId = null;
     let isEditMode = false;
 
+    // Always set currentData from EJS variables if sessionStorage is empty
     const raw = sessionStorage.getItem('activityData');
-    if (!raw) {
-      window.location.href = '/image-activity';
-    } else {
+    if (raw) {
       try {
         currentData = JSON.parse(raw);
       } catch (e) {
         console.error('Invalid activityData', e);
-        window.location.href = '/image-activity';
+        currentData = null;
+      }
+    }
+    if (!currentData) {
+      try {
+        currentData = JSON.parse('<%- JSON.stringify(activity || {}) %>');
+        // Add generatedContent for PDF logic
+        currentData.generatedContent = JSON.stringify({
+          ...currentData,
+          multiple_choice_sentences: <%- JSON.stringify(questions || []) %>,
+          open_question: currentData.open_question || ''
+        });
+      } catch (e) {
+        currentData = null;
       }
     }
 
@@ -107,27 +181,7 @@
       }
     }
 
-    function displayActivity() {
-      const container = document.getElementById('activityContent');
-      const parsed = parseGenerated();
-      let html = '';
-      // show image preview if available
-      if (currentData.customImageBase64) {
-        html += `<img class="preview" src="${currentData.customImageBase64}">`;
-      } else if (currentData.imageTitle) {
-        html += `<img class="preview" src="/data/images/${currentData.imageTitle}">`;
-      }
 
-      // show any description or open_question
-      if (parsed.open_question) {
-        const oq = typeof parsed.open_question === 'string' ? parsed.open_question : (parsed.open_question.question || '');
-        html += `<p style="margin-top:8px">${oq}</p>`;
-      } else if (parsed.description) {
-        html += `<p style="margin-top:8px">${parsed.description}</p>`;
-      }
-
-      container.innerHTML = html;
-    }
 
     function displayQuestions() {
       const container = document.getElementById('questionsContent');
@@ -246,25 +300,78 @@
     }
 
     // PDF generation (generic)
-    document.getElementById('generatePdfBtn').addEventListener('click', async ()=>{
-      const btn = document.getElementById('generatePdfBtn'); btn.disabled = true; btn.textContent = '⏳ Generating PDF...'; showMessage('Generating PDF...','info');
-      try{
-        const response = await fetch('/api/generate-pdf', { method:'POST', headers:{ 'Content-Type':'application/json'}, body: JSON.stringify({ activityContent: currentData.generatedContent, activityId: `activity_${currentData.timestamp}`, imageTitle: currentData.imageTitle || null, customImageBase64: currentData.customImageBase64 || null }) });
+    // Embed activity and questions as JSON for JS access
+    const ejsActivityJSON = '<%- JSON.stringify(activity || {}) %>';
+    const ejsQuestionsJSON = '<%- JSON.stringify(questions || []) %>';
+
+    const downloadBtn = document.getElementById('downloadPdfBtn');
+    // Always hide download button on page load
+    if (downloadBtn) downloadBtn.style.display = 'none';
+
+    document.getElementById('generatePdfBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('generatePdfBtn');
+      btn.disabled = true;
+      btn.textContent = '⏳ Generating PDF...';
+      showMessage('Generating PDF...', 'info');
+      try {
+        let activityContent = null;
+        let activityId = null;
+        let imageTitle = null;
+        let customImageBase64 = null;
+        if (currentData && currentData.generatedContent) {
+          activityContent = currentData.generatedContent;
+          activityId = `activity_${currentData.timestamp}`;
+          imageTitle = currentData.imageTitle || null;
+          customImageBase64 = currentData.customImageBase64 || null;
+        } else {
+          let ejsActivity = {};
+          let ejsQuestions = [];
+          try {
+            ejsActivity = JSON.parse(ejsActivityJSON);
+            ejsQuestions = JSON.parse(ejsQuestionsJSON);
+          } catch (e) {}
+          activityContent = JSON.stringify({
+            ...ejsActivity,
+            multiple_choice_sentences: ejsQuestions,
+            open_question: ejsActivity.open_question || ''
+          });
+          activityId = `activity_${Date.now()}`;
+          imageTitle = ejsActivity.imageTitle || null;
+          customImageBase64 = ejsActivity.customImageBase64 || null;
+        }
+        const response = await fetch('/api/generate-pdf', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ activityContent, activityId, imageTitle, customImageBase64 })
+        });
         if (!response.ok) throw new Error('PDF generation failed');
-        const result = await response.json(); if (result.success){ currentPdfId = result.pdfId; sessionStorage.setItem('currentPdfId', currentPdfId); document.getElementById('downloadPdfBtn').style.display='inline-block'; showMessage('PDF generated successfully!','success'); } else throw new Error(result.message || 'Failed');
-      } catch (err){ console.error(err); showMessage('Error: '+err.message,'error'); } finally { btn.disabled = false; btn.textContent = '📄 Generate PDF'; }
+        const result = await response.json();
+        if (result.success) {
+          currentPdfId = result.pdfId;
+          sessionStorage.setItem('currentPdfId', currentPdfId);
+          if (downloadBtn) downloadBtn.style.display = 'inline-block';
+          showMessage('PDF generated successfully!', 'success');
+        } else throw new Error(result.message || 'Failed');
+      } catch (err) {
+        console.error(err);
+        showMessage('Error: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '📄 Generate PDF';
+      }
     });
 
-    document.getElementById('downloadPdfBtn').addEventListener('click', ()=>{ const id = sessionStorage.getItem('currentPdfId'); if(id) window.location.href=`/api/download-pdf/${id}`; });
+    if (downloadBtn) downloadBtn.addEventListener('click', () => {
+      const id = sessionStorage.getItem('currentPdfId');
+      if (id) window.location.href = `/api/download-pdf/${id}`;
+    });
 
-    document.getElementById('editModeBtn').addEventListener('click', toggleEditMode);
-    document.getElementById('saveChangesBtn').addEventListener('click', saveChanges);
+    const editModeBtn = document.getElementById('editModeBtn');
+    if (editModeBtn) editModeBtn.addEventListener('click', toggleEditMode);
+    const saveChangesBtn = document.getElementById('saveChangesBtn');
+    if (saveChangesBtn) saveChangesBtn.addEventListener('click', saveChanges);
 
-    // Init
-    displayActivity(); displayQuestions();
-    // Restore PDF state if exists for this activity
-    const storedPdf = sessionStorage.getItem('currentPdfId'); if(storedPdf && String(currentData.timestamp)===String(sessionStorage.getItem('lastActivityTimestamp'))){ currentPdfId=storedPdf; document.getElementById('downloadPdfBtn').style.display='inline-block'; }
-    else { sessionStorage.setItem('lastActivityTimestamp', currentData.timestamp); }
+    // displayQuestions(); // Only call in edit mode
   </script>
 </body>
 </html>

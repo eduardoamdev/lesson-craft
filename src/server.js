@@ -41,7 +41,24 @@ app.get('/activity-display', (req, res) => {
 });
 
 app.get('/image-display', (req, res) => {
-  res.render('image-display', { title: 'Image Activity - Lesson Craft' });
+  let activity = null;
+  let questions = null;
+  try {
+    const filePath = path.join(__dirname, '../data/imageActivityData.json');
+    if (fs.existsSync(filePath)) {
+      const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      activity = data.activity;
+      questions = data.questions;
+    }
+  } catch (e) {
+    activity = null;
+    questions = null;
+  }
+  res.render('image-display', {
+    title: 'Image Activity - Lesson Craft',
+    activity,
+    questions
+  });
 });
 
 app.get('/video-display', (req, res) => {

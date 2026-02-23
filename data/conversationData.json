@@ -1,32 +1,28 @@
 {
   "conversation": [
     {
+      "speaker": "Customer",
+      "text": "Could you help me find the pasta sauces?"
+    },
+    {
       "speaker": "Employee",
-      "text": "Hi there! Can I help you find anything today?"
+      "text": "Of course! They're in aisle seven, on the middle shelf. Is there a particular brand you're looking for?"
     },
     {
       "speaker": "Customer",
-      "text": "Yes, please. I'm looking for the pasta and rice aisle. I also wanted to check if there are any special offers."
+      "text": "Not really, but are there any special offers on them at the moment?"
     },
     {
       "speaker": "Employee",
-      "text": "Sure! The pasta and rice are in aisle 7, right in the middle. As for offers, we have a 'buy one, get one free' deal on our own-brand pasta sauces this week."
+      "text": "Yes, actually. The 'Mama Rosa' brand is on a 'buy one, get one free' offer this week."
     },
     {
       "speaker": "Customer",
-      "text": "Oh, that's great! Are the sauces in the same aisle?"
+      "text": "Oh, that's great! And do you know if the fresh basil is on sale too?"
     },
     {
       "speaker": "Employee",
-      "text": "They're actually in aisle 8, next to the pasta. But I can show you if you like."
-    },
-    {
-      "speaker": "Customer",
-      "text": "That's okay, I think I can find it. Is there a discount on rice as well?"
-    },
-    {
-      "speaker": "Employee",
-      "text": "Yes, the long-grain rice is on sale. It's 20% off the usual price. The price tags with red labels are all the special offers."
+      "text": "Let me check... Yes, all fresh herbs are 20% off until tomorrow."
     },
     {
       "speaker": "Customer",
@@ -34,49 +30,49 @@
     },
     {
       "speaker": "Employee",
-      "text": "You're welcome! Have a nice day."
+      "text": "You're very welcome. Have a nice day!"
     }
   ],
   "questions": [
     {
-      "question": "What is the customer looking for?",
+      "question": "Where can the customer find the pasta sauces?",
       "options": [
-        "Pasta and rice",
-        "Pasta sauce and rice",
-        "Bread and milk",
-        "Fruit and vegetables"
+        "In aisle five",
+        "On the top shelf in aisle seven",
+        "In aisle seven on the middle shelf",
+        "Near the fresh vegetables"
       ],
-      "correctAnswer": null
+      "correctAnswer": 2
     },
     {
-      "question": "What is the special offer on pasta sauce?",
+      "question": "What is the special offer on the 'Mama Rosa' pasta sauce?",
       "options": [
         "20% off",
         "Buy one, get one free",
         "Half price",
         "Three for the price of two"
       ],
-      "correctAnswer": null
+      "correctAnswer": 1
     },
     {
-      "question": "Where can the customer find the special offer items?",
+      "question": "What else does the customer ask about?",
       "options": [
-        "On blue price tags",
-        "On red price tags",
-        "At the front of the store",
-        "At the customer service desk"
+        "Fresh tomatoes",
+        "Canned tomatoes",
+        "Fresh basil",
+        "Dried herbs"
       ],
-      "correctAnswer": null
+      "correctAnswer": 2
     },
     {
-      "question": "What does the employee offer to do for the customer?",
+      "question": "What is the discount on fresh herbs?",
       "options": [
-        "Carry their bags",
-        "Show them the pasta sauce aisle",
-        "Give them a free sample",
-        "Call another employee"
+        "10% off",
+        "Buy one, get one free",
+        "30% off",
+        "20% off"
       ],
-      "correctAnswer": null
+      "correctAnswer": 3
     }
   ]
 }
