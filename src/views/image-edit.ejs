@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Image Activity - Lesson Craft</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 900px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+    h1 {
+      color: #667eea;
+      margin-bottom: 10px;
+      font-size: 2.5em;
+      text-align: center;
+    }
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 1.1em;
+      text-align: center;
+    }
+    .section {
+      margin-bottom: 35px;
+    }
+    .section h2 {
+      color: #764ba2;
+      margin-bottom: 20px;
+      font-size: 1.5em;
+      border-bottom: 2px solid #764ba2;
+      padding-bottom: 8px;
+    }
+    .activity-img {
+      max-width: 100%;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+    .question-item {
+      margin-bottom: 25px;
+      padding: 20px;
+      background: #f0f0f0;
+      border-radius: 8px;
+    }
+    .question-text {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 12px;
+      font-size: 1.1em;
+    }
+    .question-input {
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 6px 10px;
+      font-size: 1em;
+      width: 100%;
+      margin-bottom: 12px;
+    }
+    .options-list {
+      list-style: none;
+      padding-left: 0;
+    }
+    .options-list li {
+      padding: 10px;
+      margin-bottom: 6px;
+      background: white;
+      border-radius: 4px;
+      border: 2px solid transparent;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .options-list li.correct {
+      border-color: #27ae60;
+      background: #d4edda;
+      font-weight: 600;
+    }
+    .option-input {
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 6px 10px;
+      font-size: 1em;
+      flex: 1;
+    }
+    .correct-radio {
+      margin-right: 8px;
+    }
+    .action-buttons {
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+    }
+    .action-buttons button, .action-buttons a {
+      flex: 1;
+      text-decoration: none;
+    }
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    button.secondary {
+      background: #f5f5f5;
+      color: #667eea;
+      border: 2px solid #667eea;
+    }
+    button.secondary:hover {
+      background: #667eea;
+      color: white;
+    }
+    .message {
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-weight: 500;
+      display: none;
+    }
+    .message.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      display: block;
+    }
+    .message.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Edit Image Activity</h1>
+    <form method="POST" action="/image-edit">
+      <div class="section">
+        <h2>Activity</h2>
+        <% if (activity && (activity.customImageBase64 || activity.imageTitle)) { %>
+          <% if (activity.customImageBase64) { %>
+            <img class="activity-img" src="<%= activity.customImageBase64 %>" alt="Activity Image" />
+          <% } else if (activity.imageTitle) { %>
+            <img class="activity-img" src="/data/images/<%= activity.imageTitle %>" alt="Activity Image" />
+          <% } %>
+        <% } %>
+        <label>Description:</label>
+        <input class="question-input" type="text" name="activity[description]" value="<%= activity.description || '' %>" required />
+        <label>Open Question:</label>
+        <input class="question-input" type="text" name="activity[open_question]" value="<%= activity.open_question || '' %>" required />
+      </div>
+      <div class="section">
+        <h2>Comprehension Questions</h2>
+        <% questions.forEach(function(q, qIdx) { %>
+          <div class="question-item">
+            <input class="question-input" type="text" name="questions[<%= qIdx %>][sentence]" value="<%= q.sentence %>" required />
+            <ul class="options-list">
+              <% q.options.forEach(function(opt, oIdx) { %>
+                <li class="<%= q.correct_option === oIdx ? 'correct' : '' %>">
+                  <input class="correct-radio" type="radio" name="questions[<%= qIdx %>][correct_option]" value="<%= oIdx %>" <%= q.correct_option === oIdx ? 'checked' : '' %> />
+                  <span><%= String.fromCharCode(97 + oIdx) %>)</span>
+                  <input class="option-input" type="text" name="questions[<%= qIdx %>][options][]" value="<%= opt %>" required />
+                </li>
+              <% }); %>
+              <!-- None option for unmarking -->
+              <li class="<%= (q.correct_option === undefined || q.correct_option === null || q.correct_option === '' || isNaN(q.correct_option)) ? 'correct' : '' %>">
+                <input class="correct-radio" type="radio" name="questions[<%= qIdx %>][correct_option]" value="" <%= (q.correct_option === undefined || q.correct_option === null || q.correct_option === '' || isNaN(q.correct_option)) ? 'checked' : '' %> />
+                <span>None</span>
+              </li>
+            </ul>
+          </div>
+        <% }); %>
+      </div>
+      <div class="action-buttons">
+        <button type="submit">💾 Save Changes</button>
+        <a href="/image-display"><button type="button" class="secondary">👁️ Cancel</button></a>
+      </div>
+    </form>
+    <% if (message) { %>
+      <div class="message <%= messageType %>"><%= message %></div>
+    <% } %>
+  </div>
+</body>
+</html>

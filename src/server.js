@@ -113,6 +113,7 @@ app.use(
 app.use(bodyParser.json({ limit: JSON_LIMIT_DEFAULT }));
 app.use(bodyParser.urlencoded({ extended: true, limit: JSON_LIMIT_DEFAULT }));
 
+app.use('/', imageActivityGeneratorRoutes);
 app.use('/api', imageActivityGeneratorRoutes);
 app.use('/api', conversationGeneratorRoutes);
 app.use('/api', conversationAudioGeneratorRoutes);
