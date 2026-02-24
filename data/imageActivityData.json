@@ -7,44 +7,54 @@
   },
   "questions": [
     {
-      "sentence": "The player with the ball is preparing to __________ towards the goal.",
+      "sentence": "The player is preparing to __________ the ball towards the goal.",
       "options": [
-        "shoot",
-        "pass",
-        "defend",
-        "celebrate"
-      ],
-      "correct_option": 0
-    },
-    {
-      "sentence": "In the background, we can see the goalkeeper ready to make a __________.",
-      "options": [
-        "sandwich",
-        "save",
-        "mistake",
-        "substitution"
+        "catch",
+        "kick",
+        "hold",
+        "defend"
       ],
       "correct_option": 1
     },
     {
-      "sentence": "The match is taking place on a __________ field.",
+      "sentence": "In the background, the __________ is ready to stop the shot.",
       "options": [
-        "dirt",
-        "concrete",
-        "grass",
-        "sandy"
+        "defender",
+        "coach",
+        "goalkeeper",
+        "referee"
       ],
       "correct_option": 2
     },
     {
-      "sentence": "To the left of the image, there are two __________ trying to stop the attack.",
+      "sentence": "The game is taking place on a __________ field.",
+      "options": [
+        "concrete",
+        "grass",
+        "sandy",
+        "wooden"
+      ],
+      "correct_option": 1
+    },
+    {
+      "sentence": "To the left of the image, we can see two __________ trying to block the player.",
       "options": [
         "forwards",
-        "referees",
         "defenders",
-        "coaches"
+        "goalkeepers",
+        "spectators"
       ],
-      "correct_option": 2
+      "correct_option": 1
+    },
+    {
+      "sentence": "The main action in the image is a player attempting to __________ at the goal.",
+      "options": [
+        "pass",
+        "shoot",
+        "dribble",
+        "tackle"
+      ],
+      "correct_option": 1
     }
   ]
 }

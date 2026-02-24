@@ -17,10 +17,11 @@
     .options-list{list-style:none;padding-left:0}
     .options-list li{padding:8px;margin-bottom:6px;background:#fff;border-radius:6px;border:2px solid transparent}
     .options-list li.correct{background:#d4edda;border-color:#27ae60;font-weight:600}
-    .edit-controls{display:flex;gap:10px;margin-bottom:12px}
-    .pdf-controls{display:flex;gap:10px;margin-bottom:12px}
-    button{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;border:none;padding:10px 18px;border-radius:8px;cursor:pointer}
-    button.secondary{background:#f5f5f5;color:#667eea;border:2px solid #667eea}
+    .top-controls{display:flex;gap:10px;margin-bottom:20px;align-items:center;}
+    .top-controls button{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;border:none;padding:12px 22px;border-radius:12px;cursor:pointer;font-size:1.08em;font-weight:600;box-shadow:0 2px 8px rgba(102,126,234,0.10),0 1.5px 4px rgba(118,75,162,0.08);transition:background 0.2s,box-shadow 0.2s,transform 0.1s;}
+    .top-controls button:hover,.top-controls button:focus{background:linear-gradient(135deg,#5a67d8 0%,#6c3483 100%);box-shadow:0 4px 16px rgba(102,126,234,0.18),0 3px 8px rgba(118,75,162,0.13);outline:none;transform:translateY(-2px) scale(1.03);}
+    button.secondary{background:#fff;color:#764ba2;border:2px solid #764ba2;box-shadow:0 1.5px 4px rgba(118,75,162,0.08);}
+    button.secondary:hover,button.secondary:focus{background:#f3e9fa;color:#5a67d8;border-color:#5a67d8;}
     .message{padding:10px;border-radius:6px;margin-bottom:12px;display:none}
     .message.info{display:block;background:#d1ecf1;color:#0c5460}
     .video-frame{width:100%;height:400px;border-radius:8px;margin-bottom:12px}
@@ -35,12 +36,9 @@
 
     <div id="statusMessage" class="message"></div>
 
-    <div class="edit-controls">
+    <div class="top-controls">
       <button id="editModeBtn">✏️ Edit Mode</button>
       <button id="saveChangesBtn" style="display:none;">💾 Save Changes</button>
-    </div>
-
-    <div class="pdf-controls">
       <button id="generatePdfBtn">📄 Generate PDF</button>
       <button id="downloadPdfBtn" style="display:none;">⬇️ Download PDF</button>
     </div>
@@ -55,7 +53,9 @@
       <div id="questionsContent"></div>
     </div>
 
-    <div class="action-buttons">
+    <div class="section" id="openQuestionSection"></div>
+
+    <div class="top-controls" style="margin-top:24px;">
       <a href="/video-activity"><button class="secondary">← New Video</button></a>
       <a href="/"><button class="secondary">🏠 Home</button></a>
     </div>
@@ -105,12 +105,13 @@
         if (id) html += `<iframe class="video-frame" src="https://www.youtube.com/embed/${id}" frameborder="0" allowfullscreen></iframe>`;
         else html += `<div><a href="${youtube}" target="_blank">Open video source</a></div>`;
       }
-      if (parsed.open_question) { const oq = typeof parsed.open_question==='string'?parsed.open_question:parsed.open_question.question||''; html += `<p style="margin-top:8px">${oq}</p>`; }
+      // Open question is now rendered separately
       container.innerHTML = html;
     }
 
     function displayQuestions(){
       const container = document.getElementById('questionsContent');
+      const openQSection = document.getElementById('openQuestionSection');
       const parsed = parseGenerated();
       const multi = parsed.multiple_choice_sentences || parsed.multiple_choice_blanks || [];
       let html = '';
@@ -133,6 +134,18 @@
       });
       container.innerHTML = html;
       attachOptionControls();
+
+      // Render open question at the bottom with section title
+      let oqHtml = '';
+      const oq = typeof parsed.open_question==='string'?parsed.open_question:parsed.open_question?.question||'';
+      if (oq) {
+        if (isEditMode) {
+          oqHtml += `<h2>Open Question</h2><div class="question-item"><textarea id="openQuestionInput" class="question-input" style="width:100%;font-weight:600;color:#333;font-size:1.1em;margin-bottom:12px;min-height:80px;resize:vertical;padding:6px 10px;border:1px solid #ccc;border-radius:4px;background:#fff;">${oq.replace(/"/g,'&quot;')}</textarea></div>`;
+        } else {
+          oqHtml += `<h2>Open Question</h2><div class="question-item"><div class="question-text">${oq}</div></div>`;
+        }
+      }
+      openQSection.innerHTML = oqHtml;
     }
 
     function attachOptionControls(){
@@ -181,7 +194,28 @@
       attachOptionControls();
     }
 
-    function toggleEditMode(){ isEditMode=!isEditMode; const editModeBtn=document.getElementById('editModeBtn'); const saveChangesBtn=document.getElementById('saveChangesBtn'); const pdfControlsEl=document.querySelector('.pdf-controls'); if(isEditMode){ editModeBtn.textContent='👁️ View Mode'; saveChangesBtn.style.display='inline-block'; if(pdfControlsEl) pdfControlsEl.style.display='none'; showMessage('Edit mode enabled. Click to edit.','info'); } else { editModeBtn.textContent='✏️ Edit Mode'; saveChangesBtn.style.display='none'; if(pdfControlsEl) pdfControlsEl.style.display='flex'; showMessage('Edit mode disabled.','info'); } displayActivity(); displayQuestions(); }
+    function toggleEditMode(){
+      isEditMode=!isEditMode;
+      const editModeBtn=document.getElementById('editModeBtn');
+      const saveChangesBtn=document.getElementById('saveChangesBtn');
+      // PDF buttons
+      const generatePdfBtn=document.getElementById('generatePdfBtn');
+      const downloadPdfBtn=document.getElementById('downloadPdfBtn');
+      if(isEditMode){
+        editModeBtn.textContent='👁️ View Mode';
+        saveChangesBtn.style.display='inline-block';
+        if(generatePdfBtn) generatePdfBtn.style.display='none';
+        if(downloadPdfBtn) downloadPdfBtn.style.display='none';
+        showMessage('Edit mode enabled. Click to edit.','info');
+      } else {
+        editModeBtn.textContent='✏️ Edit Mode';
+        saveChangesBtn.style.display='none';
+        if(generatePdfBtn) generatePdfBtn.style.display='inline-block';
+        if(downloadPdfBtn && currentPdfId) downloadPdfBtn.style.display='inline-block';
+        showMessage('Edit mode disabled.','info');
+      }
+      displayActivity(); displayQuestions();
+    }
 
     function saveChanges(){
       try{
@@ -202,6 +236,11 @@
           });
           parsed.multiple_choice_sentences.push({ sentence: qText, options: opts, correct_option: correctIdx });
         });
+        // Save open question edit
+        const oqInput = document.getElementById('openQuestionInput');
+        if (oqInput) {
+          parsed.open_question = oqInput.value;
+        }
         currentData.generatedContent = JSON.stringify(parsed);
         sessionStorage.setItem('activityData', JSON.stringify(currentData));
         sessionStorage.removeItem('currentPdfId');
