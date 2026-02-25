@@ -14,8 +14,67 @@ body {
   flex-direction: column;
 }
 
-@layer base {
-  * {
-    @apply border-white/10;
-  }
+/* Button Base Styles */
+.btn-base {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 1rem 1.5rem;
+  border-radius: 0.75rem;
+  color: white;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn-base:hover {
+  transform: scale(1.02);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.btn-base:active {
+  transform: scale(0.98);
+}
+
+/* Specific Button Colors with fallbacks */
+.btn-blue {
+  background-color: #1e3a8a;
+  background-image: linear-gradient(to right, #1e3a8a, #581c87);
+}
+.btn-blue:hover {
+  background-color: #2563eb;
+  background-image: linear-gradient(to right, #2563eb, #7c3aed);
+}
+
+.btn-purple {
+  background-color: #701a75;
+  background-image: linear-gradient(to right, #701a75, #991b1b);
+}
+.btn-purple:hover {
+  background-color: #a21caf;
+  background-image: linear-gradient(to right, #a21caf, #dc2626);
+}
+
+.btn-teal {
+  background-color: #075985;
+  background-image: linear-gradient(to right, #075985, #0d9488);
+}
+.btn-teal:hover {
+  background-color: #0284c7;
+  background-image: linear-gradient(to right, #0284c7, #0f766e);
+}
+
+/* Base resets */
+* {
+  border-color: rgba(255, 255, 255, 0.05);
 }

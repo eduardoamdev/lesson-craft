@@ -15,17 +15,17 @@ export default function Home() {
         </div>
 
         <div className="flex flex-col gap-4">
-          <button className="flex items-center justify-center gap-3 w-full py-4 px-6 rounded-xl bg-gradient-to-r from-[#1e3a8a] to-[#581c87] text-white font-semibold transition-transform hover:scale-[1.02] active:scale-[0.98] shadow-lg">
+          <button className="btn-base btn-blue">
             <span>🖼️</span>
             Image Activity Craft
           </button>
 
-          <button className="flex items-center justify-center gap-3 w-full py-4 px-6 rounded-xl bg-gradient-to-r from-[#701a75] to-[#991b1b] text-white font-semibold transition-transform hover:scale-[1.02] active:scale-[0.98] shadow-lg">
+          <button className="btn-base btn-purple">
             <span>💬</span>
             Conversation Activity Craft
           </button>
 
-          <button className="flex items-center justify-center gap-3 w-full py-4 px-6 rounded-xl bg-gradient-to-r from-[#075985] to-[#0d9488] text-white font-semibold transition-transform hover:scale-[1.02] active:scale-[0.98] shadow-lg">
+          <button className="btn-base btn-teal">
             <span>🎬</span>
             Video Activity Craft
           </button>
