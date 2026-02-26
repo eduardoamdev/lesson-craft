@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Home() {
   return (
     <main className="flex flex-1 items-center justify-center p-4">
@@ -15,10 +17,13 @@ export default function Home() {
         </div>
 
         <div className="flex flex-col gap-4">
-          <button className="btn-base btn-blue">
+          <Link
+            href="/material-generators/image-lesson"
+            className="btn-base btn-blue"
+          >
             <span>🖼️</span>
             Image Activity Craft
-          </button>
+          </Link>
 
           <button className="btn-base btn-purple">
             <span>💬</span>
