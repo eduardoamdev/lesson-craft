@@ -62,7 +62,7 @@ export function useImageUpload() {
       formData.append("age", age);
       formData.append("level", level);
 
-      const response = await fetch("/api/image-lesson/upload", {
+      const response = await fetch("/api/image-lesson/generate", {
         method: "POST",
         body: formData,
       });
