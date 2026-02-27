@@ -8,6 +8,8 @@ export function useImageUpload() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [description, setDescription] = useState("");
+  const [age, setAge] = useState("");
+  const [level, setLevel] = useState("A1");
   const [isUploading, setIsUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -57,6 +59,8 @@ export function useImageUpload() {
       const formData = new FormData();
       formData.append("file", selectedFile);
       formData.append("description", description);
+      formData.append("age", age);
+      formData.append("level", level);
 
       const response = await fetch("/api/image-lesson/upload", {
         method: "POST",
@@ -86,6 +90,10 @@ export function useImageUpload() {
     previewUrl,
     description,
     setDescription,
+    age,
+    setAge,
+    level,
+    setLevel,
     isUploading,
     isDragging,
     fileInputRef,

@@ -28,6 +28,8 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const file = formData.get("file") as File;
     const description = (formData.get("description") as string) || "";
+    const age = (formData.get("age") as string) || "";
+    const level = (formData.get("level") as string) || "";
 
     if (!file) {
       return NextResponse.json({ error: "Missing file" }, { status: 400 });
@@ -69,6 +71,8 @@ export async function POST(req: NextRequest) {
       fileName: imageFileName,
       timestamp,
       description,
+      age,
+      level,
     };
     const jsonPath = path.join(uploadDir, jsonFileName);
     await fs.writeFile(jsonPath, JSON.stringify(metadata, null, 2));

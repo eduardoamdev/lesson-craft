@@ -4,6 +4,8 @@ import { useImageUpload } from "@/hooks/useImageUpload";
 import Button from "@/components/ui/Button";
 import UploadZone from "@/components/image-lesson/UploadZone";
 import TextArea from "@/components/ui/TextArea";
+import Input from "@/components/ui/Input";
+import Select from "@/components/ui/Select";
 
 export default function ImageLessonGenerator() {
   const {
@@ -11,6 +13,10 @@ export default function ImageLessonGenerator() {
     previewUrl,
     description,
     setDescription,
+    age,
+    setAge,
+    level,
+    setLevel,
     isUploading,
     isDragging,
     fileInputRef,
@@ -21,6 +27,15 @@ export default function ImageLessonGenerator() {
     handleDrop,
     handleGenerate,
   } = useImageUpload();
+
+  const levelOptions = [
+    { value: "A1", label: "A1 (Beginner)" },
+    { value: "A2", label: "A2 (Elementary)" },
+    { value: "B1", label: "B1 (Intermediate)" },
+    { value: "B2", label: "B2 (Upper Intermediate)" },
+    { value: "C1", label: "C1 (Advanced)" },
+    { value: "C2", label: "C2 (Proficient)" },
+  ];
 
   return (
     <main className="flex flex-1 items-center justify-center p-4">
@@ -69,6 +84,22 @@ export default function ImageLessonGenerator() {
             value={description}
             onChange={setDescription}
           />
+
+          {/* Age and Level Inputs */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Input
+              label="Student's Age"
+              placeholder="e.g. 12, 25, Adults..."
+              value={age}
+              onChange={setAge}
+            />
+            <Select
+              label="English Level"
+              value={level}
+              onChange={setLevel}
+              options={levelOptions}
+            />
+          </div>
 
           {/* Footer Buttons */}
           <div className="flex gap-4 pt-2">
