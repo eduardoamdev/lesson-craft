@@ -1,8 +1,88 @@
 "use client";
 
+import { useState, useRef, ChangeEvent } from "react";
+import Image from "next/image";
 import Button from "@/components/ui/Button";
 
 export default function ImageLessonGenerator() {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [description, setDescription] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type.startsWith("image/")) {
+      setSelectedFile(file);
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    }
+  };
+
+  const handleGenerate = async () => {
+    if (!selectedFile) {
+      alert("Please select an image first");
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+      formData.append("description", description);
+
+      const response = await fetch("/api/image-lesson/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        console.log("Upload successful:", result.fileName);
+        alert(
+          `Activity generated successfully!\nFile saved as: ${result.fileName}`,
+        );
+        // Reset or redirect as needed
+      } else {
+        alert("Upload failed: " + result.error);
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      alert("An error occurred during the activity generation.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   return (
     <main className="flex flex-1 items-center justify-center p-4">
       <div className="w-full max-w-2xl bg-[#121212] rounded-[2rem] p-10 shadow-2xl border border-white/5 mx-auto">
@@ -23,17 +103,57 @@ export default function ImageLessonGenerator() {
 
         {/* Action Content Area */}
         <div className="space-y-8">
+          {/* Hidden File Input */}
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept="image/*"
+            className="hidden"
+          />
+
           {/* Upload Area */}
-          <div className="flex flex-col items-center justify-center border-2 border-dashed border-[#1e3a8a]/80 bg-[#121212] rounded-3xl p-16 hover:border-[#3b82f6] transition-all cursor-pointer group">
-            <div className="mb-4 transform group-hover:scale-110 transition-transform duration-300">
-              <span className="text-7xl">📂</span>
-            </div>
-            <p className="text-white font-bold text-2xl">
-              Click to upload an image
-            </p>
-            <p className="text-[#64748b] text-base mt-1">
-              Supports JPG, PNG, GIF
-            </p>
+          <div
+            onClick={handleUploadClick}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            className={`flex flex-col items-center justify-center border-2 border-dashed rounded-3xl p-16 transition-all cursor-pointer group overflow-hidden relative min-h-[300px] ${
+              isDragging
+                ? "border-[#3b82f6] bg-[#3b82f6]/10 scale-[1.02]"
+                : selectedFile
+                  ? "border-[#3b82f6]/50 bg-[#1c1c1c]/50"
+                  : "border-[#1e3a8a]/80 bg-[#121212] hover:border-[#3b82f6]"
+            }`}
+          >
+            {previewUrl ? (
+              <div className="absolute inset-0 flex items-center justify-center p-4">
+                <Image
+                  src={previewUrl}
+                  alt="Preview"
+                  fill
+                  className="object-contain p-4 rounded-xl shadow-lg"
+                  unoptimized // Required for blob URLs
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-3xl z-10">
+                  <p className="text-white font-bold text-xl">Change Image</p>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="mb-4 transform group-hover:scale-110 transition-transform duration-300">
+                  <span className="text-7xl">📂</span>
+                </div>
+                <p className="text-white font-bold text-2xl">
+                  {selectedFile
+                    ? selectedFile.name
+                    : "Click to upload an image"}
+                </p>
+                <p className="text-[#64748b] text-base mt-1">
+                  Supports JPG, PNG, GIF
+                </p>
+              </>
+            )}
           </div>
 
           {/* Image Description Section */}
@@ -42,6 +162,8 @@ export default function ImageLessonGenerator() {
               Image Description
             </label>
             <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
               className="w-full bg-[#1c1c1c] border border-white/5 rounded-2xl p-6 text-[#cbd5e1] min-h-[160px] focus:outline-none focus:ring-2 focus:ring-[#3b82f6]/20 focus:border-[#3b82f6]/50 resize-none transition-all placeholder:text-[#475569]"
               placeholder="Describe the image in detail. This description will be used to generate the lesson activity..."
             />
@@ -52,8 +174,14 @@ export default function ImageLessonGenerator() {
             <Button href="/" variant="outline" className="flex-1" icon="←">
               Back
             </Button>
-            <Button variant="gradient" className="flex-1">
-              Generate Activity
+            <Button
+              variant="gradient"
+              className="flex-1"
+              onClick={handleGenerate}
+              disabled={isUploading || !selectedFile}
+              icon={isUploading ? "⏳" : undefined}
+            >
+              {isUploading ? "Generating..." : "Generate Activity"}
             </Button>
           </div>
         </div>
