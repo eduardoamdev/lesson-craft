@@ -9,6 +9,8 @@ async function cleanupOldFiles(dir: string) {
     const oneHour = 60 * 60 * 1000;
 
     for (const file of files) {
+      if (file === ".gitignore") continue;
+
       const filePath = path.join(dir, file);
       const stats = await fs.stat(filePath);
       if (now - stats.mtimeMs > oneHour) {
