@@ -1,87 +1,25 @@
 "use client";
 
-import { useState, useRef, ChangeEvent } from "react";
+import { useImageUpload } from "@/hooks/useImageUpload";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
 
 export default function ImageLessonGenerator() {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [description, setDescription] = useState("");
-  const [isUploading, setIsUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const [isDragging, setIsDragging] = useState(false);
-
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
-    }
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = () => {
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const file = e.dataTransfer.files?.[0];
-    if (file && file.type.startsWith("image/")) {
-      setSelectedFile(file);
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
-    }
-  };
-
-  const handleGenerate = async () => {
-    if (!selectedFile) {
-      alert("Please select an image first");
-      return;
-    }
-
-    setIsUploading(true);
-
-    try {
-      const formData = new FormData();
-      formData.append("file", selectedFile);
-      formData.append("description", description);
-
-      const response = await fetch("/api/image-lesson/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        console.log("Upload successful:", result.fileName);
-        alert(
-          `Activity generated successfully!\nFile saved as: ${result.fileName}`,
-        );
-        // Reset or redirect as needed
-      } else {
-        alert("Upload failed: " + result.error);
-      }
-    } catch (error) {
-      console.error("Upload error:", error);
-      alert("An error occurred during the activity generation.");
-    } finally {
-      setIsUploading(false);
-    }
-  };
+  const {
+    selectedFile,
+    previewUrl,
+    description,
+    setDescription,
+    isUploading,
+    isDragging,
+    fileInputRef,
+    handleUploadClick,
+    handleFileChange,
+    handleDragOver,
+    handleDragLeave,
+    handleDrop,
+    handleGenerate,
+  } = useImageUpload();
 
   return (
     <main className="flex flex-1 items-center justify-center p-4">
