@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Button from "@/components/ui/Button";
 
 export default function Home() {
   return (
@@ -17,23 +17,21 @@ export default function Home() {
         </div>
 
         <div className="flex flex-col gap-4">
-          <Link
+          <Button
             href="/material-generators/image-lesson"
-            className="btn-base btn-blue"
+            variant="blue"
+            icon="🖼️"
           >
-            <span>🖼️</span>
             Image Activity Craft
-          </Link>
+          </Button>
 
-          <button className="btn-base btn-purple">
-            <span>💬</span>
+          <Button variant="purple" icon="💬">
             Conversation Activity Craft
-          </button>
+          </Button>
 
-          <button className="btn-base btn-teal">
-            <span>🎬</span>
+          <Button variant="teal" icon="🎬">
             Video Activity Craft
-          </button>
+          </Button>
         </div>
       </div>
     </main>

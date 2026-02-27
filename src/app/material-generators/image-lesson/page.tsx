@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Button from "@/components/ui/Button";
 
 export default function ImageLessonGenerator() {
   return (
@@ -49,16 +49,12 @@ export default function ImageLessonGenerator() {
 
           {/* Footer Buttons */}
           <div className="flex gap-4 pt-2">
-            <Link
-              href="/"
-              className="flex-1 flex items-center justify-center gap-2 py-4 px-6 rounded-xl border border-[#1e3a8a]/50 text-[#60a5fa] hover:bg-[#1e3a8a]/10 transition-all font-semibold"
-            >
-              <span className="text-lg font-bold">←</span>
+            <Button href="/" variant="outline" className="flex-1" icon="←">
               Back
-            </Link>
-            <button className="flex-1 py-4 px-6 rounded-xl bg-gradient-to-r from-[#1e3a8a] to-[#581c87] text-white font-bold hover:brightness-110 active:scale-[0.98] transition-all shadow-xl shadow-blue-950/40">
+            </Button>
+            <Button variant="gradient" className="flex-1">
               Generate Activity
-            </button>
+            </Button>
           </div>
         </div>
       </div>
