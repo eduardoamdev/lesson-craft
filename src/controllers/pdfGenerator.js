@@ -224,10 +224,8 @@ async function generatePDF(req, res) {
     console.log('HTML preview:', htmlContent.substring(0, 200));
     
     // Launch puppeteer and generate PDF
-    const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/google-chrome';
     const browser = await puppeteer.launch({
       headless: true,
-      executablePath,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -491,10 +489,8 @@ async function generateConversationPDF(req, res) {
     `;
     
     // Launch puppeteer and generate PDF
-    const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/google-chrome';
     const browser = await puppeteer.launch({
       headless: true,
-      executablePath,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',

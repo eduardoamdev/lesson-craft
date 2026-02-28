@@ -2,57 +2,47 @@
   "activity": {
     "imageTitle": "football.jpg",
     "customImageBase64": null,
-    "description": "A player is about to shoot. In the background, we can see the goalkeeper, and to the left, two defenders. They are playing on a grass field.",
-    "open_question": "Look at the image. Describe what is happening in your own words. What do you think will happen next?"
+    "description": "There is people playing footaball. One in red and attacking and the rest in white clothes. We can also see the goal keeper.",
+    "open_question": "Look at the image. Describe what you see in your own words. What is happening? Who is in the picture? What are they doing?"
   },
   "questions": [
     {
-      "sentence": "The player is preparing to __________ the ball towards the goal.",
+      "sentence": "There __________ people playing football in the image.",
       "options": [
-        "catch",
-        "kick",
-        "hold",
-        "defend"
+        "were",
+        "are",
+        "is",
+        "be"
       ],
       "correct_option": 1
     },
     {
-      "sentence": "In the background, the __________ is ready to stop the shot.",
+      "sentence": "One player is wearing a __________ shirt and is attacking.",
       "options": [
-        "defender",
+        "green",
+        "white",
+        "yellow",
+        "red"
+      ],
+      "correct_option": 3
+    },
+    {
+      "sentence": "We can also see the __________ in front of the goal.",
+      "options": [
+        "referee",
         "coach",
         "goalkeeper",
-        "referee"
+        "substitute"
       ],
       "correct_option": 2
     },
     {
-      "sentence": "The game is taking place on a __________ field.",
+      "sentence": "The other players are wearing __________ clothes.",
       "options": [
-        "concrete",
-        "grass",
-        "sandy",
-        "wooden"
-      ],
-      "correct_option": 1
-    },
-    {
-      "sentence": "To the left of the image, we can see two __________ trying to block the player.",
-      "options": [
-        "forwards",
-        "defenders",
-        "goalkeepers",
-        "spectators"
-      ],
-      "correct_option": 1
-    },
-    {
-      "sentence": "The main action in the image is a player attempting to __________ at the goal.",
-      "options": [
-        "pass",
-        "shoot",
-        "dribble",
-        "tackle"
+        "black",
+        "white",
+        "blue",
+        "striped"
       ],
       "correct_option": 1
     }

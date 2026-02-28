@@ -30,7 +30,7 @@ DEEPSEEK_API_KEY=your_deepseek_api_key
 DEEPSEEK_TIMEOUT_MS=30000 # optional timeout for DeepSeek requests in milliseconds
 TELNYX_API_KEY=your_telnyx_api_key
 PORT=3000 # optional (defaults to 3000)
-PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome # optional; override Chrome path for local
+# PUPPETEER_EXECUTABLE_PATH= (leave blank to use Puppeteer's Chromium)
 JSON_LIMIT_DEFAULT=5mb # optional (default for most JSON/urlencoded routes)
 JSON_LIMIT_LARGE=50mb # optional (used for upload/PDF routes)
 ```
