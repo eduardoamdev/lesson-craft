@@ -56,30 +56,51 @@ export function useImageUpload() {
     setIsUploading(true);
 
     try {
+      // Step 1: Upload
       const formData = new FormData();
       formData.append("file", selectedFile);
       formData.append("description", description);
       formData.append("age", age);
       formData.append("level", level);
 
-      const response = await fetch("/api/image-lesson/generate", {
+      const uploadResponse = await fetch("/api/image-lesson/upload", {
         method: "POST",
         body: formData,
       });
 
-      const result = await response.json();
+      const uploadResult = await uploadResponse.json();
+      console.log("Upload Result:", uploadResult);
 
-      if (result.success) {
-        console.log("Upload successful:", result.fileName);
-        alert(
-          `Activity generated successfully!\nFile saved as: ${result.fileName}`,
-        );
+      if (!uploadResult.success) {
+        throw new Error(uploadResult.error || "Upload failed");
+      }
+
+      const activityId = uploadResult.id;
+
+      // Step 2: Generation
+      const genResponse = await fetch("/api/image-lesson/generation", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: activityId }),
+      });
+
+      const genResult = await genResponse.json();
+      console.log("Generation Result:", genResult);
+
+      if (genResult.success) {
+        alert(`Activity generated successfully!\nID: ${genResult.id}`);
       } else {
-        alert("Upload failed: " + result.error);
+        throw new Error(genResult.error || "Generation failed");
       }
     } catch (error) {
-      console.error("Upload error:", error);
-      alert("An error occurred during the activity generation.");
+      console.error("Process error:", error);
+      alert(
+        error instanceof Error
+          ? error.message
+          : "An error occurred during the process.",
+      );
     } finally {
       setIsUploading(false);
     }
