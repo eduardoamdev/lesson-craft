@@ -1,55 +1,42 @@
 import { NextRequest, NextResponse } from "next/server";
 import path from "path";
 import fs from "fs/promises";
-
-async function cleanupOldFiles(dir: string) {
-  try {
-    const files = await fs.readdir(dir);
-    const now = Date.now();
-    const oneHour = 60 * 60 * 1000;
-
-    for (const file of files) {
-      if (file === ".gitignore") continue;
-      const filePath = path.join(dir, file);
-      const stats = await fs.stat(filePath);
-      if (now - stats.mtimeMs > oneHour) {
-        await fs.unlink(filePath);
-      }
-    }
-  } catch (err) {
-    console.error("Cleanup error:", err);
-  }
-}
+import { cleanupOldFiles } from "@/utils/cleanupOldFiles";
+import { prepareTemporalFileName } from "@/utils/prepareTemporalFileName";
 
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
-    const file = formData.get("file") as File;
+    const imageFile = formData.get("file") as File;
     const description = (formData.get("description") as string) || "";
     const age = (formData.get("age") as string) || "";
     const level = (formData.get("level") as string) || "";
 
-    if (!file) {
+    if (!imageFile) {
       return NextResponse.json(
         { success: false, error: "Missing file" },
         { status: 400 },
       );
     }
 
-    const id = crypto.randomUUID();
-    const timestamp = Date.now().toString();
-    const buffer = Buffer.from(await file.arrayBuffer());
+    // First call generates the UUID and timestamp automatically
+    const {
+      fileName: imageFileName,
+      uuid,
+      timestamp,
+    } = prepareTemporalFileName(imageFile.name);
+    // Second call reuses the generated UUID and timestamp
+    const { fileName: jsonFileName } = prepareTemporalFileName(
+      undefined,
+      uuid,
+      timestamp,
+    );
 
-    const originalName = file.name;
-    const extension = path.extname(originalName);
-    const baseNameSanitized = path
-      .basename(originalName, extension)
-      .replace(/[^a-zA-Z0-9]/g, "_");
+    // We can derive the handle from the json filename without extension
+    const baseFileName = path.basename(jsonFileName, ".json");
 
-    // Construct the filename: {id}-{original-title}-{timestamp}
-    const baseFileName = `${id}-${baseNameSanitized}-${timestamp}`;
-    const imageFileName = `${baseFileName}${extension}`;
-    const jsonFileName = `${baseFileName}.json`;
+    const buffer = Buffer.from(await imageFile.arrayBuffer());
+    const originalName = imageFile.name;
     const uploadDir = path.join(process.cwd(), "tmp/image-lesson");
 
     await fs.mkdir(uploadDir, { recursive: true });
@@ -62,7 +49,7 @@ export async function POST(req: NextRequest) {
     // Save initial JSON metadata
     const metadata = {
       id: baseFileName, // Using the full base name as our handle
-      uuid: id,
+      uuid: uuid,
       imageFileName,
       originalName,
       timestamp,
