@@ -24,20 +24,17 @@ export async function POST(req: NextRequest) {
 
     const fileExtension = extractExtension(originalName);
 
-    // First call generates the UUID and timestamp automatically
     const {
       fileName: imageFileName,
       uuid,
       timestamp,
     } = prepareTemporalFileName(fileExtension);
-    // Second call reuses the generated UUID and timestamp
     const { fileName: jsonFileName } = prepareTemporalFileName(
       ".json",
       uuid,
       timestamp,
     );
 
-    // We can derive the handle from the json filename without extension
     const baseFileName = path.basename(jsonFileName, ".json");
 
     const uploadDir = path.join(process.cwd(), "tmp/image-lesson");
@@ -45,14 +42,12 @@ export async function POST(req: NextRequest) {
     await fs.mkdir(uploadDir, { recursive: true });
     await cleanupOldFiles(uploadDir);
 
-    // Save Image
     const buffer = Buffer.from(await imageFile.arrayBuffer());
     const imagePath = path.join(uploadDir, imageFileName);
     await fs.writeFile(imagePath, buffer);
 
-    // Save initial JSON metadata
     const metadata = {
-      id: baseFileName, // Using the full base name as our handle
+      id: baseFileName,
       uuid: uuid,
       imageFileName,
       originalName,
