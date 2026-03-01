@@ -4,6 +4,7 @@ import fs from "fs/promises";
 import { cleanupOldFiles } from "@/utils/cleanupOldFiles";
 import { prepareTemporalFileName } from "@/utils/prepareTemporalFileName";
 import { extractExtension } from "@/utils/extractExtension";
+import { generateTemporalFilesMetadata } from "@/utils/generateTemporalFilesMetadata";
 
 export async function POST(req: NextRequest) {
   try {
@@ -24,16 +25,14 @@ export async function POST(req: NextRequest) {
 
     const fileExtension = extractExtension(originalName);
 
-    const {
-      fileName: imageFileName,
-      uuid,
-      timestamp,
-    } = prepareTemporalFileName(fileExtension);
-    const { fileName: jsonFileName } = prepareTemporalFileName(
-      ".json",
+    const { uuid, timestamp } = generateTemporalFilesMetadata();
+
+    const imageFileName = prepareTemporalFileName(
+      fileExtension,
       uuid,
       timestamp,
     );
+    const jsonFileName = prepareTemporalFileName(".json", uuid, timestamp);
 
     const baseFileName = path.basename(jsonFileName, ".json");
 
