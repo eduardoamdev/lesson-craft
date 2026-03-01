@@ -19,12 +19,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const originalName = imageFile.name;
+
     // First call generates the UUID and timestamp automatically
     const {
       fileName: imageFileName,
       uuid,
       timestamp,
-    } = prepareTemporalFileName(imageFile.name);
+    } = prepareTemporalFileName(originalName);
     // Second call reuses the generated UUID and timestamp
     const { fileName: jsonFileName } = prepareTemporalFileName(
       undefined,
@@ -36,7 +38,7 @@ export async function POST(req: NextRequest) {
     const baseFileName = path.basename(jsonFileName, ".json");
 
     const buffer = Buffer.from(await imageFile.arrayBuffer());
-    const originalName = imageFile.name;
+
     const uploadDir = path.join(process.cwd(), "tmp/image-lesson");
 
     await fs.mkdir(uploadDir, { recursive: true });
