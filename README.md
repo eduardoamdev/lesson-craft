@@ -30,7 +30,9 @@ DEEPSEEK_API_KEY=your_deepseek_api_key
 DEEPSEEK_TIMEOUT_MS=30000 # optional timeout for DeepSeek requests in milliseconds
 TELNYX_API_KEY=your_telnyx_api_key
 PORT=3000 # optional (defaults to 3000)
-# PUPPETEER_EXECUTABLE_PATH= (leave blank to use Puppeteer's Chromium)
+## PUPPETEER_EXECUTABLE_PATH= (leave blank to use Puppeteer's Chromium)
+## In production, it is recommended to use the system-installed Google Chrome for best compatibility:
+# PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome
 JSON_LIMIT_DEFAULT=5mb # optional (default for most JSON/urlencoded routes)
 JSON_LIMIT_LARGE=50mb # optional (used for upload/PDF routes)
 ```
@@ -145,6 +147,18 @@ Check if a generated PDF is ready.
 
 When deploying on Ubuntu with `systemd` + `nginx`, some files/folders are created on the server and are not part of this git repository.
 
+## Required System Packages
+
+For all features to work in production, you must install the following system packages on your server:
+
+- **ffmpeg** (required for audio generation and merging)
+
+Install with:
+```
+sudo apt-get update
+sudo apt-get install ffmpeg
+```
+
 ### Service and reverse proxy files
 
 - `/etc/systemd/system/lesson-craft.service`  
@@ -221,3 +235,46 @@ curl -i http://127.0.0.1/
 - Implement file management for generated activities
 - Add user authentication
 - Create more activity types
+
+
+## Checking Logs on the Remote Server
+
+To view logs for the Lesson Craft service on your production (Ubuntu) server:
+
+```
+sudo journalctl -u lesson-craft -e -f
+```
+
+- `-u lesson-craft`: Shows logs for your service.
+- `-e`: Jumps to the end of the log.
+- `-f`: Follows new log output in real time.
+
+To see only the last 50 lines:
+
+```
+sudo journalctl -u lesson-craft -n 50
+```
+
+To check the service status:
+
+```
+sudo systemctl status lesson-craft --no-pager -l
+```
+
+
+## Restarting the Server in Production
+
+After changing environment variables in your `.env` file or pulling new commits from the remote repository, restart the server to apply the changes:
+
+```
+sudo systemctl restart lesson-craft
+```
+
+If you also updated dependencies (ran `npm install` or `npm ci`), or changed file permissions, you may want to ensure correct ownership:
+
+```
+sudo chown -R www-data:www-data /var/www/lesson-craft
+sudo systemctl restart lesson-craft
+```
+
+This will stop and re-run the Node.js server with the latest code and environment settings.
