@@ -14,9 +14,9 @@ export async function POST(req: NextRequest) {
     }
 
     const uploadDir = path.join(process.cwd(), "tmp/image-lesson");
+
     const jsonPath = path.join(uploadDir, `${id}.json`);
 
-    // Check if metadata exists
     try {
       await fs.access(jsonPath);
     } catch {
@@ -27,14 +27,13 @@ export async function POST(req: NextRequest) {
     }
 
     const fileContent = await fs.readFile(jsonPath, "utf-8");
-    const metadata = JSON.parse(fileContent);
 
-    // If already generated, we could just return it or regenerate.
-    // For now, let's generate it.
+    const metadata = JSON.parse(fileContent);
 
     const levelInfo = metadata.level
       ? `Target level: ${metadata.level}`
       : "Between B1 and B2 level";
+
     const ageInfo = metadata.age ? `Target age: ${metadata.age}` : "";
 
     const promptTemplate = `We are in the context of a particular English lesson. The activity is "Commenting on the image". ${levelInfo}. ${ageInfo}
@@ -92,12 +91,10 @@ Important:
     const result = await response.json();
     const content = result.choices[0].message.content;
 
-    // Robust JSON extraction
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     const jsonString = jsonMatch ? jsonMatch[0] : content;
     const deepseekData = JSON.parse(jsonString);
 
-    // Save updated JSON metadata
     const finalMetadata = {
       ...metadata,
       ...deepseekData,
