@@ -32,6 +32,7 @@ export async function POST(req: NextRequest) {
       uuid,
       timestamp,
     );
+
     const jsonFileName = prepareTemporalFileName(".json", uuid, timestamp);
 
     const baseFileName = path.basename(jsonFileName, ".json");
@@ -39,10 +40,13 @@ export async function POST(req: NextRequest) {
     const uploadDir = path.join(process.cwd(), "tmp/image-lesson");
 
     await fs.mkdir(uploadDir, { recursive: true });
+
     await cleanupOldFiles(uploadDir);
 
     const buffer = Buffer.from(await imageFile.arrayBuffer());
+
     const imagePath = path.join(uploadDir, imageFileName);
+
     await fs.writeFile(imagePath, buffer);
 
     const metadata = {
@@ -58,6 +62,7 @@ export async function POST(req: NextRequest) {
     };
 
     const jsonPath = path.join(uploadDir, jsonFileName);
+
     await fs.writeFile(jsonPath, JSON.stringify(metadata, null, 2));
 
     return NextResponse.json({
