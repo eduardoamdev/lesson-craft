@@ -13,7 +13,11 @@ interface UploadParams {
 }
 
 /**
- * Handles the logic for processing and saving an image lesson file and its metadata.
+ * Processes and saves an image lesson file and its associated metadata.
+ * Manages directory creation, file cleanup, and storage of both image and JSON metadata.
+ *
+ * @param {UploadParams} params - The upload data including the image file, description, target age, and level.
+ * @returns {Promise<{id: string}>} An object containing the generated base ID for the uploaded lesson.
  */
 export async function processImageLessonUpload({
   imageFile,

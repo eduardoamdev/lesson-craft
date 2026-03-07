@@ -6,6 +6,12 @@ interface InputProps {
   type?: string;
 }
 
+/**
+ * A reusable labeled text input component.
+ *
+ * @param {InputProps} props - Input properties including label and value handlers.
+ * @returns {JSX.Element} The rendered input field with label.
+ */
 export default function Input({
   label,
   value,

@@ -7,6 +7,12 @@ import TextArea from "@/components/ui/TextArea";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 
+/**
+ * Page component for the Image Activity Generator.
+ * Provides a user interface for uploading an image and specifying metadata to create AI-generated lessons.
+ *
+ * @returns {JSX.Element} The rendered generation tool page.
+ */
 export default function ImageLessonGenerator() {
   const {
     selectedFile,
@@ -40,7 +46,6 @@ export default function ImageLessonGenerator() {
   return (
     <main className="flex flex-1 items-center justify-center p-4">
       <div className="w-full max-w-2xl bg-[#121212] rounded-[2rem] p-10 shadow-2xl border border-white/5 mx-auto">
-        {/* Header */}
         <div className="flex flex-col items-center mb-10 text-center">
           <div className="flex items-center gap-4 mb-2">
             <div className="bg-[#fbbf24] p-1 rounded-sm w-12 h-12 flex items-center justify-center shadow-lg">
@@ -55,9 +60,7 @@ export default function ImageLessonGenerator() {
           </p>
         </div>
 
-        {/* Action Content Area */}
         <div className="space-y-8">
-          {/* Hidden File Input */}
           <input
             type="file"
             ref={fileInputRef}
@@ -66,7 +69,6 @@ export default function ImageLessonGenerator() {
             className="hidden"
           />
 
-          {/* Upload Area Component */}
           <UploadZone
             selectedFile={selectedFile}
             previewUrl={previewUrl}
@@ -77,7 +79,6 @@ export default function ImageLessonGenerator() {
             onDrop={handleDrop}
           />
 
-          {/* Image Description Component */}
           <TextArea
             label="Image Description"
             placeholder="Describe the image in detail. This description will be used to generate the lesson activity..."
@@ -85,7 +86,6 @@ export default function ImageLessonGenerator() {
             onChange={setDescription}
           />
 
-          {/* Age and Level Inputs */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Input
               label="Student's Age"
@@ -101,7 +101,6 @@ export default function ImageLessonGenerator() {
             />
           </div>
 
-          {/* Footer Buttons */}
           <div className="flex gap-4 pt-2">
             <Button href="/" variant="outline" className="flex-1" icon="←">
               Back

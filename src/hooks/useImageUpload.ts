@@ -1,8 +1,10 @@
 import { useState, useRef, ChangeEvent, DragEvent } from "react";
 
 /**
- * Custom hook to handle image upload logic, including file selection,
- * drag-and-drop, preview generation, and API communication.
+ * Custom hook to manage the state and logic for image-based lesson creation.
+ * Provides handlers for file interaction, drag-and-drop, and the generation process.
+ *
+ * @returns {object} An object containing state variables and handler functions.
  */
 export function useImageUpload() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -14,10 +16,22 @@ export function useImageUpload() {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  /**
+   * Triggers the hidden file input click event.
+   *
+   * @returns {void}
+   */
   const handleUploadClick = () => {
     fileInputRef.current?.click();
   };
 
+  /**
+   * Handles the selection of a file via the input element.
+   * Generates a preview URL for the selected image.
+   *
+   * @param {ChangeEvent<HTMLInputElement>} e - The change event from the file input.
+   * @returns {void}
+   */
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -27,15 +41,32 @@ export function useImageUpload() {
     }
   };
 
+  /**
+   * Updates state when a file is dragged over the upload zone.
+   *
+   * @param {DragEvent} e - The drag event.
+   * @returns {void}
+   */
   const handleDragOver = (e: DragEvent) => {
     e.preventDefault();
     setIsDragging(true);
   };
 
+  /**
+   * Resets dragging state when a file leaves the upload zone.
+   *
+   * @returns {void}
+   */
   const handleDragLeave = () => {
     setIsDragging(false);
   };
 
+  /**
+   * Handles the file drop event, selecting the file if it is an image.
+   *
+   * @param {DragEvent} e - The drop event.
+   * @returns {void}
+   */
   const handleDrop = (e: DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
@@ -47,6 +78,12 @@ export function useImageUpload() {
     }
   };
 
+  /**
+   * Orchestrates the full creation process: uploading the file and then
+   * triggering the generation of the AI lesson content.
+   *
+   * @returns {Promise<void>}
+   */
   const handleGenerate = async () => {
     if (!selectedFile) {
       alert("Please select an image first");
@@ -56,7 +93,6 @@ export function useImageUpload() {
     setIsUploading(true);
 
     try {
-      // Step 1: Upload
       const formData = new FormData();
       formData.append("file", selectedFile);
       formData.append("description", description);
@@ -77,7 +113,6 @@ export function useImageUpload() {
 
       const activityId = uploadResult.id;
 
-      // Step 2: Generation
       const genResponse = await fetch("/api/image-lesson/generation", {
         method: "POST",
         headers: {

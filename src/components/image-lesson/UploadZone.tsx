@@ -11,6 +11,12 @@ interface UploadZoneProps {
   onDrop: (e: DragEvent) => void;
 }
 
+/**
+ * Component for the image upload area, supporting click-to-select and drag-and-drop.
+ *
+ * @param {UploadZoneProps} props - Component properties including handlers and upload state.
+ * @returns {JSX.Element} The rendered upload zone with preview or placeholder.
+ */
 export default function UploadZone({
   selectedFile,
   previewUrl,

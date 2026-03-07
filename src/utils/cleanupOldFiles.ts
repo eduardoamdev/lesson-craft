@@ -2,9 +2,11 @@ import fs from "fs/promises";
 import path from "path";
 
 /**
- * Cleans up files in a directory that are older than a certain age.
- * @param dir The directory to clean up
- * @param maxAgeMs The maximum age of files in milliseconds (defaults to 1 hour)
+ * Cleans up files in a specified directory that exceed a maximum age.
+ *
+ * @param {string} dir - The directory path to clean up.
+ * @param {number} [maxAgeMs=3600000] - The maximum file age in milliseconds (defaults to 1 hour).
+ * @returns {Promise<void>}
  */
 export async function cleanupOldFiles(
   dir: string,

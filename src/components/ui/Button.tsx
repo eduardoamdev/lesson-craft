@@ -8,6 +8,12 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   className?: string;
 }
 
+/**
+ * A standard interactive button or link component.
+ *
+ * @param {ButtonProps} props - Properties including variant, href, and children.
+ * @returns {JSX.Element} A stylized <button> or <Link> element.
+ */
 export default function Button({
   variant = "blue",
   href,

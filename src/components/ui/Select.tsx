@@ -5,6 +5,12 @@ interface SelectProps {
   options: { value: string; label: string }[];
 }
 
+/**
+ * A reusable labeled dropdown select component.
+ *
+ * @param {SelectProps} props - Component properties including label and options.
+ * @returns {JSX.Element} The rendered select element with custom styling.
+ */
 export default function Select({
   label,
   value,

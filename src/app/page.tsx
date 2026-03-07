@@ -1,5 +1,11 @@
 import Button from "@/components/ui/Button";
 
+/**
+ * The landing page of the application.
+ * Displays various activity generation options for users to choose from.
+ *
+ * @returns {JSX.Element} The rendered homepage with navigation buttons.
+ */
 export default function Home() {
   return (
     <main className="flex flex-1 items-center justify-center p-4">

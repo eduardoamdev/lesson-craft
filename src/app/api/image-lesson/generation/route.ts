@@ -2,6 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import path from "path";
 import fs from "fs/promises";
 
+/**
+ * Controller for generating lesson content using AI.
+ * Reads metadata from a temporal file, constructs a prompt for Deepseek,
+ * and updates the metadata with the generated response.
+ *
+ * @param {NextRequest} req - The incoming request containing the activity ID.
+ * @returns {Promise<NextResponse>} A JSON response with the final generated metadata or an error message.
+ */
 export async function POST(req: NextRequest) {
   try {
     const { id } = await req.json();

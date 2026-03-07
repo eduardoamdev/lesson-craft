@@ -3,7 +3,10 @@ import { processImageLessonUpload } from "@/services/image-lesson/upload.service
 
 /**
  * Controller for uploading an image lesson.
- * Handles the HTTP layer and delegates business logic to the UploadService.
+ * Handles the HTTP multipart form data and coordinates with the UploadService for processing.
+ *
+ * @param {NextRequest} req - The incoming request containing the image file and metadata.
+ * @returns {Promise<NextResponse>} A JSON response with the upload status and resource ID.
  */
 export async function POST(req: NextRequest) {
   try {
@@ -20,7 +23,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Delegate business logic to the service
     const { id } = await processImageLessonUpload({
       imageFile,
       description,

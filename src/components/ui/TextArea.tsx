@@ -5,6 +5,12 @@ interface TextAreaProps {
   placeholder?: string;
 }
 
+/**
+ * A reusable multiline text area component with label.
+ *
+ * @param {TextAreaProps} props - Properties including label and value handlers.
+ * @returns {JSX.Element} The rendered textarea with label.
+ */
 export default function TextArea({
   label,
   value,
