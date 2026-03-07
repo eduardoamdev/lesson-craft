@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import path from "path";
-import fs from "fs/promises";
-import { cleanupOldFiles } from "@/utils/cleanupOldFiles";
-import { prepareTemporalFileName } from "@/utils/prepareTemporalFileName";
-import { extractExtension } from "@/utils/extractExtension";
-import { generateTemporalFilesMetadata } from "@/utils/generateTemporalFilesMetadata";
+import { processImageLessonUpload } from "@/services/image-lesson/upload.service";
 
+/**
+ * Controller for uploading an image lesson.
+ * Handles the HTTP layer and delegates business logic to the UploadService.
+ */
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
@@ -21,53 +20,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const originalName = imageFile.name;
-
-    const fileExtension = extractExtension(originalName);
-
-    const { uuid, timestamp } = generateTemporalFilesMetadata();
-
-    const imageFileName = prepareTemporalFileName(
-      fileExtension,
-      uuid,
-      timestamp,
-    );
-
-    const jsonFileName = prepareTemporalFileName(".json", uuid, timestamp);
-
-    const baseFileName = path.basename(jsonFileName, ".json");
-
-    const uploadDir = path.join(process.cwd(), "tmp/image-lesson");
-
-    await fs.mkdir(uploadDir, { recursive: true });
-
-    await cleanupOldFiles(uploadDir);
-
-    const buffer = Buffer.from(await imageFile.arrayBuffer());
-
-    const imagePath = path.join(uploadDir, imageFileName);
-
-    await fs.writeFile(imagePath, buffer);
-
-    const metadata = {
-      id: baseFileName,
-      uuid: uuid,
-      imageFileName,
-      originalName,
-      timestamp,
+    // Delegate business logic to the service
+    const { id } = await processImageLessonUpload({
+      imageFile,
       description,
       age,
       level,
-      status: "pending",
-    };
-
-    const jsonPath = path.join(uploadDir, jsonFileName);
-
-    await fs.writeFile(jsonPath, JSON.stringify(metadata, null, 2));
+    });
 
     return NextResponse.json({
       success: true,
-      id: baseFileName,
+      id,
       message: "File uploaded and metadata saved",
     });
   } catch (error) {
