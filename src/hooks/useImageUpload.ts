@@ -107,7 +107,6 @@ export function useImageUpload() {
       });
 
       const uploadResult = await uploadResponse.json();
-      console.log("Upload Result:", uploadResult);
 
       if (!uploadResult.success) {
         throw new Error(uploadResult.error || "Upload failed");
@@ -124,10 +123,10 @@ export function useImageUpload() {
       });
 
       const genResult = await genResponse.json();
-      console.log("Generation Result:", genResult);
 
       if (genResult.success) {
-        router.push("/material-generators/image-lesson/overview");
+        const query = encodeURIComponent(JSON.stringify(genResult));
+        router.push(`/material-generators/image-lesson/overview?data=${query}`);
       } else {
         throw new Error(genResult.error || "Generation failed");
       }
