@@ -24,7 +24,7 @@ export default function Home() {
 
         <div className="flex flex-col gap-4">
           <Button
-            href="/material-generators/image-lesson"
+            href="/material-generators/image-lesson/generator"
             variant="blue"
             icon="🖼️"
           >
