@@ -1,4 +1,5 @@
 import { useState, useRef, ChangeEvent, DragEvent } from "react";
+import { useRouter } from "next/navigation";
 
 /**
  * Custom hook to manage the state and logic for image-based lesson creation.
@@ -15,6 +16,7 @@ export function useImageUpload() {
   const [isUploading, setIsUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
   /**
    * Triggers the hidden file input click event.
@@ -125,7 +127,7 @@ export function useImageUpload() {
       console.log("Generation Result:", genResult);
 
       if (genResult.success) {
-        alert(`Activity generated successfully!\nID: ${genResult.id}`);
+        router.push("/material-generators/image-lesson/overview");
       } else {
         throw new Error(genResult.error || "Generation failed");
       }
