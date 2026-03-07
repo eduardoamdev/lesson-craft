@@ -1,6 +1,6 @@
 import path from "path";
 import fs from "fs/promises";
-import { callDeepseek } from "@/services/ai/deepseek.service";
+import { callLLM } from "@/services/ai/llm.service";
 import { buildImageLessonPrompt } from "@/prompts/image-lesson";
 
 interface GenerationParams {
@@ -33,13 +33,13 @@ export async function processImageLessonGeneration({ id }: GenerationParams) {
   // 3. Build prompt (Delegated to prompt service)
   const prompt = buildImageLessonPrompt(metadata);
 
-  // 4. Call AI API (Delegated to deepseek service)
-  const deepseekData = await callDeepseek(prompt);
+  // 4. Call AI API (Delegated to LLM service)
+  const llmData = await callLLM(prompt, { temperature: 1.3 });
 
   // 5. Update and save final metadata
   const finalMetadata = {
     ...metadata,
-    ...deepseekData,
+    ...llmData,
     status: "completed",
     generatedAt: new Date().toISOString(),
   };

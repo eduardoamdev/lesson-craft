@@ -10,7 +10,7 @@ export interface PromptMetadata {
 }
 
 /**
- * Builds the prompt template for Deepseek to generate Lesson activities.
+ * Builds the prompt template for the LLM to generate Lesson activities.
  *
  * @param {PromptMetadata} metadata - Basic information about the activity.
  * @returns {string} The formatted prompt string.
