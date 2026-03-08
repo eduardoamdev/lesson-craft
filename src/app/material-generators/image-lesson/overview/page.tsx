@@ -3,6 +3,7 @@
 import { use } from "react";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
+import ActionBar from "@/components/common/ActionBar";
 
 interface LessonData {
   imageUrl?: string;
@@ -50,10 +51,10 @@ export default function ImageLessonOverview({
             Generated Image Activity
           </h1>
 
-          <div className="flex justify-center">
+          <ActionBar>
             <Button
               variant="gradient"
-              className="w-auto px-6 py-3 h-12 rounded-xl text-sm"
+              className="px-6 py-3 h-12 rounded-xl text-sm w-full lg:w-auto"
               icon={
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -73,7 +74,76 @@ export default function ImageLessonOverview({
             >
               Generate PDF
             </Button>
-          </div>
+
+            <Button
+              variant="outline"
+              className="px-6 py-3 h-12 rounded-xl text-sm w-full lg:w-auto"
+              icon={
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                </svg>
+              }
+            >
+              Edit Activity
+            </Button>
+
+            <Button
+              variant="teal"
+              className="px-6 py-3 h-12 rounded-xl text-sm w-full lg:w-auto"
+              icon={
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
+                </svg>
+              }
+            >
+              Save to Library
+            </Button>
+
+            <Button
+              variant="purple"
+              className="px-6 py-3 h-12 rounded-xl text-sm w-full lg:w-auto"
+              icon={
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+                  <polyline points="16 6 12 2 8 6" />
+                  <line x1="12" y1="2" x2="12" y2="15" />
+                </svg>
+              }
+            >
+              Share Activity
+            </Button>
+          </ActionBar>
         </div>
 
         {imageUrl ? (
