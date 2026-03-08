@@ -39,7 +39,6 @@ export async function callLLM(prompt: string, options = { temperature: 1.0 }) {
   const result = await response.json();
   const content = result.choices[0].message.content;
 
-  // Attempt to parse JSON from the response content
   const jsonMatch = content.match(/\{[\s\S]*\}/);
   const jsonString = jsonMatch ? jsonMatch[0] : content;
 

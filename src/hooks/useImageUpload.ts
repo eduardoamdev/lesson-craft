@@ -18,22 +18,10 @@ export function useImageUpload() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
-  /**
-   * Triggers the hidden file input click event.
-   *
-   * @returns {void}
-   */
   const handleUploadClick = () => {
     fileInputRef.current?.click();
   };
 
-  /**
-   * Handles the selection of a file via the input element.
-   * Generates a preview URL for the selected image.
-   *
-   * @param {ChangeEvent<HTMLInputElement>} e - The change event from the file input.
-   * @returns {void}
-   */
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -43,32 +31,15 @@ export function useImageUpload() {
     }
   };
 
-  /**
-   * Updates state when a file is dragged over the upload zone.
-   *
-   * @param {DragEvent} e - The drag event.
-   * @returns {void}
-   */
   const handleDragOver = (e: DragEvent) => {
     e.preventDefault();
     setIsDragging(true);
   };
 
-  /**
-   * Resets dragging state when a file leaves the upload zone.
-   *
-   * @returns {void}
-   */
   const handleDragLeave = () => {
     setIsDragging(false);
   };
 
-  /**
-   * Handles the file drop event, selecting the file if it is an image.
-   *
-   * @param {DragEvent} e - The drop event.
-   * @returns {void}
-   */
   const handleDrop = (e: DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
@@ -80,12 +51,6 @@ export function useImageUpload() {
     }
   };
 
-  /**
-   * Orchestrates the full creation process: uploading the file and then
-   * triggering the generation of the AI lesson content.
-   *
-   * @returns {Promise<void>}
-   */
   const handleGenerate = async () => {
     if (!selectedFile) {
       alert("Please select an image first");

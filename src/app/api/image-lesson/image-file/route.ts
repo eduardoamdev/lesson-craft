@@ -17,14 +17,12 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Missing filename" }, { status: 400 });
   }
 
-  // Ensure filename doesn't contain path traversal characters
   const safeFilename = path.basename(filename);
   const filePath = path.join(process.cwd(), "tmp/image-lesson", safeFilename);
 
   try {
     const fileBuffer = await fs.readFile(filePath);
 
-    // Determine content type based on extension
     const ext = path.extname(safeFilename).toLowerCase();
     let contentType = "image/jpeg";
     if (ext === ".png") contentType = "image/png";

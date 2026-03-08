@@ -38,8 +38,6 @@ export default function ImageLessonOverview({
     }
   }
 
-  // Construct the image URL using the provided imageFileName or falling back to standard URL fields.
-  // The images are served through a dedicated API endpoint since they reside in 'tmp/'.
   const imageUrl = lessonData?.imageFileName
     ? `/api/image-lesson/image-file?filename=${lessonData.imageFileName}`
     : lessonData?.imageUrl || lessonData?.image_url;
@@ -47,7 +45,6 @@ export default function ImageLessonOverview({
   return (
     <main className="flex-1 w-full p-8 flex flex-col max-w-5xl mx-auto">
       <div className="flex flex-col gap-8">
-        {/* Titles and Actions Row */}
         <div className="flex flex-col gap-6 items-center">
           <h1 className="text-4xl font-bold tracking-tight text-[#4c84ff] text-center">
             Generated Image Activity
@@ -79,7 +76,6 @@ export default function ImageLessonOverview({
           </div>
         </div>
 
-        {/* Main Image Section */}
         {imageUrl ? (
           <div className="relative group">
             <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-[2.5rem] blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>

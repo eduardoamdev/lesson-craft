@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --background: #1e1b4b; /* Deep indigo */
+  --background: #1e1b4b;
   --foreground: #ffffff;
 }
 
@@ -14,7 +14,6 @@ body {
   flex-direction: column;
 }
 
-/* Button Base Styles */
 .btn-base {
   display: flex;
   align-items: center;
@@ -46,7 +45,6 @@ body {
   transform: scale(0.98);
 }
 
-/* Specific Button Colors with fallbacks */
 .btn-blue {
   background-color: #1e3a8a;
   background-image: linear-gradient(to right, #1e3a8a, #581c87);
@@ -74,7 +72,6 @@ body {
   background-image: linear-gradient(to right, #0284c7, #0f766e);
 }
 
-/* Base resets */
 * {
   border-color: rgba(255, 255, 255, 0.05);
 }
