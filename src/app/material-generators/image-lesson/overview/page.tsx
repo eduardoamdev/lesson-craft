@@ -4,6 +4,7 @@ import { use } from "react";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
 import ActionBar from "@/components/common/ActionBar";
+import TestQuestions from "@/components/common/TestQuestions";
 
 interface LessonData {
   imageUrl?: string;
@@ -12,6 +13,11 @@ interface LessonData {
   topic?: string;
   grade?: string;
   language?: string;
+  questions?: Array<{
+    id: number;
+    question: string;
+    options: Array<{ id: string; text: string; isCorrect?: boolean }>;
+  }>;
 }
 
 /**
@@ -35,9 +41,43 @@ export default function ImageLessonOverview({
       lessonData = JSON.parse(decodeURIComponent(resolvedSearchParams.data));
       console.log("Lesson JSON received via props:", lessonData);
     } catch (error) {
-      console.error("Failed to parse lesson data from URL:", error);
+      if (error) console.error("Failed to parse lesson data from URL:", error);
     }
   }
+
+  // Fallback dummy questions for demonstration - in a real scenario, these would come from lessonData
+  const dummyQuestions = [
+    {
+      id: 1,
+      question: "In the image, a player in a ________ shirt is attacking.",
+      options: [
+        { id: "a", text: "white" },
+        { id: "b", text: "green" },
+        { id: "c", text: "red", isCorrect: true },
+        { id: "d", text: "blue" },
+      ],
+    },
+    {
+      id: 2,
+      question: "Most of the players are wearing ________ clothes.",
+      options: [
+        { id: "a", text: "black" },
+        { id: "b", text: "white", isCorrect: true },
+        { id: "c", text: "yellow" },
+        { id: "d", text: "red" },
+      ],
+    },
+    {
+      id: 3,
+      question: "We can see a ________ in the goal.",
+      options: [
+        { id: "a", text: "referee" },
+        { id: "b", text: "spectator" },
+        { id: "c", text: "goalkeeper", isCorrect: true },
+        { id: "d", text: "coach" },
+      ],
+    },
+  ];
 
   const imageUrl = lessonData?.imageFileName
     ? `/api/image-lesson/image-file?filename=${lessonData.imageFileName}`
@@ -45,7 +85,7 @@ export default function ImageLessonOverview({
 
   return (
     <main className="flex-1 w-full p-8 flex flex-col max-w-5xl mx-auto">
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-10">
         <div className="flex flex-col gap-6 items-center">
           <h1 className="text-4xl font-bold tracking-tight text-[#4c84ff] text-center">
             Generated Image Activity
@@ -183,6 +223,11 @@ export default function ImageLessonOverview({
             </div>
           </div>
         )}
+
+        <TestQuestions
+          questions={lessonData?.questions || dummyQuestions}
+          className="mt-4"
+        />
       </div>
     </main>
   );
