@@ -1,12 +1,10 @@
-import React from "react";
-
 export interface TestQuestion {
   correct_option: number;
   sentence: string;
   options: Array<string>;
 }
 
-interface TestQuestionsProps {
+export interface TestQuestionsProps {
   questions?: TestQuestion[];
   className?: string;
   title?: string;
