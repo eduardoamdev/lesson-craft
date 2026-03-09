@@ -6,6 +6,7 @@ import UploadZone from "@/components/image-lesson/UploadZone";
 import TextArea from "@/components/ui/TextArea";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
+import { levelOptions } from "@/constants/levelOptions";
 
 /**
  * Page component for the Image Activity Generator.
@@ -33,15 +34,6 @@ export default function ImageLessonGenerator() {
     handleDrop,
     handleGenerate,
   } = useImageUpload();
-
-  const levelOptions = [
-    { value: "A1", label: "A1 (Beginner)" },
-    { value: "A2", label: "A2 (Elementary)" },
-    { value: "B1", label: "B1 (Intermediate)" },
-    { value: "B2", label: "B2 (Upper Intermediate)" },
-    { value: "C1", label: "C1 (Advanced)" },
-    { value: "C2", label: "C2 (Proficient)" },
-  ];
 
   return (
     <main className="flex flex-1 items-center justify-center p-4">
