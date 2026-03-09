@@ -42,7 +42,7 @@ const TestQuestions = ({
                     key={optIndex}
                     className={`relative flex items-center justify-between px-5 py-4 rounded-xl border transition-all duration-200 ${
                       isCorrect
-                        ? "bg-green-500/10 border-green-500/50 text-white shadow-[0_0_15px_rgba(34,197,94,0.1)]"
+                        ? "bg-green-500/20 border-green-500 text-green-300 shadow-[0_0_20px_rgba(34,197,94,0.3)]"
                         : "bg-[#1a1a1a] border-white/5 text-gray-300 hover:border-white/10"
                     }`}
                   >
