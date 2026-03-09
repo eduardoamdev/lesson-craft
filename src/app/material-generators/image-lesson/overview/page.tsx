@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, useEffect, useState } from "react";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
 import ActionBar from "@/components/common/ActionBar";
@@ -21,54 +21,35 @@ export default function ImageLessonOverview({
   searchParams: Promise<{ data?: string }>;
 }) {
   const resolvedSearchParams = use(searchParams);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line
+    setIsMounted(true);
+  }, []);
 
   let lessonData: LessonData | null = null;
   if (resolvedSearchParams?.data) {
     try {
       lessonData = JSON.parse(decodeURIComponent(resolvedSearchParams.data));
-      console.log("Lesson JSON received via props:", lessonData);
     } catch (error) {
       if (error) console.error("Failed to parse lesson data from URL:", error);
     }
   }
 
-  // Fallback dummy questions for demonstration - in a real scenario, these would come from lessonData
-  const dummyQuestions = [
-    {
-      id: 1,
-      question: "In the image, a player in a ________ shirt is attacking.",
-      options: [
-        { id: "a", text: "white" },
-        { id: "b", text: "green" },
-        { id: "c", text: "red", isCorrect: true },
-        { id: "d", text: "blue" },
-      ],
-    },
-    {
-      id: 2,
-      question: "Most of the players are wearing ________ clothes.",
-      options: [
-        { id: "a", text: "black" },
-        { id: "b", text: "white", isCorrect: true },
-        { id: "c", text: "yellow" },
-        { id: "d", text: "red" },
-      ],
-    },
-    {
-      id: 3,
-      question: "We can see a ________ in the goal.",
-      options: [
-        { id: "a", text: "referee" },
-        { id: "b", text: "spectator" },
-        { id: "c", text: "goalkeeper", isCorrect: true },
-        { id: "d", text: "coach" },
-      ],
-    },
-  ];
-
   const imageUrl = lessonData?.imageFileName
     ? `/api/image-lesson/image-file?filename=${lessonData.imageFileName}`
     : lessonData?.imageUrl || lessonData?.image_url;
+
+  if (!isMounted) {
+    return (
+      <main className="flex-1 w-full p-8 flex flex-col max-w-5xl mx-auto">
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <div className="w-8 h-8 border-4 border-[#4c84ff] border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="flex-1 w-full p-8 flex flex-col max-w-5xl mx-auto">
@@ -82,22 +63,6 @@ export default function ImageLessonOverview({
             <Button
               variant="gradient"
               className="px-6 py-3 h-12 rounded-xl text-sm w-full lg:w-auto"
-              icon={
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
-                  <polyline points="14 2 14 8 20 8" />
-                </svg>
-              }
             >
               Generate PDF
             </Button>
@@ -105,22 +70,6 @@ export default function ImageLessonOverview({
             <Button
               variant="outline"
               className="px-6 py-3 h-12 rounded-xl text-sm w-full lg:w-auto"
-              icon={
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                </svg>
-              }
             >
               Edit Activity
             </Button>
@@ -128,21 +77,6 @@ export default function ImageLessonOverview({
             <Button
               variant="teal"
               className="px-6 py-3 h-12 rounded-xl text-sm w-full lg:w-auto"
-              icon={
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
-                </svg>
-              }
             >
               Save to Library
             </Button>
@@ -150,23 +84,6 @@ export default function ImageLessonOverview({
             <Button
               variant="purple"
               className="px-6 py-3 h-12 rounded-xl text-sm w-full lg:w-auto"
-              icon={
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-                  <polyline points="16 6 12 2 8 6" />
-                  <line x1="12" y1="2" x2="12" y2="15" />
-                </svg>
-              }
             >
               Share Activity
             </Button>
@@ -191,30 +108,18 @@ export default function ImageLessonOverview({
         ) : (
           <div className="w-full aspect-video flex items-center justify-center bg-[#121212] rounded-[2rem] border border-white/5 border-dashed">
             <div className="text-gray-500 animate-pulse flex flex-col items-center gap-3">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="48"
-                height="48"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-                <circle cx="9" cy="9" r="2" />
-                <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-              </svg>
               <p>Image not found</p>
             </div>
           </div>
         )}
 
-        <TestQuestions
-          questions={lessonData?.questions || dummyQuestions}
-          className="mt-4"
-        />
+        {lessonData?.multiple_choice_sentences && (
+          <TestQuestions
+            title="Fill in the gaps"
+            questions={lessonData.multiple_choice_sentences}
+            className="mt-4"
+          />
+        )}
       </div>
     </main>
   );

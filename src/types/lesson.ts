@@ -1,3 +1,5 @@
+import { TestQuestion } from "@/components/common/TestQuestions";
+
 /**
  * Represents the data structure returned by lesson generators.
  * Shared across all material generator types (image-lesson, text-lesson, etc.).
@@ -9,9 +11,5 @@ export interface LessonData {
   topic?: string;
   grade?: string;
   language?: string;
-  questions?: Array<{
-    id: number;
-    question: string;
-    options: Array<{ id: string; text: string; isCorrect?: boolean }>;
-  }>;
+  multiple_choice_sentences?: Array<TestQuestion>;
 }
