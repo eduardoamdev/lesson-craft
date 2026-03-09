@@ -1,6 +1,6 @@
 "use client";
 
-import { useImageUpload } from "@/hooks/useImageUpload";
+import { useImageUpload } from "@/hooks/image-lesson/useImageUpload";
 import Button from "@/components/ui/Button";
 import UploadZone from "@/components/image-lesson/UploadZone";
 import TextArea from "@/components/ui/TextArea";
