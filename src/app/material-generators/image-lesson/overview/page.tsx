@@ -5,20 +5,7 @@ import Image from "next/image";
 import Button from "@/components/ui/Button";
 import ActionBar from "@/components/common/ActionBar";
 import TestQuestions from "@/components/common/TestQuestions";
-
-interface LessonData {
-  imageUrl?: string;
-  image_url?: string;
-  imageFileName?: string;
-  topic?: string;
-  grade?: string;
-  language?: string;
-  questions?: Array<{
-    id: number;
-    question: string;
-    options: Array<{ id: string; text: string; isCorrect?: boolean }>;
-  }>;
-}
+import { LessonData } from "@/types/lesson";
 
 /**
  * Overview page for the Image Activity Generator.
