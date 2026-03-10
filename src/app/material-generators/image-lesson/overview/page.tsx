@@ -61,31 +61,17 @@ export default function ImageLessonOverview({
 
           <ActionBar>
             <Button
-              variant="gradient"
+              variant="blue"
               className="px-6 py-3 h-12 rounded-xl text-sm w-full lg:w-auto"
             >
               Generate PDF
             </Button>
 
             <Button
-              variant="outline"
-              className="px-6 py-3 h-12 rounded-xl text-sm w-full lg:w-auto"
-            >
-              Edit Activity
-            </Button>
-
-            <Button
-              variant="teal"
-              className="px-6 py-3 h-12 rounded-xl text-sm w-full lg:w-auto"
-            >
-              Save to Library
-            </Button>
-
-            <Button
               variant="purple"
               className="px-6 py-3 h-12 rounded-xl text-sm w-full lg:w-auto"
             >
-              Share Activity
+              Download PDF
             </Button>
           </ActionBar>
         </div>
