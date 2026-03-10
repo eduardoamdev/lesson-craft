@@ -104,6 +104,29 @@ export default function ImageLessonOverview({
         {lessonData?.open_question && (
           <OpenQuestion question={lessonData.open_question} />
         )}
+
+        <ActionBar>
+          <Button
+            variant="blue"
+            className="px-6 py-3 h-12 rounded-xl text-sm w-full lg:w-auto"
+            href="/"
+          >
+            Home
+          </Button>
+          <Button
+            variant="blue"
+            className="px-6 py-3 h-12 rounded-xl text-sm w-full lg:w-auto"
+            href="/material-generators/image-lesson/generator"
+          >
+            New image activity
+          </Button>
+          <Button
+            variant="blue"
+            className="px-6 py-3 h-12 rounded-xl text-sm w-full lg:w-auto"
+          >
+            Edit activiy
+          </Button>
+        </ActionBar>
       </div>
     </main>
   );
