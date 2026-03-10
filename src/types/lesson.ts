@@ -12,4 +12,5 @@ export interface LessonData {
   grade?: string;
   language?: string;
   multiple_choice_sentences?: Array<TestQuestion>;
+  open_question?: string;
 }

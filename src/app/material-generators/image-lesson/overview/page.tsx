@@ -5,6 +5,7 @@ import Image from "next/image";
 import Button from "@/components/ui/Button";
 import ActionBar from "@/components/common/ActionBar";
 import TestQuestions from "@/components/common/TestQuestions";
+import OpenQuestion from "@/components/common/OpenQuestion";
 import { LessonData } from "@/types/lesson";
 
 /**
@@ -105,6 +106,10 @@ export default function ImageLessonOverview({
             questions={lessonData.multiple_choice_sentences}
             className="mt-4"
           />
+        )}
+
+        {lessonData?.open_question && (
+          <OpenQuestion question={lessonData.open_question} />
         )}
       </div>
     </main>
