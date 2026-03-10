@@ -67,13 +67,6 @@ export default function ImageLessonOverview({
             >
               Generate PDF
             </Button>
-
-            <Button
-              variant="purple"
-              className="px-6 py-3 h-12 rounded-xl text-sm w-full lg:w-auto"
-            >
-              Download PDF
-            </Button>
           </ActionBar>
         </div>
 
