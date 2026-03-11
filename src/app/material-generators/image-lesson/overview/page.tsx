@@ -38,8 +38,9 @@ export default function ImageLessonOverview({
     }
   }
 
-  const imageUrl = lessonData?.imageFileName
-    ? `/api/image-lesson/image-file?filename=${lessonData.imageFileName}`
+  const imageFileName = lessonData?.imageFileName;
+  const imageUrl = imageFileName
+    ? `/api/image-lesson/image-file?filename=${imageFileName}`
     : lessonData?.imageUrl;
 
   if (!isMounted) {
@@ -64,6 +65,30 @@ export default function ImageLessonOverview({
             <Button
               variant="blue"
               className="px-6 py-3 h-12 rounded-xl text-sm w-full lg:w-auto"
+              onClick={async () => {
+                if (!lessonData) return;
+                const testQuestions =
+                  lessonData.multiple_choice_sentences || [];
+                const openQuestion = lessonData.open_question || "";
+                try {
+                  const res = await fetch("/api/file-generators/pdf", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      imageFileName,
+                      testQuestions,
+                      openQuestion,
+                    }),
+                  });
+                  const data = await res.json();
+                  // TODO: handle the response (e.g., download PDF, show message, etc.)
+                  alert("PDF data sent! Check console for response.");
+                  console.log("PDF API response:", data);
+                } catch (err) {
+                  alert("Failed to generate PDF");
+                  console.error(err);
+                }
+              }}
             >
               Generate PDF
             </Button>

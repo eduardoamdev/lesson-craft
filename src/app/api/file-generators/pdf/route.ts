@@ -1,6 +1,18 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 
-export async function POST() {
-	// TODO: Implement PDF generation logic
-	return NextResponse.json({ message: 'Not implemented' }, { status: 501 });
+// Expects: { imageFileName: string, testQuestions: TestQuestion[], openQuestion: string }
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const { imageFileName, testQuestions, openQuestion } = body;
+
+    // Respond with the received data (simulate reading from tmp/image-lesson/)
+    return NextResponse.json({ imageFileName, testQuestions, openQuestion });
+  } catch (error) {
+    console.error("Error processing request:", error);
+    return NextResponse.json(
+      { error: "Invalid request body" },
+      { status: 400 },
+    );
+  }
 }
