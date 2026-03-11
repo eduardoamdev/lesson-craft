@@ -124,7 +124,7 @@ export default function ImageLessonOverview({
             variant="blue"
             className="px-6 py-3 h-12 rounded-xl text-sm w-full lg:w-auto"
           >
-            Edit activiy
+            Edit activity
           </Button>
         </ActionBar>
       </div>
