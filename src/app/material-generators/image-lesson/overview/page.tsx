@@ -68,10 +68,6 @@ export default function ImageLessonOverview({
               lessonData={lessonData}
               imageFileName={imageFileName}
             />
-            <DownloadPdf
-              lessonData={lessonData}
-              imageFileName={imageFileName}
-            />
           </ActionBar>
         </div>
         {imageUrl ? (
