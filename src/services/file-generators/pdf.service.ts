@@ -41,16 +41,64 @@ export async function generatePdf({
     <html>
       <head>
         <style>
-          body { font-family: Arial, sans-serif; padding: 32px; }
-          img { max-width: 100%; border-radius: 16px; margin-bottom: 24px; }
+          @page {
+            margin-top: 40px;
+            margin-right: 32px;
+            margin-bottom: 32px;
+            margin-left: 32px;
+            background: #18181b;
+          }
+          body {
+            font-family: 'Inter', Arial, sans-serif;
+            background: #18181b;
+            color: #e0e0e6;
+            padding: 32px;
+            margin: 0;
+          }
+          h1, h2, h3 {
+            color: #4c84ff;
+            margin-bottom: 0.5em;
+          }
+          img {
+            max-width: 100%;
+            border-radius: 24px;
+            margin-bottom: 32px;
+            border: 2px solid #4c84ff;
+            box-shadow: 0 4px 24px #4c84ff22;
+          }
           .question {
-            margin-bottom: 18px;
+            margin-bottom: 32px;
+            padding: 0 0 0 0;
             page-break-inside: avoid;
             break-inside: avoid;
           }
-          .options { margin-left: 24px; }
-          .correct { color: green; font-weight: bold; }
-          .open-question { margin-top: 32px; background: #f3f3f3; padding: 16px; border-radius: 8px; }
+          .options {
+            margin-left: 24px;
+            margin-top: 10px;
+          }
+          .option {
+            padding: 6px 0 6px 12px;
+            border-left: 3px solid #333;
+            margin-bottom: 4px;
+            color: #e0e0e6;
+          }
+          .correct {
+            color: #4cffa3;
+            font-weight: bold;
+            border-left: 3px solid #4cffa3;
+            background: #1a2e23;
+          }
+          .open-question {
+            margin-top: 40px;
+            background: #232336;
+            padding: 20px 28px;
+            border-radius: 18px;
+            border-left: 5px solid #4c84ff;
+            color: #e0e0e6;
+            box-shadow: 0 2px 8px #0002;
+            page-break-inside: avoid;
+            break-inside: avoid;
+          }
         </style>
       </head>
       <body>
@@ -65,7 +113,7 @@ export async function generatePdf({
                   ${q.options
                     .map(
                       (opt, idx) =>
-                        `<div class="$${idx === q.correct_option ? "correct" : ""}">${String.fromCharCode(97 + idx)}) ${opt}</div>`,
+                        `<div class="option${idx === q.correct_option ? " correct" : ""}">${String.fromCharCode(97 + idx)}) ${opt}</div>`,
                     )
                     .join("")}
                 </div>
