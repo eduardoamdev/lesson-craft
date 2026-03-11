@@ -40,7 +40,7 @@ export default function ImageLessonOverview({
 
   const imageUrl = lessonData?.imageFileName
     ? `/api/image-lesson/image-file?filename=${lessonData.imageFileName}`
-    : lessonData?.imageUrl || lessonData?.image_url;
+    : lessonData?.imageUrl;
 
   if (!isMounted) {
     return (

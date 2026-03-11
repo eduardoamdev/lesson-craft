@@ -6,7 +6,6 @@ import { TestQuestion } from "@/components/common/TestQuestions";
  */
 export interface LessonData {
   imageUrl?: string;
-  image_url?: string;
   imageFileName?: string;
   topic?: string;
   grade?: string;
