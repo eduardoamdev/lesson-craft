@@ -93,7 +93,7 @@ export default function ImageLessonGenerator() {
             />
           </div>
 
-          <div className="flex gap-4 pt-2">
+          <div className="flex flex-col gap-4 pt-2 md:flex-row">
             <Button href="/" variant="outline" className="flex-1" icon="←">
               Back
             </Button>
