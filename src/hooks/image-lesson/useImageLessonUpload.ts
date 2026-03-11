@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
  *
  * @returns {object} An object containing state variables and handler functions.
  */
-export function useImageUpload() {
+export function useImageLessonUpload() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [description, setDescription] = useState("");

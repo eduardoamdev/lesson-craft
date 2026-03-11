@@ -1,6 +1,6 @@
 "use client";
 
-import { useImageUpload } from "@/hooks/image-lesson/useImageUpload";
+import { useImageLessonUpload } from "@/hooks/image-lesson/useImageLessonUpload";
 import Button from "@/components/ui/Button";
 import UploadZone from "@/components/image-lesson/UploadZone";
 import TextArea from "@/components/ui/TextArea";
@@ -33,7 +33,7 @@ export default function ImageLessonGenerator() {
     handleDragLeave,
     handleDrop,
     handleGenerate,
-  } = useImageUpload();
+  } = useImageLessonUpload();
 
   return (
     <main className="flex flex-1 items-center justify-center p-4">
