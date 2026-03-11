@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { use, useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
 import ActionBar from "@/components/common/ActionBar";
@@ -23,6 +23,8 @@ export default function ImageLessonOverview({
 }) {
   const resolvedSearchParams = use(searchParams);
   const [isMounted, setIsMounted] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const downloadRef = useRef<HTMLAnchorElement | null>(null);
 
   useEffect(() => {
     // eslint-disable-next-line
@@ -80,18 +82,35 @@ export default function ImageLessonOverview({
                       openQuestion,
                     }),
                   });
-                  const data = await res.json();
-                  // TODO: handle the response (e.g., download PDF, show message, etc.)
-                  alert("PDF data sent! Check console for response.");
-                  console.log("PDF API response:", data);
+                  if (!res.ok) throw new Error("Failed to generate PDF");
+                  const blob = await res.blob();
+                  const url = URL.createObjectURL(blob);
+                  setPdfUrl(url);
+                  // Auto-download
+                  setTimeout(() => {
+                    if (downloadRef.current) {
+                      downloadRef.current.click();
+                    }
+                  }, 100);
                 } catch (err) {
                   alert("Failed to generate PDF");
                   console.error(err);
                 }
               }}
             >
-              Generate PDF
+              Download PDF
             </Button>
+            {pdfUrl && (
+              <a
+                href={pdfUrl}
+                download="lesson.pdf"
+                ref={downloadRef}
+                style={{ display: "none" }}
+              >
+                Download PDF
+              </a>
+            )}
+            {/* Download PDF button removed: download is triggered automatically after generation */}
           </ActionBar>
         </div>
 
