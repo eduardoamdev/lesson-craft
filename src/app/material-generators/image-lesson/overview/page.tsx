@@ -24,6 +24,7 @@ export default function ImageLessonOverview({
   const resolvedSearchParams = use(searchParams);
   const [isMounted, setIsMounted] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [downloading, setDownloading] = useState(false);
   const downloadRef = useRef<HTMLAnchorElement | null>(null);
 
   useEffect(() => {
@@ -67,8 +68,10 @@ export default function ImageLessonOverview({
             <Button
               variant="blue"
               className="px-6 py-3 h-12 rounded-xl text-sm w-full lg:w-auto"
+              disabled={downloading}
               onClick={async () => {
                 if (!lessonData) return;
+                setDownloading(true);
                 const testQuestions =
                   lessonData.multiple_choice_sentences || [];
                 const openQuestion = lessonData.open_question || "";
@@ -95,10 +98,12 @@ export default function ImageLessonOverview({
                 } catch (err) {
                   alert("Failed to generate PDF");
                   console.error(err);
+                } finally {
+                  setTimeout(() => setDownloading(false), 500);
                 }
               }}
             >
-              Download PDF
+              {downloading ? "Downloading PDF..." : "Download PDF"}
             </Button>
             {pdfUrl && (
               <a
