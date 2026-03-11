@@ -28,7 +28,6 @@ export default function ImageLessonOverview({
   const downloadRef = useRef<HTMLAnchorElement | null>(null);
 
   useEffect(() => {
-    // eslint-disable-next-line
     setIsMounted(true);
   }, []);
 
