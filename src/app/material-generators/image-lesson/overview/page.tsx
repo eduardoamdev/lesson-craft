@@ -62,7 +62,6 @@ export default function ImageLessonOverview({
           <h1 className="text-4xl font-bold tracking-tight text-[#4c84ff] text-center">
             Generated Image Activity
           </h1>
-
           <ActionBar>
             <Button
               variant="blue"
@@ -103,20 +102,19 @@ export default function ImageLessonOverview({
               }}
             >
               {downloading ? "Downloading PDF..." : "Download PDF"}
+              {pdfUrl && (
+                <a
+                  href={pdfUrl}
+                  download="lesson.pdf"
+                  ref={downloadRef}
+                  style={{ display: "none" }}
+                >
+                  Download PDF
+                </a>
+              )}
             </Button>
-            {pdfUrl && (
-              <a
-                href={pdfUrl}
-                download="lesson.pdf"
-                ref={downloadRef}
-                style={{ display: "none" }}
-              >
-                Download PDF
-              </a>
-            )}
           </ActionBar>
         </div>
-
         {imageUrl ? (
           <div className="relative group">
             <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-[2.5rem] blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
@@ -139,7 +137,6 @@ export default function ImageLessonOverview({
             </div>
           </div>
         )}
-
         {lessonData?.multiple_choice_sentences && (
           <TestQuestions
             title="Fill in the gaps"
@@ -147,11 +144,9 @@ export default function ImageLessonOverview({
             className="mt-4"
           />
         )}
-
         {lessonData?.open_question && (
           <OpenQuestion question={lessonData.open_question} />
         )}
-
         <ActionBar>
           <Button
             variant="blue"
