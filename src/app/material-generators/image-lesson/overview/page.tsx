@@ -7,7 +7,7 @@ import DownloadPdf from "@/components/common/DownloadPdf";
 import ActionBar from "@/components/common/ActionBar";
 import TestQuestions from "@/components/common/TestQuestions";
 import OpenQuestion from "@/components/common/OpenQuestion";
-import { useLessonData } from "@/hooks/image-lesson/useLessonData";
+import { useLessonData } from "@/hooks/common/useLessonData";
 import { useLessonImageUrl } from "@/hooks/image-lesson/useLessonImageUrl";
 
 /**
