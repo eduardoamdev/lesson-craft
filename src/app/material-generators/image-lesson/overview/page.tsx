@@ -89,7 +89,6 @@ export default function ImageLessonOverview({
                   const blob = await res.blob();
                   const url = URL.createObjectURL(blob);
                   setPdfUrl(url);
-                  // Auto-download
                   setTimeout(() => {
                     if (downloadRef.current) {
                       downloadRef.current.click();
