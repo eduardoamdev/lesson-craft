@@ -7,7 +7,8 @@ import DownloadPdf from "@/components/common/DownloadPdf";
 import ActionBar from "@/components/common/ActionBar";
 import TestQuestions from "@/components/common/TestQuestions";
 import OpenQuestion from "@/components/common/OpenQuestion";
-import { LessonData } from "@/types/lesson";
+import { useLessonData } from "@/hooks/image-lesson/useLessonData";
+import { useLessonImageUrl } from "@/hooks/image-lesson/useLessonImageUrl";
 
 /**
  * Overview page for the Image Activity Generator.
@@ -30,21 +31,11 @@ export default function ImageLessonOverview({
     setIsMounted(true);
   }, []);
 
-  let lessonData: LessonData | null = null;
-
-  if (resolvedSearchParams?.data) {
-    try {
-      lessonData = JSON.parse(decodeURIComponent(resolvedSearchParams.data));
-    } catch (error) {
-      if (error) console.error("Failed to parse lesson data from URL:", error);
-    }
-  }
+  const lessonData = useLessonData(resolvedSearchParams?.data);
 
   const imageFileName = lessonData?.imageFileName;
 
-  const imageUrl = imageFileName
-    ? `/api/image-lesson/image-file?filename=${imageFileName}`
-    : lessonData?.imageUrl;
+  const imageUrl = useLessonImageUrl(lessonData);
 
   if (!isMounted) {
     return (
