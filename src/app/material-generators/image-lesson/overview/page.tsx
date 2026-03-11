@@ -32,6 +32,7 @@ export default function ImageLessonOverview({
   }, []);
 
   let lessonData: LessonData | null = null;
+
   if (resolvedSearchParams?.data) {
     try {
       lessonData = JSON.parse(decodeURIComponent(resolvedSearchParams.data));
@@ -41,6 +42,7 @@ export default function ImageLessonOverview({
   }
 
   const imageFileName = lessonData?.imageFileName;
+
   const imageUrl = imageFileName
     ? `/api/image-lesson/image-file?filename=${imageFileName}`
     : lessonData?.imageUrl;
