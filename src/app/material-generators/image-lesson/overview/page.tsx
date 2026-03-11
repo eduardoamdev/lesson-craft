@@ -115,7 +115,6 @@ export default function ImageLessonOverview({
                 Download PDF
               </a>
             )}
-            {/* Download PDF button removed: download is triggered automatically after generation */}
           </ActionBar>
         </div>
 
