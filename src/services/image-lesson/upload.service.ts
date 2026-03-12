@@ -5,18 +5,11 @@ import { generateTemporalFilesMetadata } from "@/utils/generateTemporalFilesMeta
 import path from "path";
 import fs from "fs/promises";
 
-interface UploadParams {
-  imageFile: File;
-  description: string;
-  age: string;
-  level: string;
-}
-
 /**
  * Processes and saves an image lesson file and its associated metadata.
  * Manages directory creation, file cleanup, and storage of both image and JSON metadata.
  *
- * @param {UploadParams} params - The upload data including the image file, description, target age, and level.
+ * @param {File} imageFile - The image file to be uploaded.
  * @returns {Promise<{id: string}>} An object containing the generated base ID for the uploaded lesson.
  */
 export async function processImageUpload(imageFile: File) {
