@@ -5,7 +5,15 @@ interface OpenQuestionProps {
   className?: string;
 }
 
-const OpenQuestion: React.FC<OpenQuestionProps> = ({ question, className = "" }) => {
+/**
+ * OpenQuestion component for displaying an open-ended question in a lesson.
+ * Renders the question with styled UI and optional custom className.
+ * Used to present open questions to students in lesson activities.
+ */
+const OpenQuestion: React.FC<OpenQuestionProps> = ({
+  question,
+  className = "",
+}) => {
   if (!question) return null;
   return (
     <section className={`mt-8 flex flex-col gap-4 ${className}`}>

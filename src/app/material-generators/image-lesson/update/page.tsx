@@ -4,7 +4,12 @@ import ActionBar from "@/components/ui/ActionBar";
 import Button from "@/components/ui/Button";
 import { useEffect, useState } from "react";
 
-export default function Update({
+/**
+ * Update component for editing an image lesson activity.
+ * Resolves search parameters, displays the edit UI, and provides navigation and save actions.
+ * Used in the material-generators/image-lesson/update route.
+ */
+export default function UpdateLessonContent({
   searchParams,
 }: {
   searchParams: Promise<{ data?: string }>;

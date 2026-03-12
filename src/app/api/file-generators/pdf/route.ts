@@ -1,7 +1,14 @@
 import { NextResponse } from "next/server";
 import { generatePdf } from "@/services/file-generators/pdf.service";
 
-// Expects: { imageFileName: string, testQuestions: TestQuestion[], openQuestion: string }
+/**
+ * Handles POST requests to generate a PDF lesson file.
+ * Receives lesson data (image file name, test questions, open question) in the request body,
+ * calls the PDF generation service, and returns the PDF as a downloadable response.
+ *
+ * @param {Request} request - The incoming HTTP request containing lesson data.
+ * @returns {Promise<NextResponse>} The response with the generated PDF or an error message.
+ */
 export async function POST(request: Request) {
   try {
     const body = await request.json();

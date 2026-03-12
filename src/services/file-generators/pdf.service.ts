@@ -19,6 +19,15 @@ export interface GeneratePdfOptions {
 
 const TMP_IMAGE_DIR = path.join(process.cwd(), "tmp", "image-lesson");
 
+/**
+ * Generates a PDF lesson file using Puppeteer.
+ * Reads the lesson image, builds styled HTML with test and open questions,
+ * launches a headless browser to render the content, and returns the PDF as a Uint8Array.
+ * Throws errors if image reading or PDF generation fails.
+ *
+ * @param {GeneratePdfOptions} options - The lesson data including image file name, test questions, and open question.
+ * @returns {Promise<Uint8Array>} The generated PDF file as a byte array.
+ */
 export async function generatePdf({
   imageFileName,
   testQuestions,

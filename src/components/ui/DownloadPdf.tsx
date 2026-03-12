@@ -8,6 +8,11 @@ interface DownloadPdfProps {
   imageFileName: string | undefined;
 }
 
+/**
+ * DownloadPdf component for generating and downloading a PDF lesson file.
+ * Handles PDF generation via API, manages download state, and triggers file download for the user.
+ * Used in lesson views to allow users to export lesson content as a PDF.
+ */
 const DownloadPdf = ({ lessonData, imageFileName }: DownloadPdfProps) => {
   const downloadRef = useRef<HTMLAnchorElement | null>(null);
   const [downloading, setDownloading] = useState(false);

@@ -4,11 +4,13 @@ import { buildImageLessonPrompt } from "@/prompts/image-lesson";
 import { callLLM } from "@/api-clients/common/ai/llm";
 
 /**
- * Controller for uploading an image lesson.
- * Handles the HTTP multipart form data and coordinates with the UploadService for processing.
+ * Handles POST requests for generating an image lesson activity.
+ * Processes multipart form data to extract the image file and metadata (description, age, level),
+ * uploads the image, builds an AI prompt, calls the LLM for lesson content generation,
+ * and returns the combined activity data as a JSON response.
  *
  * @param {NextRequest} req - The incoming request containing the image file and metadata.
- * @returns {Promise<NextResponse>} A JSON response with the upload status and resource ID.
+ * @returns {Promise<NextResponse>} A JSON response with the generation status and activity data.
  */
 export async function POST(req: NextRequest) {
   try {
