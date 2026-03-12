@@ -7,9 +7,6 @@ import { TestQuestion } from "@/components/ui/TestQuestions";
 export interface LessonData {
   imageUrl?: string;
   imageFileName?: string;
-  topic?: string;
-  grade?: string;
-  language?: string;
   multiple_choice_sentences?: Array<TestQuestion>;
   open_question?: string;
 }
