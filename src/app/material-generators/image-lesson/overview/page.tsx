@@ -110,6 +110,7 @@ export default function ImageLessonOverview({
           <Button
             variant="blue"
             className="px-6 py-3 h-12 rounded-xl text-sm w-full lg:w-auto"
+            href={`/material-generators/image-lesson/update?data=${encodeURIComponent(resolvedSearchParams?.data ?? "")}`}
           >
             Edit activity
           </Button>
