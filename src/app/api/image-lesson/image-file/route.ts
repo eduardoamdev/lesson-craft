@@ -10,17 +10,17 @@ import fs from "fs/promises";
  * @returns {Promise<NextResponse>} The image file or a 404 error.
  */
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const filename = searchParams.get("filename");
-
-  if (!filename) {
-    return NextResponse.json({ error: "Missing filename" }, { status: 400 });
-  }
-
-  const safeFilename = path.basename(filename);
-  const filePath = path.join(process.cwd(), "tmp/image-lesson", safeFilename);
-
   try {
+    const { searchParams } = new URL(req.url);
+    const filename = searchParams.get("filename");
+
+    if (!filename) {
+      return NextResponse.json({ error: "Missing filename" }, { status: 400 });
+    }
+
+    const safeFilename = path.basename(filename);
+    const filePath = path.join(process.cwd(), "tmp/image-lesson", safeFilename);
+
     const fileBuffer = await fs.readFile(filePath);
 
     const ext = path.extname(safeFilename).toLowerCase();
