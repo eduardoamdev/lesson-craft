@@ -1,6 +1,6 @@
 import path from "path";
 import fs from "fs/promises";
-import { callLLM } from "@/services/ai/llm.service";
+import { callLLM } from "@/api-clients/common/ai/llm";
 import { buildImageLessonPrompt } from "@/prompts/image-lesson";
 
 interface GenerationParams {

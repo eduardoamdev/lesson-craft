@@ -1,5 +1,6 @@
 import { useState, useRef, ChangeEvent, DragEvent } from "react";
 import { useRouter } from "next/navigation";
+import { generateImageLesson } from "../../api-clients/image-lesson/generate";
 
 /**
  * Custom hook to manage the state and logic for image-based lesson creation.
@@ -79,13 +80,7 @@ export function useImageLessonUpload() {
 
       const activityId = uploadResult.id;
 
-      const genResponse = await fetch("/api/image-lesson/generation", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id: activityId }),
-      });
+      const genResponse = await generateImageLesson(activityId);
 
       const genResult = await genResponse.json();
 

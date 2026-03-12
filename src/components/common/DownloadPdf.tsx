@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import Button from "@/components/ui/Button";
 import { LessonData } from "@/types/lesson";
+import { generatePdf } from "@/api-clients/common/file-generators/pdf";
 
 interface DownloadPdfProps {
   lessonData: LessonData | null;
@@ -19,23 +20,28 @@ const DownloadPdf = ({ lessonData, imageFileName }: DownloadPdfProps) => {
       disabled={downloading}
       onClick={async () => {
         if (!lessonData) return;
+
         setDownloading(true);
+
         const testQuestions = lessonData.multiple_choice_sentences || [];
+
         const openQuestion = lessonData.open_question || "";
+
         try {
-          const res = await fetch("/api/file-generators/pdf", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              imageFileName,
-              testQuestions,
-              openQuestion,
-            }),
+          const response = await generatePdf({
+            imageFileName,
+            testQuestions,
+            openQuestion,
           });
-          if (!res.ok) throw new Error("Failed to generate PDF");
-          const blob = await res.blob();
+
+          if (!response.ok) throw new Error("Failed to generate PDF");
+
+          const blob = await response.blob();
+
           const url = URL.createObjectURL(blob);
+
           setPdfUrl(url);
+
           setTimeout(() => {
             if (downloadRef && downloadRef.current) {
               downloadRef.current.click();
@@ -43,6 +49,7 @@ const DownloadPdf = ({ lessonData, imageFileName }: DownloadPdfProps) => {
           }, 100);
         } catch (err) {
           alert("Failed to generate PDF");
+
           console.error(err);
         } finally {
           setTimeout(() => setDownloading(false), 500);
