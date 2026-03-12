@@ -1,12 +1,8 @@
-// services/api/imageLessonGeneration.ts
-
-export async function generateImageLesson(activityId: string) {
+export async function generateImageLesson(formData: FormData) {
   const response = await fetch("/api/image-lesson/generation", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ id: activityId }),
+    body: formData,
   });
+
   return response;
 }

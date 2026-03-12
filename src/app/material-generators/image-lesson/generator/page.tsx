@@ -7,7 +7,6 @@ import TextArea from "@/components/ui/TextArea";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import { levelOptions } from "@/constants/levelOptions";
-import { uploadImageLessonData } from "@/api-clients/image-lesson/upload";
 import { generateImageLesson } from "@/api-clients/image-lesson/generate";
 import { useRouter } from "next/navigation";
 
@@ -43,26 +42,18 @@ export default function ImageLessonGenerator() {
       formData.append("age", age);
       formData.append("level", level);
 
-      const uploadResponse = await uploadImageLessonData(formData);
+      const response = await generateImageLesson(formData);
 
-      const uploadResult = await uploadResponse.json();
+      const parsedResponse = await response.json();
 
-      if (!uploadResult.success) {
-        throw new Error(uploadResult.error || "Upload failed");
-      }
-
-      const activityId = uploadResult.id;
-
-      const genResponse = await generateImageLesson(activityId);
-
-      const genResult = await genResponse.json();
-
-      if (genResult.success) {
-        const query = encodeURIComponent(JSON.stringify(genResult));
+      if (parsedResponse.success) {
+        const query = encodeURIComponent(
+          JSON.stringify(parsedResponse.activityData),
+        );
 
         router.push(`/material-generators/image-lesson/overview?data=${query}`);
       } else {
-        throw new Error(genResult.error || "Generation failed");
+        throw new Error(parsedResponse.error || "Generation failed");
       }
     } catch (error) {
       console.error("Process error:", error);
