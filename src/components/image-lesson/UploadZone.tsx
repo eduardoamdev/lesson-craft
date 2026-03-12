@@ -1,14 +1,9 @@
 import Image from "next/image";
-import { DragEvent } from "react";
 
 interface UploadZoneProps {
   selectedFile: File | null;
   previewUrl: string | null;
-  isDragging: boolean;
   onUploadClick: () => void;
-  onDragOver: (e: DragEvent) => void;
-  onDragLeave: () => void;
-  onDrop: (e: DragEvent) => void;
 }
 
 /**
@@ -20,24 +15,15 @@ interface UploadZoneProps {
 export default function UploadZone({
   selectedFile,
   previewUrl,
-  isDragging,
   onUploadClick,
-  onDragOver,
-  onDragLeave,
-  onDrop,
 }: UploadZoneProps) {
   return (
     <div
       onClick={onUploadClick}
-      onDragOver={onDragOver}
-      onDragLeave={onDragLeave}
-      onDrop={onDrop}
       className={`flex flex-col items-center justify-center border-2 border-dashed rounded-3xl p-16 transition-all cursor-pointer group overflow-hidden relative min-h-[300px] ${
-        isDragging
-          ? "border-[#3b82f6] bg-[#3b82f6]/10 scale-[1.02]"
-          : selectedFile
-            ? "border-[#3b82f6]/50 bg-[#1c1c1c]/50"
-            : "border-[#1e3a8a]/80 bg-[#121212] hover:border-[#3b82f6]"
+        selectedFile
+          ? "border-[#3b82f6]/50 bg-[#1c1c1c]/50"
+          : "border-[#1e3a8a]/80 bg-[#121212] hover:border-[#3b82f6]"
       }`}
     >
       {previewUrl ? (

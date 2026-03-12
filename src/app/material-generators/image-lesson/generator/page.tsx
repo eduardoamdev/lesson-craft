@@ -1,12 +1,15 @@
 "use client";
 
-import { useImageLessonUpload } from "@/hooks/image-lesson/useImageLessonUpload";
+import { ChangeEvent, useRef, useState } from "react";
 import Button from "@/components/ui/Button";
 import UploadZone from "@/components/image-lesson/UploadZone";
 import TextArea from "@/components/ui/TextArea";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import { levelOptions } from "@/constants/levelOptions";
+import { uploadImageLessonData } from "@/api-clients/image-lesson/upload";
+import { generateImageLesson } from "@/api-clients/image-lesson/generate";
+import { useRouter } from "next/navigation";
 
 /**
  * Page component for the Image Activity Generator.
@@ -15,25 +18,80 @@ import { levelOptions } from "@/constants/levelOptions";
  * @returns {JSX.Element} The rendered generation tool page.
  */
 export default function ImageLessonGenerator() {
-  const {
-    selectedFile,
-    previewUrl,
-    description,
-    setDescription,
-    age,
-    setAge,
-    level,
-    setLevel,
-    isUploading,
-    isDragging,
-    fileInputRef,
-    handleUploadClick,
-    handleFileChange,
-    handleDragOver,
-    handleDragLeave,
-    handleDrop,
-    handleGenerate,
-  } = useImageLessonUpload();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [description, setDescription] = useState("");
+  const [age, setAge] = useState("");
+  const [level, setLevel] = useState("A1");
+  const [isUploading, setIsUploading] = useState(false);
+  const router = useRouter();
+
+  const handleGenerate = async () => {
+    if (!selectedFile) {
+      alert("Please select an image first");
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      const formData = new FormData();
+
+      formData.append("file", selectedFile);
+      formData.append("description", description);
+      formData.append("age", age);
+      formData.append("level", level);
+
+      const uploadResponse = await uploadImageLessonData(formData);
+
+      const uploadResult = await uploadResponse.json();
+
+      if (!uploadResult.success) {
+        throw new Error(uploadResult.error || "Upload failed");
+      }
+
+      const activityId = uploadResult.id;
+
+      const genResponse = await generateImageLesson(activityId);
+
+      const genResult = await genResponse.json();
+
+      if (genResult.success) {
+        const query = encodeURIComponent(JSON.stringify(genResult));
+
+        router.push(`/material-generators/image-lesson/overview?data=${query}`);
+      } else {
+        throw new Error(genResult.error || "Generation failed");
+      }
+    } catch (error) {
+      console.error("Process error:", error);
+
+      alert(
+        error instanceof Error
+          ? error.message
+          : "An error occurred during the process.",
+      );
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+
+    if (file) {
+      setSelectedFile(file);
+
+      const url = URL.createObjectURL(file);
+
+      setPreviewUrl(url);
+    }
+  };
 
   return (
     <main className="flex flex-1 items-center justify-center p-4">
@@ -51,7 +109,6 @@ export default function ImageLessonGenerator() {
             Select an image to generate lesson activities
           </p>
         </div>
-
         <div className="space-y-8">
           <input
             type="file"
@@ -60,24 +117,17 @@ export default function ImageLessonGenerator() {
             accept="image/*"
             className="hidden"
           />
-
           <UploadZone
             selectedFile={selectedFile}
             previewUrl={previewUrl}
-            isDragging={isDragging}
             onUploadClick={handleUploadClick}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
           />
-
           <TextArea
             label="Image Description"
             placeholder="Describe the image in detail. This description will be used to generate the lesson activity..."
             value={description}
             onChange={setDescription}
           />
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Input
               label="Student's Age"
@@ -92,7 +142,6 @@ export default function ImageLessonGenerator() {
               options={levelOptions}
             />
           </div>
-
           <div className="flex flex-col gap-4 pt-2 md:flex-row">
             <Button href="/" variant="outline" className="flex-1" icon="←">
               Back
