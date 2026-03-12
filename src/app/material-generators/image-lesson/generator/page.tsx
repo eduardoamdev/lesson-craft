@@ -2,7 +2,7 @@
 
 import { ChangeEvent, useRef, useState } from "react";
 import Button from "@/components/ui/Button";
-import UploadZone from "@/components/image-lesson/UploadZone";
+import UploadZone from "@/components/ui/UploadZone";
 import TextArea from "@/components/ui/TextArea";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";

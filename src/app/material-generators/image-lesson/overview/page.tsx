@@ -3,10 +3,10 @@
 import { use, useEffect, useState } from "react";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
-import DownloadPdf from "@/components/common/DownloadPdf";
-import ActionBar from "@/components/common/ActionBar";
-import TestQuestions from "@/components/common/TestQuestions";
-import OpenQuestion from "@/components/common/OpenQuestion";
+import DownloadPdf from "@/components/ui/DownloadPdf";
+import ActionBar from "@/components/ui/ActionBar";
+import TestQuestions from "@/components/ui/TestQuestions";
+import OpenQuestion from "@/components/ui/OpenQuestion";
 import { useLessonData } from "@/utils/useLessonData";
 
 /**
