@@ -1,6 +1,7 @@
 import { useState, useRef, ChangeEvent, DragEvent } from "react";
 import { useRouter } from "next/navigation";
 import { generateImageLesson } from "../../api-clients/image-lesson/generate";
+import { uploadImageLessonData } from "../../api-clients/image-lesson/upload";
 
 /**
  * Custom hook to manage the state and logic for image-based lesson creation.
@@ -67,10 +68,7 @@ export function useImageLessonUpload() {
       formData.append("age", age);
       formData.append("level", level);
 
-      const uploadResponse = await fetch("/api/image-lesson/upload", {
-        method: "POST",
-        body: formData,
-      });
+      const uploadResponse = await uploadImageLessonData(formData);
 
       const uploadResult = await uploadResponse.json();
 
