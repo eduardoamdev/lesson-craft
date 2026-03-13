@@ -3,6 +3,7 @@
 import ActionBar from "@/components/ui/ActionBar";
 import Button from "@/components/ui/Button";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import TestQuestionsEditor from "@/components/features/TestQuestionsEditor";
 import OpenQuestionEditor from "@/components/features/OpenQuestionEditor";
 import { LessonData } from "@/types/lesson";
@@ -71,6 +72,25 @@ export default function UpdateLessonContent({
             </Button>
           </ActionBar>
         </div>
+        {draftData?.imageFileName && (
+          <div className="relative group mb-4">
+            <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-[2.5rem] blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+            <div className="relative overflow-hidden rounded-[2rem] border border-white/5 shadow-2xl bg-[#121212]">
+              <Image
+                src={`/api/image-lesson/image-file?filename=${draftData.imageFileName}`}
+                alt={draftData.imageFileName || "Lesson image"}
+                width={1200}
+                height={800}
+                className="w-full h-auto object-cover transform hover:scale-[1.01] transition-transform duration-700 ease-out"
+                priority
+                unoptimized
+              />
+            </div>
+            <span className="text-gray-400 text-sm flex justify-center mt-2">
+              {draftData.imageFileName}
+            </span>
+          </div>
+        )}
         <div className="flex flex-col gap-8">
           <TestQuestionsEditor
             questions={draftData?.multiple_choice_sentences || []}
