@@ -3,8 +3,8 @@
 import ActionBar from "@/components/ui/ActionBar";
 import Button from "@/components/ui/Button";
 import { useEffect, useState } from "react";
-import TestQuestionsEditor from "@/components/ui/TestQuestionsEditor";
-import OpenQuestionEditor from "@/components/ui/OpenQuestionEditor";
+import TestQuestionsEditor from "@/components/features/TestQuestionsEditor";
+import OpenQuestionEditor from "@/components/features/OpenQuestionEditor";
 import { LessonData } from "@/types/lesson";
 
 /**

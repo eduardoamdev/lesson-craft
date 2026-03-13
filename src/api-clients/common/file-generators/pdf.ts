@@ -1,4 +1,4 @@
-import { TestQuestion } from "@/components/ui/TestQuestions";
+import { TestQuestion } from "@/components/features/TestQuestions";
 
 interface GeneratePdfParams {
   imageFileName: string | undefined;
