@@ -53,7 +53,7 @@ export default function ImageLessonGenerator() {
 
         router.push(`/material-generators/image-lesson/overview?data=${query}`);
       } else {
-        throw new Error(parsedResponse.error || "Generation failed");
+        alert("Failed to generate activity. Please try again.");
       }
     } catch (error) {
       console.error("Process error:", error);
