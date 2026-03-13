@@ -40,18 +40,18 @@ const TestQuestions = ({
                 return (
                   <div
                     key={optIndex}
-                    className={`relative flex items-center justify-between px-5 py-4 rounded-xl border transition-all duration-200 ${
+                    className={`relative flex items-center px-5 py-4 rounded-xl border transition-all duration-200 overflow-hidden ${
                       isCorrect
                         ? "bg-green-500/20 border-green-500 text-green-300 shadow-[0_0_20px_rgba(34,197,94,0.3)]"
                         : "bg-[#1a1a1a] border-white/5 text-gray-300 hover:border-white/10"
                     }`}
                   >
-                    <div className="flex gap-2 items-center">
-                      <span className="text-gray-500 font-mono w-4">
-                        {letter})
-                      </span>
-                      <span>{optionText}</span>
-                    </div>
+                    <span className="text-gray-500 font-mono w-4 flex-shrink-0">
+                      {letter})
+                    </span>
+                    <span className="truncate w-full block ml-2">
+                      {optionText}
+                    </span>
                   </div>
                 );
               })}
