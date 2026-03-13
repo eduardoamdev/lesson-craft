@@ -1,5 +1,5 @@
 export interface TestQuestion {
-  correct_option: number;
+  correct_option: number | string | null;
   sentence: string;
   options: Array<string>;
 }

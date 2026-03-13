@@ -13,7 +13,7 @@ const TestQuestionsEditor: FC<TestQuestionsEditorProps> = ({
   const handleQuestionChange = (
     questionIndex: number,
     field: keyof TestQuestion,
-    value: string | number,
+    value: string | number | null,
   ) => {
     const updated = questions.map((question, index) =>
       index === questionIndex ? { ...question, [field]: value } : question,
@@ -109,15 +109,24 @@ const TestQuestionsEditor: FC<TestQuestionsEditorProps> = ({
               <div className="relative">
                 <select
                   className="w-full bg-[#1c1c1c] border border-white/5 rounded-2xl px-6 py-4 text-[#cbd5e1] focus:outline-none focus:ring-2 focus:ring-[#3b82f6]/20 focus:border-[#3b82f6]/50 transition-all appearance-none cursor-pointer"
-                  value={question.correct_option}
-                  onChange={(event) =>
+                  value={
+                    question.correct_option === null ||
+                    question.correct_option === undefined
+                      ? "none"
+                      : question.correct_option
+                  }
+                  onChange={(event) => {
+                    const value = event.target.value;
                     handleQuestionChange(
                       questionIndex,
                       "correct_option",
-                      Number(event.target.value),
-                    )
-                  }
+                      value === "none" ? null : Number(value),
+                    );
+                  }}
                 >
+                  <option value="none" className="bg-[#1c1c1c]">
+                    None
+                  </option>
                   {question.options.map((_, index) => (
                     <option
                       key={index}
