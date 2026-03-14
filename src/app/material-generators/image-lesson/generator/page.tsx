@@ -1,6 +1,7 @@
 "use client";
 
 import { ChangeEvent, useRef, useState } from "react";
+import ActionBar from "@/components/ui/ActionBar";
 import Button from "@/components/ui/Button";
 import UploadZone from "@/components/ui/UploadZone";
 import TextArea from "@/components/ui/TextArea";
@@ -133,7 +134,7 @@ export default function ImageLessonGenerator() {
               options={levelOptions}
             />
           </div>
-          <div className="flex flex-col gap-4 pt-2 md:flex-row">
+          <ActionBar>
             <Button href="/" variant="outline" className="flex-1" icon="←">
               Back
             </Button>
@@ -146,7 +147,7 @@ export default function ImageLessonGenerator() {
             >
               {isUploading ? "Generating..." : "Generate Activity"}
             </Button>
-          </div>
+          </ActionBar>
         </div>
       </div>
     </main>
