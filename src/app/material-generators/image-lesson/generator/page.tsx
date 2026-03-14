@@ -7,9 +7,11 @@ import UploadZone from "@/components/ui/UploadZone";
 import TextArea from "@/components/ui/TextArea";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
+
 import { levelOptions } from "@/constants/levelOptions";
 import { generateImageLesson } from "@/api-clients/image-lesson/generate";
 import { useRouter } from "next/navigation";
+import Title from "@/components/ui/Title";
 
 /**
  * Page component for the Image Activity Generator.
@@ -93,9 +95,7 @@ export default function ImageLessonGenerator() {
             <div className="bg-[#fbbf24] p-1 rounded-sm w-12 h-12 flex items-center justify-center shadow-lg">
               <span className="text-2xl">🖼️</span>
             </div>
-            <h1 className="text-4xl font-bold tracking-wide text-[#5daaf0]">
-              Image Activity Craft
-            </h1>
+            <Title>Image Activity Craft</Title>
           </div>
           <p className="text-[#94a3b8] text-lg">
             Select an image to generate lesson activities

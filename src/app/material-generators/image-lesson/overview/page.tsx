@@ -7,6 +7,7 @@ import DownloadPdf from "@/components/features/DownloadPdf";
 import ActionBar from "@/components/ui/ActionBar";
 import TestQuestions from "@/components/features/TestQuestions";
 import OpenQuestion from "@/components/features/OpenQuestion";
+import Title from "@/components/ui/Title";
 import { useLessonData } from "@/utils/useLessonData";
 
 /**
@@ -50,9 +51,9 @@ export default function ImageLessonOverview({
     <main className="flex-1 w-full p-8 flex flex-col max-w-5xl mx-auto">
       <div className="flex flex-col gap-10">
         <div className="flex flex-col gap-6 items-center">
-          <h1 className="text-4xl font-bold tracking-tight text-[#4c84ff] text-center">
+          <Title className="tracking-tight text-[#4c84ff] text-center">
             Generated Image Activity
-          </h1>
+          </Title>
           <ActionBar>
             <DownloadPdf
               lessonData={lessonData}
