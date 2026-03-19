@@ -3,11 +3,7 @@
  * This file keeps the logic for constructing prompts centralized in a prompts folder.
  */
 
-export interface PromptMetadata {
-  description: string;
-  level?: string;
-  age?: string | number;
-}
+import { PromptMetadata } from '../types/prompts';
 
 /**
  * Builds the prompt template for the LLM to generate Conversation activities.
