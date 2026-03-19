@@ -31,7 +31,11 @@ export default function Home() {
             Image Activity Craft
           </Button>
 
-          <Button variant="purple" icon="💬">
+          <Button
+            href="/material-generators/conversation-lesson/generator"
+            variant="purple"
+            icon="💬"
+          >
             Conversation Activity Craft
           </Button>
 
