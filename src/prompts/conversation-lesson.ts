@@ -31,8 +31,8 @@ You MUST respond with ONLY valid JSON in this EXACT structure (no other text):
 
 {
   "conversation": [
-    { "speaker": "Person A", "text": "Hello, how are you?" },
-    { "speaker": "Person B", "text": "I'm fine, thank you!" }
+    { "speaker": "Person A", "gender": "male", "text": "Hello, how are you?" },
+    { "speaker": "Person B", "gender": "female", "text": "I'm fine, thank you!" }
   ],
   "questions": [
     {
@@ -45,6 +45,7 @@ You MUST respond with ONLY valid JSON in this EXACT structure (no other text):
 
 Important rules:
 - "speaker" should be descriptive role names (e.g., "Customer", "Waiter", "Teacher", "Student")
+- "gender" must be either "male" or "female"
 - Do NOT use voice field - we will assign voices automatically
 - Generate exactly 4 questions
 - "correctAnswer" is the index (0-3) of the correct option
