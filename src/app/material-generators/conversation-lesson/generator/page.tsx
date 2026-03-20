@@ -9,6 +9,7 @@ import Input from "@/components/ui/Input";
 import Title from "@/components/ui/Title";
 
 import { levelOptions } from "@/constants/levelOptions";
+import { generateConversationLesson } from "@/api-clients/conversation-lesson/generate";
 
 /**
  * Page component for the Conversation Activity Generator.
@@ -20,6 +21,32 @@ export default function ConversationLessonGenerator() {
   const [description, setDescription] = useState("");
   const [age, setAge] = useState("");
   const [level, setLevel] = useState("A1");
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const handleGenerate = async () => {
+    if (!description.trim()) {
+      alert("Please enter a description.");
+      return;
+    }
+
+    setIsGenerating(true);
+
+    try {
+      const response = await generateConversationLesson({ description, age, level });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Generation failed");
+      }
+
+      console.log("Generated Activity:", data.activityData);
+    } catch (error) {
+      console.error("Error generating conversation:", error);
+      alert("Error generating conversation");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   return (
     <main className="flex flex-1 items-center justify-center p-4">
@@ -71,8 +98,13 @@ export default function ConversationLessonGenerator() {
               <Button href="/" variant="outline" className="flex-1" icon="←">
                 Back
               </Button>
-              <Button variant="purple" className="flex-1" onClick={() => {}}>
-                Generate Conversation
+              <Button 
+                variant="purple" 
+                className="flex-1" 
+                onClick={handleGenerate}
+                disabled={isGenerating}
+              >
+                {isGenerating ? "Generating..." : "Generate Conversation"}
               </Button>
             </ActionBar>
           </div>
