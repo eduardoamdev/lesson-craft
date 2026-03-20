@@ -35,7 +35,7 @@ export default function ImageLessonOverview({
 
   const imageFileName = lessonData?.imageFileName;
 
-  const imageUrl = `/api/image-lesson/image-file?filename=${imageFileName}`;
+  const imageUrl = `/api/image-lesson/image-file-upload?filename=${imageFileName}`;
 
   if (!isMounted) {
     return (

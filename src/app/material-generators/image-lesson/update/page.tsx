@@ -78,7 +78,7 @@ export default function UpdateLessonContent({
             <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-[2.5rem] blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
             <div className="relative overflow-hidden rounded-[2rem] border border-white/5 shadow-2xl bg-[#121212]">
               <Image
-                src={`/api/image-lesson/image-file?filename=${draftData.imageFileName}`}
+                src={`/api/image-lesson/image-file-upload?filename=${draftData.imageFileName}`}
                 alt={draftData.imageFileName || "Lesson image"}
                 width={1200}
                 height={800}
