@@ -10,6 +10,7 @@ import Title from "@/components/ui/Title";
 
 import { levelOptions } from "@/constants/levelOptions";
 import { generateConversationLesson } from "@/api-clients/conversation-lesson/generate";
+import { useRouter } from "next/navigation";
 
 /**
  * Page component for the Conversation Activity Generator.
@@ -22,6 +23,7 @@ export default function ConversationLessonGenerator() {
   const [age, setAge] = useState("");
   const [level, setLevel] = useState("A1");
   const [isGenerating, setIsGenerating] = useState(false);
+  const router = useRouter();
 
   const handleGenerate = async () => {
     if (!description.trim()) {
@@ -35,11 +37,13 @@ export default function ConversationLessonGenerator() {
       const response = await generateConversationLesson({ description, age, level });
 
       const data = await response.json();
-      if (!response.ok) {
+      if (!response.ok || !data.success) {
         throw new Error(data.error || "Generation failed");
       }
 
       console.log("Generated Activity:", data.activityData);
+      const query = encodeURIComponent(JSON.stringify(data.activityData));
+      router.push(`/material-generators/conversation-lesson/overview?data=${query}`);
     } catch (error) {
       console.error("Error generating conversation:", error);
       alert("Error generating conversation");

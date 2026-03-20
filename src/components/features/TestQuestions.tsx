@@ -1,8 +1,4 @@
-export interface TestQuestion {
-  correct_option: number | string | null;
-  sentence: string;
-  options: Array<string>;
-}
+import { TestQuestion } from "@/types/testQuestions";
 
 export interface TestQuestionsProps {
   questions?: TestQuestion[];

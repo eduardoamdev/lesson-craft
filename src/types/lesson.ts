@@ -1,4 +1,4 @@
-import { TestQuestion } from "@/components/features/TestQuestions";
+import { TestQuestion } from "@/types/testQuestions";
 
 /**
  * Represents the data structure returned by lesson generators.

@@ -5,7 +5,7 @@ import { generatePdf } from "@/api-clients/common/file-generators/pdf";
 
 interface DownloadPdfProps {
   lessonData: LessonData | null;
-  imageFileName: string | undefined;
+  imageFileName?: string;
 }
 
 /**
