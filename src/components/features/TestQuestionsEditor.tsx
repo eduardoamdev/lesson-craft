@@ -1,4 +1,4 @@
-import { TestQuestion } from "@/components/features/TestQuestions";
+import { TestQuestion } from "@/types/testQuestions";
 import { FC } from "react";
 
 interface TestQuestionsEditorProps {
