@@ -8,7 +8,7 @@ export interface TestQuestion {
   options: Array<string>;
 }
 
-export interface RawConversationQuestion {
+export interface ConversationQuestion {
   question: string;
   options: Array<string>;
   correctAnswer: number;

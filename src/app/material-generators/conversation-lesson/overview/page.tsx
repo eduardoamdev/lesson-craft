@@ -5,7 +5,7 @@ import Button from "@/components/ui/Button";
 import ActionBar from "@/components/ui/ActionBar";
 import TestQuestions from "@/components/features/TestQuestions";
 import Title from "@/components/ui/Title";
-import { RawConversationQuestion } from "@/types/testQuestions";
+import { ConversationQuestion } from "@/types/testQuestions";
 import DownloadPdf from "@/components/features/DownloadPdf";
 
 /**
@@ -52,7 +52,7 @@ export default function ConversationLessonOverview({
 
   // Map the conversation lesson questions to the TestQuestions component expected format
   const formattedQuestions =
-    lessonData?.questions?.map((q: RawConversationQuestion) => ({
+    lessonData?.questions?.map((q: ConversationQuestion) => ({
       sentence: q.question,
       options: q.options,
       correct_option: q.correctAnswer,
@@ -70,9 +70,7 @@ export default function ConversationLessonOverview({
             <Button
               variant="gradient"
               className="px-6 py-3 h-12 rounded-xl text-sm w-full lg:w-auto"
-              onClick={() =>
-                alert("Generate Audio functionality coming soon!")
-              }
+              onClick={() => alert("Generate Audio functionality coming soon!")}
               icon="🔊"
             >
               Generate Audio
