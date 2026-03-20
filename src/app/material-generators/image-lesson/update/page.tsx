@@ -87,9 +87,6 @@ export default function UpdateLessonContent({
                 unoptimized
               />
             </div>
-            <span className="text-gray-400 text-sm flex justify-center mt-2">
-              {draftData.imageFileName}
-            </span>
           </div>
         )}
         <div className="flex flex-col gap-8">
