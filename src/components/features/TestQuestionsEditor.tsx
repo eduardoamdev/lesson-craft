@@ -1,4 +1,4 @@
-import { TestQuestion } from "@/types/testQuestions";
+import { TestQuestion } from "@/types/lesson";
 import { FC } from "react";
 
 interface TestQuestionsEditorProps {
@@ -49,20 +49,20 @@ const TestQuestionsEditor: FC<TestQuestionsEditorProps> = ({
               </span>
               <input
                 className="text-lg font-medium text-gray-100 flex-1 bg-transparent border-none focus:ring-2 focus:ring-[#4c84ff]/30 focus:outline-none px-0 py-2"
-                value={question.sentence}
+                value={question.question}
                 onChange={(event) =>
                   handleQuestionChange(
                     questionIndex,
-                    "sentence",
+                    "question",
                     event.target.value,
                   )
                 }
-                placeholder="Question sentence"
+                placeholder="Question"
               />
             </div>
             <div className="flex flex-col gap-3">
               {question.options.map((option, optionIndex) => {
-                const isCorrect = question.correct_option === optionIndex;
+                const isCorrect = question.correctAnswer === optionIndex;
                 const letter = String.fromCharCode(97 + optionIndex);
                 return (
                   <div
@@ -110,16 +110,16 @@ const TestQuestionsEditor: FC<TestQuestionsEditorProps> = ({
                 <select
                   className="w-full bg-[#1c1c1c] border border-white/5 rounded-2xl px-6 py-4 text-[#cbd5e1] focus:outline-none focus:ring-2 focus:ring-[#3b82f6]/20 focus:border-[#3b82f6]/50 transition-all appearance-none cursor-pointer"
                   value={
-                    question.correct_option === null ||
-                    question.correct_option === undefined
+                    question.correctAnswer === null ||
+                    question.correctAnswer === undefined
                       ? "none"
-                      : question.correct_option
+                      : question.correctAnswer
                   }
                   onChange={(event) => {
                     const value = event.target.value;
                     handleQuestionChange(
                       questionIndex,
-                      "correct_option",
+                      "correctAnswer",
                       value === "none" ? null : Number(value),
                     );
                   }}

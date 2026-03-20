@@ -83,15 +83,15 @@ export default function ImageLessonOverview({
             </div>
           </div>
         )}
-        {lessonData?.multiple_choice_sentences && (
+        {lessonData?.multipleChoiceSentences && (
           <TestQuestions
             title="Fill in the gaps"
-            questions={lessonData.multiple_choice_sentences}
+            questions={lessonData.multipleChoiceSentences}
             className="mt-4"
           />
         )}
-        {lessonData?.open_question && (
-          <OpenQuestion question={lessonData.open_question} />
+        {lessonData?.openQuestion && (
+          <OpenQuestion question={lessonData.openQuestion} />
         )}
         <ActionBar>
           <Button

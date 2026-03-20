@@ -28,9 +28,9 @@ const DownloadPdf = ({ lessonData, imageFileName }: DownloadPdfProps) => {
 
         setDownloading(true);
 
-        const testQuestions = lessonData.multiple_choice_sentences || [];
+        const testQuestions = lessonData.multipleChoiceSentences || [];
 
-        const openQuestion = lessonData.open_question || "";
+        const openQuestion = lessonData.openQuestion || "";
 
         try {
           const response = await generatePdf({

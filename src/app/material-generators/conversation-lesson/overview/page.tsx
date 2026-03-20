@@ -5,7 +5,7 @@ import Button from "@/components/ui/Button";
 import ActionBar from "@/components/ui/ActionBar";
 import TestQuestions from "@/components/features/TestQuestions";
 import Title from "@/components/ui/Title";
-import { ConversationQuestion } from "@/types/testQuestions";
+import { TestQuestion } from "@/types/lesson";
 import DownloadPdf from "@/components/features/DownloadPdf";
 
 /**
@@ -52,10 +52,10 @@ export default function ConversationLessonOverview({
 
   // Map the conversation lesson questions to the TestQuestions component expected format
   const formattedQuestions =
-    lessonData?.questions?.map((q: ConversationQuestion) => ({
-      sentence: q.question,
+    lessonData?.multipleChoiceSentences?.map((q: TestQuestion) => ({
+      question: q.question,
       options: q.options,
-      correct_option: q.correctAnswer,
+      correctAnswer: q.correctAnswer,
     })) || [];
 
   return (
@@ -77,7 +77,6 @@ export default function ConversationLessonOverview({
             </Button>
           </ActionBar>
         </div>
-
         {lessonData?.conversation && lessonData.conversation.length > 0 ? (
           <div className="relative group">
             <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-[2.5rem] blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
@@ -98,8 +97,7 @@ export default function ConversationLessonOverview({
                       className={`flex flex-col ${isEven ? "items-start" : "items-end"}`}
                     >
                       <span className="text-xs text-gray-500 mb-1 mx-2 uppercase tracking-wide font-semibold">
-                        {turn.speaker}{" "}
-                        <span className="text-gray-600">({turn.gender})</span>
+                        {turn.speaker}
                       </span>
                       <div
                         className={`px-6 py-4 max-w-[85%] sm:max-w-[70%] border shadow-md ${
@@ -133,7 +131,6 @@ export default function ConversationLessonOverview({
             className="mt-4"
           />
         )}
-
         <ActionBar>
           <Button
             variant="blue"

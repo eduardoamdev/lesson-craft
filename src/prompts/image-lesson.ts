@@ -3,7 +3,7 @@
  * This file keeps the logic for constructing prompts centralized in a prompts folder.
  */
 
-import { PromptMetadata } from '../types/prompts';
+import { PromptMetadata } from "../types/prompts";
 
 /**
  * Builds the prompt template for the LLM to generate Lesson activities.
@@ -28,19 +28,19 @@ I want you to provide the texts for the activity:
 
 You MUST respond with ONLY valid JSON following this exact structure (no additional properties):
 {
-  "multiple_choice_sentences": [
+  "multipleChoiceSentences": [
     {
-      "sentence": "The sentence with a __________ blank.",
+      "question": "The sentence with a __________ blank.",
       "options": ["option1", "option2", "option3", "option4"],
-      "correct_option": 0
+      "correctAnswer": 0
     }
   ],
-  "open_question": "Your open-ended question here."
+  "openQuestion": "Your open-ended question here."
 }
 
 Important: 
-- Use "multiple_choice_sentences" (not multiple_choice_blanks or any other name)
-- Use "open_question" as a string (not an object)
-- "correct_option" must be a number (0 for first option, 1 for second, etc.)
+- Use "multipleChoiceSentences" (not multiple_choice_blanks or any other name)
+- Use "openQuestion" as a string (not an object)
+- "correctAnswer" must be a number (0 for first option, 1 for second, etc.)
 - Do not add any extra properties or wrap this in any other object`;
 }

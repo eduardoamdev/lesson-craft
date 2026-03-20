@@ -1,4 +1,4 @@
-import { TestQuestion } from "@/types/testQuestions";
+import { TestQuestion } from "@/types/lesson";
 
 export interface TestQuestionsProps {
   questions?: TestQuestion[];
@@ -25,12 +25,12 @@ const TestQuestions = ({
           <div key={index} className="flex flex-col gap-4">
             <h3 className="text-lg font-medium text-gray-100 flex gap-2">
               <span className="text-gray-400">{index + 1}.</span>
-              {q.sentence}
+              {q.question}
             </h3>
 
             <div className="flex flex-col gap-3">
               {q.options.map((optionText, optIndex) => {
-                const isCorrect = q.correct_option === optIndex;
+                const isCorrect = q.correctAnswer === optIndex;
                 const letter = String.fromCharCode(97 + optIndex); // a, b, c, d
 
                 return (

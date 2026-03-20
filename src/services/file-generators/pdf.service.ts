@@ -10,9 +10,9 @@ const CHROME_EXECUTABLE_PATH =
 export interface GeneratePdfOptions {
   imageFileName: string;
   testQuestions: Array<{
-    sentence: string;
+    question: string;
     options: string[];
-    correct_option: number;
+    correctAnswer: number;
   }>;
   openQuestion: string;
 }
@@ -117,12 +117,12 @@ export async function generatePdf({
           .map(
             (q, i) => `
               <div class="question">
-                <div><b>${i + 1}.</b> ${q.sentence}</div>
+                <div><b>${i + 1}.</b> ${q.question}</div>
                 <div class="options">
                   ${q.options
                     .map(
                       (opt, idx) =>
-                        `<div class="option${idx === q.correct_option ? " correct" : ""}">${String.fromCharCode(97 + idx)}) ${opt}</div>`,
+                        `<div class="option${idx === q.correctAnswer ? " correct" : ""}">${String.fromCharCode(97 + idx)}) ${opt}</div>`,
                     )
                     .join("")}
                 </div>

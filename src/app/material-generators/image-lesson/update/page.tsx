@@ -91,18 +91,18 @@ export default function UpdateLessonContent({
         )}
         <div className="flex flex-col gap-8">
           <TestQuestionsEditor
-            questions={draftData?.multiple_choice_sentences || []}
+            questions={draftData?.multipleChoiceSentences || []}
             onChange={(qs) => {
               setDraftData((prev) =>
-                prev ? { ...prev, multiple_choice_sentences: qs } : null,
+                prev ? { ...prev, multipleChoiceSentences: qs } : null,
               );
             }}
           />
           <OpenQuestionEditor
-            value={draftData?.open_question || ""}
+            value={draftData?.openQuestion || ""}
             onChange={(q) => {
               setDraftData((prev) =>
-                prev ? { ...prev, open_question: q } : null,
+                prev ? { ...prev, openQuestion: q } : null,
               );
             }}
           />

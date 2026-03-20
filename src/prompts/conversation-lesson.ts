@@ -3,7 +3,7 @@
  * This file keeps the logic for constructing prompts centralized in a prompts folder.
  */
 
-import { PromptMetadata } from '../types/prompts';
+import { PromptMetadata } from "../types/prompts";
 
 /**
  * Builds the prompt template for the LLM to generate Conversation activities.
@@ -11,7 +11,9 @@ import { PromptMetadata } from '../types/prompts';
  * @param {PromptMetadata} metadata - Basic information about the activity.
  * @returns {string} The formatted prompt string.
  */
-export function buildConversationLessonPrompt(metadata: PromptMetadata): string {
+export function buildConversationLessonPrompt(
+  metadata: PromptMetadata,
+): string {
   const levelText = metadata.level ? metadata.level : "B1-B2";
   const ageText = metadata.age ? `\nTarget student age: ${metadata.age}` : "";
 
@@ -34,7 +36,7 @@ You MUST respond with ONLY valid JSON in this EXACT structure (no other text):
     { "speaker": "Person A", "gender": "male", "text": "Hello, how are you?" },
     { "speaker": "Person B", "gender": "female", "text": "I'm fine, thank you!" }
   ],
-  "questions": [
+  "multipleChoiceSentences": [
     {
       "question": "What did Person A ask?",
       "options": ["How are you?", "Where are you?", "Who are you?", "What are you?"],
