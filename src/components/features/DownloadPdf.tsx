@@ -32,9 +32,12 @@ const DownloadPdf = ({ lessonData, imageFileName }: DownloadPdfProps) => {
 
         const openQuestion = lessonData.openQuestion || "";
 
+        const conversation = lessonData.conversation || [];
+
         try {
           const response = await generatePdf({
             imageFileName,
+            conversation,
             testQuestions,
             openQuestion,
           });

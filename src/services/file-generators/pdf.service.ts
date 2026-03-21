@@ -8,7 +8,12 @@ const CHROME_EXECUTABLE_PATH =
   "/usr/bin/chromium-browser";
 
 export interface GeneratePdfOptions {
-  imageFileName: string;
+  imageFileName?: string;
+  conversation?: Array<{
+    speaker: string;
+    gender?: string;
+    text: string;
+  }>;
   testQuestions: Array<{
     question: string;
     options: string[];
@@ -30,20 +35,25 @@ const TMP_IMAGE_DIR = path.join(process.cwd(), "tmp", "image-lesson");
  */
 export async function generatePdf({
   imageFileName,
+  conversation,
   testQuestions,
   openQuestion,
 }: GeneratePdfOptions): Promise<Uint8Array> {
-  // Read image as base64
-  const imagePath = path.join(TMP_IMAGE_DIR, imageFileName);
-  console.log("[PDF] Using image path:", imagePath);
-  let imageData;
-  try {
-    imageData = await fs.readFile(imagePath);
-  } catch (err) {
-    console.error("[PDF] Failed to read image file:", err);
-    throw err;
+  let imageBase64 = "";
+
+  if (imageFileName) {
+    // Read image as base64
+    const imagePath = path.join(TMP_IMAGE_DIR, imageFileName);
+    console.log("[PDF] Using image path:", imagePath);
+    try {
+      const imageData = await fs.readFile(imagePath);
+      imageBase64 = imageData.toString("base64");
+    } catch (err) {
+      console.error("[PDF] Failed to read image file:", err);
+      // We can continue without image if conversation exists, or throw if neither
+      if (!conversation) throw err;
+    }
   }
-  const imageBase64 = imageData.toString("base64");
 
   // Build HTML
   const html = `
@@ -108,10 +118,62 @@ export async function generatePdf({
             page-break-inside: avoid;
             break-inside: avoid;
           }
+          .conversation-container {
+            margin-bottom: 40px;
+          }
+          .message {
+            margin-bottom: 20px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            max-width: 85%;
+            line-height: 1.5;
+          }
+          .speaker-name {
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-bottom: 4px;
+            color: #4c84ff;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+          }
+          .speaker-a {
+            background: #27272a;
+            border-left: 4px solid #4c84ff;
+            margin-right: auto;
+          }
+          .speaker-b {
+            background: #1e1e2d;
+            border-right: 4px solid #a78bfa;
+            margin-left: auto;
+            text-align: right;
+          }
+          .speaker-b .speaker-name {
+            color: #a78bfa;
+          }
         </style>
       </head>
       <body>
-        <img src="data:image/png;base64,${imageBase64}" alt="Lesson Image" />
+        ${imageBase64 ? `<img src="data:image/png;base64,${imageBase64}" alt="Lesson Image" />` : ""}
+
+        ${
+          conversation
+            ? `
+          <div class="conversation-container">
+            <h2>Conversation</h2>
+            ${conversation
+              .map(
+                (msg, i) => `
+              <div class="message ${i % 2 === 0 ? "speaker-a" : "speaker-b"}">
+                <div class="speaker-name">${msg.speaker}</div>
+                <div class="text">${msg.text}</div>
+              </div>
+            `,
+              )
+              .join("")}
+          </div>
+        `
+            : ""
+        }
         <h2>Test Questions</h2>
         ${testQuestions
           .map(

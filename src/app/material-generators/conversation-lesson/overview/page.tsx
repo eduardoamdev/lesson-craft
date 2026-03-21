@@ -4,6 +4,7 @@ import { use, useEffect, useState } from "react";
 import Button from "@/components/ui/Button";
 import ActionBar from "@/components/ui/ActionBar";
 import TestQuestions from "@/components/features/TestQuestions";
+import OpenQuestion from "@/components/features/OpenQuestion";
 import Title from "@/components/ui/Title";
 import { TestQuestion } from "@/types/lesson";
 import DownloadPdf from "@/components/features/DownloadPdf";
@@ -130,6 +131,9 @@ export default function ConversationLessonOverview({
             questions={formattedQuestions}
             className="mt-4"
           />
+        )}
+        {lessonData?.openQuestion && (
+          <OpenQuestion question={lessonData.openQuestion} />
         )}
         <ActionBar>
           <Button

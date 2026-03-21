@@ -28,6 +28,7 @@ Generate a natural conversation based on this description. The conversation shou
 4. Include realistic context and phrasing
 
 Also generate 4 comprehension questions about the conversation, each with 4 possible answers (only one correct).
+Finally, one open question about the conclusion of the conversation with the student's own words.
 
 You MUST respond with ONLY valid JSON in this EXACT structure (no other text):
 
@@ -42,7 +43,8 @@ You MUST respond with ONLY valid JSON in this EXACT structure (no other text):
       "options": ["How are you?", "Where are you?", "Who are you?", "What are you?"],
       "correctAnswer": 0
     }
-  ]
+  ],
+  "openQuestion": "Your open-ended question here."
 }
 
 Important rules:

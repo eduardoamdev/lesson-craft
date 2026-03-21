@@ -12,10 +12,11 @@ import { generatePdf } from "@/services/file-generators/pdf.service";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { imageFileName, testQuestions, openQuestion } = body;
+    const { imageFileName, conversation, testQuestions, openQuestion } = body;
 
     const pdfBuffer = await generatePdf({
       imageFileName,
+      conversation,
       testQuestions,
       openQuestion,
     });

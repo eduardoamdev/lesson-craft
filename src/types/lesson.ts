@@ -5,6 +5,11 @@
 export interface LessonData {
   imageUrl?: string;
   imageFileName?: string;
+  conversation?: Array<{
+    speaker: string;
+    text: string;
+    gender: string;
+  }>;
   multipleChoiceSentences?: Array<TestQuestion>;
   openQuestion?: string;
 }
