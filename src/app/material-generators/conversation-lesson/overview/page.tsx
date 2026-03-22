@@ -60,6 +60,34 @@ export default function ConversationLessonOverview({
       correctAnswer: q.correctAnswer,
     })) || [];
 
+  const handleGenerateAudio = async () => {
+    if (!lessonData?.conversation) {
+      alert("No conversation data found!");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/conversation-lesson/audio/generation", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(lessonData.conversation),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        alert("Audio generation started successfully!");
+        console.log("Audio generation response:", data);
+      } else {
+        alert("Audio generation failed: " + (data.error || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Error generating audio:", error);
+      alert("An error occurred while generating audio.");
+    }
+  };
+
   return (
     <main className="flex-1 w-full p-8 flex flex-col max-w-5xl mx-auto">
       <div className="flex flex-col gap-10">
@@ -72,7 +100,7 @@ export default function ConversationLessonOverview({
             <Button
               variant="gradient"
               className="px-6 py-3 h-12 rounded-xl text-sm w-full lg:w-auto"
-              onClick={() => alert("Generate Audio functionality coming soon!")}
+              onClick={handleGenerateAudio}
               icon="🔊"
             >
               Generate Audio

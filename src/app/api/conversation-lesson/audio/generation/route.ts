@@ -12,10 +12,11 @@ export async function POST(req: NextRequest) {
   try {
     const body: Array<ConversationTurn> = await req.json();
 
+    console.log(body);
+
     // For now, we only return success true as requested.
     return NextResponse.json({
       success: true,
-      body,
     });
   } catch (error) {
     console.error("Audio generation error:", error);
