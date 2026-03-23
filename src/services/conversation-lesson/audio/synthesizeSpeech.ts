@@ -32,7 +32,7 @@ function synthesizeSpeech(
     let stopFrameSent = false;
 
     ws.on("open", () => {
-      console.log(`Connected to Telnyx TTS WebSocket (voice: ${voiceId})`);
+      console.log(`Connected to TTS WebSocket (voice: ${voiceId})`);
 
       ws.send(JSON.stringify({ text: " " }));
 
