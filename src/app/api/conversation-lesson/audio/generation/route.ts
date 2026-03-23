@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ConversationTurn } from "@/types/lesson";
+import { synthesizeConversation } from "@/services/conversation-lesson/audio/synthesizeConversation";
 
 /**
  * Handles POST requests for generating audio for conversation turns.
@@ -12,11 +13,22 @@ export async function POST(req: NextRequest) {
   try {
     const body: Array<ConversationTurn> = await req.json();
 
-    console.log(body);
+    if (!Array.isArray(body) || body.length === 0) {
+      return NextResponse.json(
+        { success: false, error: "No conversation turns provided" },
+        { status: 400 },
+      );
+    }
 
-    // For now, we only return success true as requested.
+    console.log("Starting conversation synthesis for turns:", body.length);
+
+    const fullAudioBuffer = await synthesizeConversation(body);
+
+    console.log("Total synthesized audio length:", fullAudioBuffer.length);
+
     return NextResponse.json({
       success: true,
+      audioLength: fullAudioBuffer.length,
     });
   } catch (error) {
     console.error("Audio generation error:", error);
