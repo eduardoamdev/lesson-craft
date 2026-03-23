@@ -52,7 +52,6 @@ export default function ConversationLessonOverview({
     );
   }
 
-  // Map the conversation lesson questions to the TestQuestions component expected format
   const formattedQuestions =
     lessonData?.multipleChoiceSentences?.map((q: TestQuestion) => ({
       question: q.question,
@@ -67,13 +66,16 @@ export default function ConversationLessonOverview({
     }
 
     try {
-      const response = await fetch("/api/conversation-lesson/audio/generation", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        "/api/conversation-lesson/audio/generation",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(lessonData.conversation),
         },
-        body: JSON.stringify(lessonData.conversation),
-      });
+      );
 
       const data = await response.json();
       if (data.success) {
