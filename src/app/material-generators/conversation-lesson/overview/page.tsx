@@ -26,9 +26,9 @@ export default function ConversationLessonOverview({
   const resolvedSearchParams = use(searchParams);
   const [isMounted, setIsMounted] = useState(false);
   const [lessonData, setLessonData] = useState<LessonData | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMounted(true);
     if (resolvedSearchParams?.data) {
       try {
@@ -51,13 +51,13 @@ export default function ConversationLessonOverview({
     );
   }
 
-
   const handleGenerateAudio = async () => {
     if (!lessonData?.conversation) {
       alert("No conversation data found!");
       return;
     }
 
+    setIsDownloading(true);
     try {
       const response = await fetch(
         "/api/conversation-lesson/audio/generation",
@@ -70,16 +70,25 @@ export default function ConversationLessonOverview({
         },
       );
 
-      const data = await response.json();
-      if (data.success) {
-        alert("Audio generation started successfully!");
-        console.log("Audio generation response:", data);
-      } else {
-        alert("Audio generation failed: " + (data.error || "Unknown error"));
+      if (!response.ok) {
+        throw new Error("Failed to generate audio");
       }
+
+      // Create a blob from the response to trigger download
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "conversation-audio.mp3";
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
     } catch (error) {
       console.error("Error generating audio:", error);
       alert("An error occurred while generating audio.");
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -96,9 +105,10 @@ export default function ConversationLessonOverview({
               variant="gradient"
               className="px-6 py-3 h-12 rounded-xl text-sm w-full lg:w-auto"
               onClick={handleGenerateAudio}
-              icon="🔊"
+              icon={isDownloading ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : "🔊"}
+              disabled={isDownloading}
             >
-              Generate Audio
+              {isDownloading ? "Downloading audio..." : "Download Audio"}
             </Button>
           </ActionBar>
         </div>

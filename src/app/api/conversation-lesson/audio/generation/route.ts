@@ -26,9 +26,11 @@ export async function POST(req: NextRequest) {
 
     console.log("Total synthesized audio length:", fullAudioBuffer.length);
 
-    return NextResponse.json({
-      success: true,
-      audioLength: fullAudioBuffer.length,
+    return new Response(new Uint8Array(fullAudioBuffer), {
+      headers: {
+        "Content-Type": "audio/mpeg",
+        "Content-Disposition": 'attachment; filename="conversation-audio.mp3"',
+      },
     });
   } catch (error) {
     console.error("Audio generation error:", error);
