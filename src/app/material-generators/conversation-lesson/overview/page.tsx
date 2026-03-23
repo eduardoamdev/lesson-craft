@@ -8,6 +8,7 @@ import OpenQuestion from "@/components/features/OpenQuestion";
 import Title from "@/components/ui/Title";
 import { LessonData } from "@/types/lesson";
 import DownloadPdf from "@/components/features/DownloadPdf";
+import DownloadMp3 from "@/components/features/DownloadMp3";
 import ConversationDialogue from "@/components/features/ConversationDialogue";
 
 /**
@@ -26,9 +27,9 @@ export default function ConversationLessonOverview({
   const resolvedSearchParams = use(searchParams);
   const [isMounted, setIsMounted] = useState(false);
   const [lessonData, setLessonData] = useState<LessonData | null>(null);
-  const [isDownloading, setIsDownloading] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMounted(true);
     if (resolvedSearchParams?.data) {
       try {
@@ -51,47 +52,6 @@ export default function ConversationLessonOverview({
     );
   }
 
-  const handleGenerateAudio = async () => {
-    if (!lessonData?.conversation) {
-      alert("No conversation data found!");
-      return;
-    }
-
-    setIsDownloading(true);
-    try {
-      const response = await fetch(
-        "/api/conversation-lesson/audio/generation",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(lessonData.conversation),
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to generate audio");
-      }
-
-      // Create a blob from the response to trigger download
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "conversation-audio.mp3";
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error("Error generating audio:", error);
-      alert("An error occurred while generating audio.");
-    } finally {
-      setIsDownloading(false);
-    }
-  };
-
   return (
     <main className="flex-1 w-full p-8 flex flex-col max-w-5xl mx-auto">
       <div className="flex flex-col gap-10">
@@ -101,15 +61,7 @@ export default function ConversationLessonOverview({
           </Title>
           <ActionBar>
             <DownloadPdf lessonData={lessonData} />
-            <Button
-              variant="gradient"
-              className="px-6 py-3 h-12 rounded-xl text-sm w-full lg:w-auto"
-              onClick={handleGenerateAudio}
-              icon={isDownloading ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : "🔊"}
-              disabled={isDownloading}
-            >
-              {isDownloading ? "Downloading audio..." : "Download Audio"}
-            </Button>
+            <DownloadMp3 lessonData={lessonData} />
           </ActionBar>
         </div>
         <ConversationDialogue conversation={lessonData?.conversation} />
