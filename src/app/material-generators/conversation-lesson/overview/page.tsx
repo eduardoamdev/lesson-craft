@@ -6,7 +6,7 @@ import ActionBar from "@/components/ui/ActionBar";
 import TestQuestions from "@/components/features/TestQuestions";
 import OpenQuestion from "@/components/features/OpenQuestion";
 import Title from "@/components/ui/Title";
-import { TestQuestion } from "@/types/lesson";
+import { LessonData } from "@/types/lesson";
 import DownloadPdf from "@/components/features/DownloadPdf";
 import ConversationDialogue from "@/components/features/ConversationDialogue";
 
@@ -25,8 +25,7 @@ export default function ConversationLessonOverview({
 }) {
   const resolvedSearchParams = use(searchParams);
   const [isMounted, setIsMounted] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [lessonData, setLessonData] = useState<any>(null);
+  const [lessonData, setLessonData] = useState<LessonData | null>(null);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -52,12 +51,6 @@ export default function ConversationLessonOverview({
     );
   }
 
-  const formattedQuestions =
-    lessonData?.multipleChoiceSentences?.map((q: TestQuestion) => ({
-      question: q.question,
-      options: q.options,
-      correctAnswer: q.correctAnswer,
-    })) || [];
 
   const handleGenerateAudio = async () => {
     if (!lessonData?.conversation) {
@@ -111,13 +104,14 @@ export default function ConversationLessonOverview({
         </div>
         <ConversationDialogue conversation={lessonData?.conversation} />
 
-        {formattedQuestions.length > 0 && (
-          <TestQuestions
-            title="Comprehension Questions"
-            questions={formattedQuestions}
-            className="mt-4"
-          />
-        )}
+        {lessonData?.multipleChoiceSentences &&
+          lessonData.multipleChoiceSentences.length > 0 && (
+            <TestQuestions
+              title="Comprehension Questions"
+              questions={lessonData.multipleChoiceSentences}
+              className="mt-4"
+            />
+          )}
         {lessonData?.openQuestion && (
           <OpenQuestion question={lessonData.openQuestion} />
         )}
