@@ -74,7 +74,12 @@ export async function generatePdf({
             padding: 32px;
             margin: 0;
           }
-          h1, h2, h3 {
+          h1 {
+            color: #4c84ff;
+            margin-bottom: 0.5em;
+            text-align: center;
+          }
+          h2, h3 {
             color: #4c84ff;
             margin-bottom: 0.5em;
           }
@@ -153,10 +158,11 @@ export async function generatePdf({
         </style>
       </head>
       <body>
+        <h1>${imageFileName ? "Image" : "Conversation"} Activity</h1>
         ${imageBase64 ? `<img src="data:image/png;base64,${imageBase64}" alt="Lesson Image" />` : ""}
 
         ${
-          conversation
+          conversation && conversation.length > 0
             ? `
           <div class="conversation-container">
             <h2>Conversation</h2>
@@ -174,7 +180,7 @@ export async function generatePdf({
         `
             : ""
         }
-        <h2>Test Questions</h2>
+        <h2>${imageFileName ? "Fill in the gaps" : "Test Questions"}</h2>
         ${testQuestions
           .map(
             (q, i) => `
