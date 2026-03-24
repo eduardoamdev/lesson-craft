@@ -39,7 +39,11 @@ export default function Home() {
             Conversation Activity Craft
           </Button>
 
-          <Button variant="teal" icon="🎬">
+          <Button
+            href="/material-generators/video-lesson/generator"
+            variant="teal"
+            icon="🎬"
+          >
             Video Activity Craft
           </Button>
         </div>
