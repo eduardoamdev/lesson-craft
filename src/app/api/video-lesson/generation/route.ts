@@ -12,21 +12,7 @@ export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
 
-    // Convert formData to a plain object for logging (easier to read)
-    const data: Record<string, any> = {};
-    formData.forEach((value, key) => {
-      if (value instanceof File) {
-        data[key] = {
-          name: value.name,
-          size: value.size,
-          type: value.type,
-        };
-      } else {
-        data[key] = value;
-      }
-    });
-
-    console.log("Received video lesson generation request data:", data);
+    console.log("Received video lesson generation request data:", formData);
 
     // In the future, this is where processing logic (upload, AI, etc.) would go
     // For now, we just acknowledge receipt of the data.
@@ -34,7 +20,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       message: "Video lesson generation data received and logged",
-      receivedData: data, // Optional: echoing back for confirmation
+      receivedData: formData, // Optional: echoing back for confirmation
     });
   } catch (error) {
     console.error("Video lesson generation error:", error);
