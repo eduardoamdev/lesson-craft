@@ -22,6 +22,7 @@ export default function VideoLessonGenerator() {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const handleGenerate = async () => {
+    console.log("youtubeUrl", youtubeUrl);
     if (!youtubeUrl) {
       alert("Please provide a YouTube URL first");
       return;
@@ -31,15 +32,19 @@ export default function VideoLessonGenerator() {
 
     try {
       const formData = new FormData();
+
       formData.append("youtubeUrl", youtubeUrl);
       formData.append("age", age);
       formData.append("level", level);
 
       const response = await generateVideoLesson(formData);
+
       const data = await response.json();
 
       if (data.success) {
-        alert("Success! Video lesson generation request received. Check the server logs for data.");
+        alert(
+          "Success! Video lesson generation request received. Check the server logs for data.",
+        );
         console.log("Success response:", data);
       } else {
         alert("Failed to generate activity. Please try again.");
@@ -100,11 +105,11 @@ export default function VideoLessonGenerator() {
               <Button href="/" variant="outline" className="flex-1" icon="←">
                 Back
               </Button>
-              <Button 
-                variant="purple" 
-                className="flex-1" 
+              <Button
+                variant="purple"
+                className="flex-1"
                 onClick={handleGenerate}
-                disabled={isGenerating || !youtubeUrl}
+                disabled={isGenerating}
                 icon={isGenerating ? "⏳" : undefined}
               >
                 {isGenerating ? "Generating..." : "Generate Activity"}
