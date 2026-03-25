@@ -3,11 +3,12 @@
 import ActionBar from "@/components/ui/ActionBar";
 import Title from "@/components/ui/Title";
 import Button from "@/components/ui/Button";
-import { useEffect, useState } from "react";
 import Image from "next/image";
 import TestQuestionsEditor from "@/components/features/TestQuestionsEditor";
 import OpenQuestionEditor from "@/components/features/OpenQuestionEditor";
 import { LessonData } from "@/types/lesson";
+import { useLessonData } from "@/utils/useLessonData";
+import { use, useState } from "react";
 
 /**
  * Update component for editing an image lesson activity.
@@ -19,24 +20,17 @@ export default function UpdateLessonContent({
 }: {
   searchParams: Promise<{ data?: string }>;
 }) {
+  const resolvedSearchParams = use(searchParams);
   // Store original data (immutable) and draft data (editable)
   const [originalData, setOriginalData] = useState<LessonData | null>(null);
   const [draftData, setDraftData] = useState<LessonData | null>(null);
 
-  useEffect(() => {
-    searchParams.then((params) => {
-      if (params?.data) {
-        try {
-          const parsed = JSON.parse(decodeURIComponent(params.data));
-          setOriginalData(parsed);
-          setDraftData(JSON.parse(JSON.stringify(parsed)));
-        } catch (error) {
-          console.error("Failed to parse search params data:", error);
-          alert("Failed to load activity data. Please try again.");
-        }
-      }
-    });
-  }, [searchParams]);
+  const lessonData = useLessonData(resolvedSearchParams?.data);
+
+  if (lessonData && !originalData) {
+    setOriginalData(lessonData);
+    setDraftData(JSON.parse(JSON.stringify(lessonData)));
+  }
 
   // Always use the original data for Go Back
   const goBackHref = originalData

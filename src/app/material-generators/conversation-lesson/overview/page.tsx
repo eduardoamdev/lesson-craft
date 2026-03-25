@@ -6,10 +6,10 @@ import ActionBar from "@/components/ui/ActionBar";
 import TestQuestions from "@/components/features/TestQuestions";
 import OpenQuestion from "@/components/features/OpenQuestion";
 import Title from "@/components/ui/Title";
-import { LessonData } from "@/types/lesson";
 import DownloadPdf from "@/components/features/DownloadPdf";
 import DownloadMp3 from "@/components/features/DownloadMp3";
 import ConversationDialogue from "@/components/features/ConversationDialogue";
+import { useLessonData } from "@/utils/useLessonData";
 
 /**
  * Overview page for the Conversation Activity Generator.
@@ -26,21 +26,13 @@ export default function ConversationLessonOverview({
 }) {
   const resolvedSearchParams = use(searchParams);
   const [isMounted, setIsMounted] = useState(false);
-  const [lessonData, setLessonData] = useState<LessonData | null>(null);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMounted(true);
-    if (resolvedSearchParams?.data) {
-      try {
-        setLessonData(
-          JSON.parse(decodeURIComponent(resolvedSearchParams.data)),
-        );
-      } catch (error) {
-        console.error("Failed to parse lesson data from URL:", error);
-      }
-    }
-  }, [resolvedSearchParams?.data]);
+  }, []);
+
+  const lessonData = useLessonData(resolvedSearchParams?.data);
 
   if (!isMounted) {
     return (
