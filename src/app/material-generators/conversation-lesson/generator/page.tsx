@@ -34,7 +34,11 @@ export default function ConversationLessonGenerator() {
     setIsGenerating(true);
 
     try {
-      const response = await generateConversationLesson({ description, age, level });
+      const response = await generateConversationLesson({
+        description,
+        age,
+        level,
+      });
 
       const data = await response.json();
       if (!response.ok || !data.success) {
@@ -42,10 +46,15 @@ export default function ConversationLessonGenerator() {
       }
 
       console.log("Generated Activity:", data.activityData);
+
       const query = encodeURIComponent(JSON.stringify(data.activityData));
-      router.push(`/material-generators/conversation-lesson/overview?data=${query}`);
+
+      router.push(
+        `/material-generators/conversation-lesson/overview?data=${query}`,
+      );
     } catch (error) {
       console.error("Error generating conversation:", error);
+
       alert("Error generating conversation");
     } finally {
       setIsGenerating(false);
@@ -70,7 +79,9 @@ export default function ConversationLessonGenerator() {
             <span>ℹ️</span> Disclaimer
           </h3>
           <p className="text-[#94a3b8] text-md leading-relaxed">
-            We currently have only one masculine voice and one feminine voice available. We recommend generating conversations between an adult man and an adult woman.
+            We currently have only one masculine voice and one feminine voice
+            available. We recommend generating conversations between an adult
+            man and an adult woman.
           </p>
         </div>
 
@@ -102,9 +113,9 @@ export default function ConversationLessonGenerator() {
               <Button href="/" variant="outline" className="flex-1" icon="←">
                 Back
               </Button>
-              <Button 
-                variant="purple" 
-                className="flex-1" 
+              <Button
+                variant="purple"
+                className="flex-1"
                 onClick={handleGenerate}
                 disabled={isGenerating}
               >
