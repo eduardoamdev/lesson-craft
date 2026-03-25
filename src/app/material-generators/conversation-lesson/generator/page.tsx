@@ -41,6 +41,7 @@ export default function ConversationLessonGenerator() {
       });
 
       const data = await response.json();
+
       if (!response.ok || !data.success) {
         throw new Error(data.error || "Generation failed");
       }
