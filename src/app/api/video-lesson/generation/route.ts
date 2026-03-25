@@ -1,3 +1,4 @@
+import { extractVideoId } from "@/utils/video/extractVideoId";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
@@ -11,13 +12,27 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
+    const youtubeUrl = formData.get("youtubeUrl") as string;
+    const videoId = extractVideoId(youtubeUrl || "");
 
-    console.log("Received video lesson generation request data:", formData);
+    console.log("Received video lesson generation request data:", {
+      youtubeUrl,
+      videoId,
+      age: formData.get("age"),
+      level: formData.get("level"),
+    });
+
+    if (!videoId) {
+      return NextResponse.json(
+        { success: false, error: "Invalid YouTube URL" },
+        { status: 400 },
+      );
+    }
 
     return NextResponse.json({
       success: true,
-      message: "Video lesson generation data received and logged",
-      receivedData: formData,
+      message: "Video lesson generation data received and processed",
+      videoId,
     });
   } catch (error) {
     console.error("Video lesson generation error:", error);
