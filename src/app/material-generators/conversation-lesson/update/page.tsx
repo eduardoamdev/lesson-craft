@@ -7,7 +7,7 @@ import TestQuestionsEditor from "@/components/features/TestQuestionsEditor";
 import OpenQuestionEditor from "@/components/features/OpenQuestionEditor";
 import ConversationEditor from "@/components/features/ConversationEditor";
 import { LessonData } from "@/types/lesson";
-import { useLessonData } from "@/utils/useLessonData";
+import { useLessonData } from "@/utils/common/useLessonData";
 import { use, useState } from "react";
 
 /**
@@ -85,7 +85,9 @@ export default function UpdateConversationLesson({
           <ConversationEditor
             conversation={draftData.conversation || []}
             onChange={(conv) =>
-              setDraftData((prev) => (prev ? { ...prev, conversation: conv } : null))
+              setDraftData((prev) =>
+                prev ? { ...prev, conversation: conv } : null,
+              )
             }
           />
 
@@ -94,7 +96,7 @@ export default function UpdateConversationLesson({
             questions={draftData.multipleChoiceSentences || []}
             onChange={(qs) =>
               setDraftData((prev) =>
-                prev ? { ...prev, multipleChoiceSentences: qs } : null
+                prev ? { ...prev, multipleChoiceSentences: qs } : null,
               )
             }
           />
@@ -103,7 +105,9 @@ export default function UpdateConversationLesson({
           <OpenQuestionEditor
             value={draftData.openQuestion || ""}
             onChange={(q) =>
-              setDraftData((prev) => (prev ? { ...prev, openQuestion: q } : null))
+              setDraftData((prev) =>
+                prev ? { ...prev, openQuestion: q } : null,
+              )
             }
           />
         </div>

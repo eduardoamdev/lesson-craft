@@ -9,7 +9,7 @@ import Title from "@/components/ui/Title";
 import DownloadPdf from "@/components/features/DownloadPdf";
 import DownloadMp3 from "@/components/features/DownloadMp3";
 import ConversationDialogue from "@/components/features/ConversationDialogue";
-import { useLessonData } from "@/utils/useLessonData";
+import { useLessonData } from "@/utils/common/useLessonData";
 
 /**
  * Overview page for the Conversation Activity Generator.

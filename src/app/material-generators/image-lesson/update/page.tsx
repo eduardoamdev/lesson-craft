@@ -7,7 +7,7 @@ import Image from "next/image";
 import TestQuestionsEditor from "@/components/features/TestQuestionsEditor";
 import OpenQuestionEditor from "@/components/features/OpenQuestionEditor";
 import { LessonData } from "@/types/lesson";
-import { useLessonData } from "@/utils/useLessonData";
+import { useLessonData } from "@/utils/common/useLessonData";
 import { use, useState } from "react";
 
 /**

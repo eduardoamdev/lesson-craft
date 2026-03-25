@@ -1,7 +1,7 @@
-import { cleanupOldFiles } from "@/utils/cleanupOldFiles";
-import { prepareTemporalFileName } from "@/utils/prepareTemporalFileName";
-import { extractExtension } from "@/utils/extractExtension";
-import { generateTemporalFilesMetadata } from "@/utils/generateTemporalFilesMetadata";
+import { cleanupOldFiles } from "@/utils/common/cleanupOldFiles";
+import { prepareTemporalFileName } from "@/utils/common/prepareTemporalFileName";
+import { extractExtension } from "@/utils/common/extractExtension";
+import { generateTemporalFilesMetadata } from "@/utils/common/generateTemporalFilesMetadata";
 import path from "path";
 import fs from "fs/promises";
 

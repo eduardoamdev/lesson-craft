@@ -8,7 +8,7 @@ import ActionBar from "@/components/ui/ActionBar";
 import TestQuestions from "@/components/features/TestQuestions";
 import OpenQuestion from "@/components/features/OpenQuestion";
 import Title from "@/components/ui/Title";
-import { useLessonData } from "@/utils/useLessonData";
+import { useLessonData } from "@/utils/common/useLessonData";
 
 /**
  * Overview page for the Image Activity Generator.
