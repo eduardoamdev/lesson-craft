@@ -5,19 +5,51 @@ import ActionBar from "@/components/ui/ActionBar";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Title from "@/components/ui/Title";
+import Select from "@/components/ui/Select";
+import { levelOptions } from "@/constants/levelOptions";
+import { generateVideoLesson } from "@/api-clients/video-lesson/generate";
 
 /**
  * Page component for the Video Activity Generator.
- * Provides a user interface for specifying a YouTube URL to generate lessons from transcripts.
+ * Provides a user interface for specifying a YouTube URL and metadata to generate activities.
  *
  * @returns {JSX.Element} The rendered generation tool page.
  */
 export default function VideoLessonGenerator() {
   const [youtubeUrl, setYoutubeUrl] = useState("");
+  const [age, setAge] = useState("");
+  const [level, setLevel] = useState("A1");
+  const [isGenerating, setIsGenerating] = useState(false);
 
-  const handleGenerate = () => {
-    // For now, no logic as per user's request.
-    console.log("Generating for URL:", youtubeUrl);
+  const handleGenerate = async () => {
+    if (!youtubeUrl) {
+      alert("Please provide a YouTube URL first");
+      return;
+    }
+
+    setIsGenerating(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("youtubeUrl", youtubeUrl);
+      formData.append("age", age);
+      formData.append("level", level);
+
+      const response = await generateVideoLesson(formData);
+      const data = await response.json();
+
+      if (data.success) {
+        alert("Success! Video lesson generation request received. Check the server logs for data.");
+        console.log("Success response:", data);
+      } else {
+        alert("Failed to generate activity. Please try again.");
+      }
+    } catch (error) {
+      console.error("Process error:", error);
+      alert("An error occurred during the process.");
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
@@ -48,6 +80,21 @@ export default function VideoLessonGenerator() {
             onChange={setYoutubeUrl}
           />
 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Input
+              label="Student's Age"
+              placeholder="e.g. 12, 25, Adults..."
+              value={age}
+              onChange={setAge}
+            />
+            <Select
+              label="English Level"
+              value={level}
+              onChange={setLevel}
+              options={levelOptions}
+            />
+          </div>
+
           <div className="pt-2">
             <ActionBar>
               <Button href="/" variant="outline" className="flex-1" icon="←">
@@ -57,8 +104,10 @@ export default function VideoLessonGenerator() {
                 variant="purple" 
                 className="flex-1" 
                 onClick={handleGenerate}
+                disabled={isGenerating || !youtubeUrl}
+                icon={isGenerating ? "⏳" : undefined}
               >
-                Generate Activity
+                {isGenerating ? "Generating..." : "Generate Activity"}
               </Button>
             </ActionBar>
           </div>
