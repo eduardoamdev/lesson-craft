@@ -3,7 +3,7 @@
  */
 
 export interface PromptMetadata {
-  description: string;
+  description?: string;
   level?: string;
   age?: string | number;
 }

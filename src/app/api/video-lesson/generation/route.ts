@@ -1,6 +1,8 @@
 import { extractVideoId } from "@/utils/video/extractVideoId";
 import { NextRequest, NextResponse } from "next/server";
 import { YoutubeTranscript } from "youtube-transcript";
+import { buildVideoLessonPrompt } from "@/prompts/video-lesson";
+import { callLLM } from "@/api-clients/common/ai/llm";
 
 /**
  * Handles POST requests for generating a video lesson activity.
@@ -15,11 +17,13 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const youtubeUrl = formData.get("youtubeUrl") as string;
     const videoId = extractVideoId(youtubeUrl || "");
+    const age = formData.get("age") as string;
+    const level = formData.get("level") as string;
 
     console.log("Received video lesson generation request data:", {
       youtubeUrl,
       videoId,
-      age: formData.get("age"),
+      age,
       level: formData.get("level"),
     });
 
@@ -31,25 +35,40 @@ export async function POST(req: NextRequest) {
     }
 
     const transcriptItems = await YoutubeTranscript.fetchTranscript(videoId);
+
     console.log("transcriptItems", transcriptItems);
 
+    let builtTranscript = "";
+
     if (Array.isArray(transcriptItems) && transcriptItems.length > 0) {
-      const builtTranscript = transcriptItems
+      builtTranscript = transcriptItems
         .map((item) => item.text)
         .filter(Boolean)
         .join(" ")
         .replace(/\s+/g, " ")
         .trim();
-
-      if (builtTranscript) {
-        console.log("builtTranscript", builtTranscript);
-      }
+    } else {
+      return NextResponse.json(
+        { success: false, error: "Failed to build transcript" },
+        { status: 500 },
+      );
     }
+
+    const prompt = buildVideoLessonPrompt(builtTranscript, {
+      age,
+      level,
+    });
+
+    const llmData = await callLLM(prompt, { temperature: 1.0 });
 
     return NextResponse.json({
       success: true,
-      message: "Video lesson generation data received and processed",
-      videoId,
+      activityData: {
+        videoId,
+        age,
+        level,
+        ...llmData,
+      },
     });
   } catch (error) {
     console.error("Video lesson generation error:", error);
