@@ -33,6 +33,19 @@ export async function POST(req: NextRequest) {
     const transcriptItems = await YoutubeTranscript.fetchTranscript(videoId);
     console.log("transcriptItems", transcriptItems);
 
+    if (Array.isArray(transcriptItems) && transcriptItems.length > 0) {
+      const builtTranscript = transcriptItems
+        .map((item) => item.text)
+        .filter(Boolean)
+        .join(" ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+      if (builtTranscript) {
+        console.log("builtTranscript", builtTranscript);
+      }
+    }
+
     return NextResponse.json({
       success: true,
       message: "Video lesson generation data received and processed",
