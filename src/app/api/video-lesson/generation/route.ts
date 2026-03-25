@@ -14,13 +14,10 @@ export async function POST(req: NextRequest) {
 
     console.log("Received video lesson generation request data:", formData);
 
-    // In the future, this is where processing logic (upload, AI, etc.) would go
-    // For now, we just acknowledge receipt of the data.
-
     return NextResponse.json({
       success: true,
       message: "Video lesson generation data received and logged",
-      receivedData: formData, // Optional: echoing back for confirmation
+      receivedData: formData,
     });
   } catch (error) {
     console.error("Video lesson generation error:", error);
