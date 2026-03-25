@@ -1,4 +1,5 @@
 import { extractVideoId } from "@/utils/video/extractVideoId";
+import { buildTranscript } from "@/utils/video/transcriptProcessor";
 import { NextRequest, NextResponse } from "next/server";
 import { YoutubeTranscript } from "youtube-transcript";
 import { buildVideoLessonPrompt } from "@/prompts/video-lesson";
@@ -38,16 +39,9 @@ export async function POST(req: NextRequest) {
 
     console.log("transcriptItems", transcriptItems);
 
-    let builtTranscript = "";
+    const builtTranscript = buildTranscript(transcriptItems);
 
-    if (Array.isArray(transcriptItems) && transcriptItems.length > 0) {
-      builtTranscript = transcriptItems
-        .map((item) => item.text)
-        .filter(Boolean)
-        .join(" ")
-        .replace(/\s+/g, " ")
-        .trim();
-    } else {
+    if (!builtTranscript) {
       return NextResponse.json(
         { success: false, error: "Failed to build transcript" },
         { status: 500 },
