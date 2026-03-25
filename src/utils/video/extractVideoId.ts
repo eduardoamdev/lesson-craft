@@ -6,10 +6,10 @@
  * @returns {string | null} The extracted video ID or null if not found.
  */
 export function extractVideoId(url: string): string | null {
-  const regex =
+  const videoUrlRegex =
     /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
 
-  const match = url.match(regex);
+  const match = url.match(videoUrlRegex);
 
   return match ? match[1] : null;
 }
