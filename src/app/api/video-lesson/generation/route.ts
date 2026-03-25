@@ -1,5 +1,6 @@
 import { extractVideoId } from "@/utils/video/extractVideoId";
 import { NextRequest, NextResponse } from "next/server";
+import { YoutubeTranscript } from "youtube-transcript";
 
 /**
  * Handles POST requests for generating a video lesson activity.
@@ -28,6 +29,9 @@ export async function POST(req: NextRequest) {
         { status: 400 },
       );
     }
+
+    const transcriptItems = await YoutubeTranscript.fetchTranscript(videoId);
+    console.log("transcriptItems", transcriptItems);
 
     return NextResponse.json({
       success: true,
