@@ -155,6 +155,10 @@ export async function generatePdf({
           .speaker-b .speaker-name {
             color: #a78bfa;
           }
+          .questions-block {
+            page-break-inside: avoid;
+            break-inside: avoid;
+          }
         </style>
       </head>
       <body>
@@ -180,24 +184,26 @@ export async function generatePdf({
         `
             : ""
         }
-        <h2>${imageFileName ? "Fill in the gaps" : "Test Questions"}</h2>
-        ${testQuestions
-          .map(
-            (q, i) => `
-              <div class="question">
-                <div><b>${i + 1}.</b> ${q.question}</div>
-                <div class="options">
-                  ${q.options
-                    .map(
-                      (opt, idx) =>
-                        `<div class="option${idx === q.correctAnswer ? " correct" : ""}">${String.fromCharCode(97 + idx)}) ${opt}</div>`,
-                    )
-                    .join("")}
+        <div class="questions-block">
+          <h2>${imageFileName ? "Fill in the gaps" : "Test Questions"}</h2>
+          ${testQuestions
+            .map(
+              (q, i) => `
+                <div class="question">
+                  <div><b>${i + 1}.</b> ${q.question}</div>
+                  <div class="options">
+                    ${q.options
+                      .map(
+                        (opt, idx) =>
+                          `<div class="option${idx === q.correctAnswer ? " correct" : ""}">${String.fromCharCode(97 + idx)}) ${opt}</div>`,
+                      )
+                      .join("")}
+                  </div>
                 </div>
-              </div>
-            `,
-          )
-          .join("")}
+              `,
+            )
+            .join("")}
+        </div>
         <div class="open-question">
           <h3>Open Question</h3>
           <div>${openQuestion}</div>
