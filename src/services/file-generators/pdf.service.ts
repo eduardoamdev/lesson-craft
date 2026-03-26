@@ -9,6 +9,7 @@ const CHROME_EXECUTABLE_PATH =
 
 export interface GeneratePdfOptions {
   imageFileName?: string;
+  videoUrl?: string;
   conversation?: Array<{
     speaker: string;
     gender?: string;
@@ -24,6 +25,15 @@ export interface GeneratePdfOptions {
 
 const TMP_IMAGE_DIR = path.join(process.cwd(), "tmp", "image-lesson");
 
+function escapeHtml(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
 /**
  * Generates a PDF lesson file using Puppeteer.
  * Reads the lesson image, builds styled HTML with test and open questions,
@@ -35,11 +45,18 @@ const TMP_IMAGE_DIR = path.join(process.cwd(), "tmp", "image-lesson");
  */
 export async function generatePdf({
   imageFileName,
+  videoUrl,
   conversation,
   testQuestions,
   openQuestion,
 }: GeneratePdfOptions): Promise<Uint8Array> {
   let imageBase64 = "";
+  const escapedVideoUrl = videoUrl ? escapeHtml(videoUrl) : "";
+  const activityType = imageFileName
+    ? "Image"
+    : videoUrl
+      ? "Video"
+      : "Conversation";
 
   if (imageFileName) {
     // Read image as base64
@@ -50,8 +67,8 @@ export async function generatePdf({
       imageBase64 = imageData.toString("base64");
     } catch (err) {
       console.error("[PDF] Failed to read image file:", err);
-      // We can continue without image if conversation exists, or throw if neither
-      if (!conversation) throw err;
+      // We can continue without image if another content source exists.
+      if (!conversation && !videoUrl) throw err;
     }
   }
 
@@ -89,6 +106,30 @@ export async function generatePdf({
             margin-bottom: 32px;
             border: 2px solid #4c84ff;
             box-shadow: 0 4px 24px #4c84ff22;
+          }
+          .source-block {
+            margin-bottom: 32px;
+            padding: 20px 24px;
+            border-radius: 20px;
+            border: 1px solid #4c84ff33;
+            background: #1a1a2b;
+            box-shadow: 0 4px 24px #4c84ff11;
+            page-break-inside: avoid;
+            break-inside: avoid;
+          }
+          .source-label {
+            color: #4c84ff;
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+          }
+          .source-link {
+            color: #c4d8ff;
+            text-decoration: underline;
+            word-break: break-all;
+            line-height: 1.6;
           }
           .question {
             margin-bottom: 32px;
@@ -155,15 +196,21 @@ export async function generatePdf({
           .speaker-b .speaker-name {
             color: #a78bfa;
           }
-          .questions-block {
-            page-break-inside: avoid;
-            break-inside: avoid;
-          }
         </style>
       </head>
       <body>
-        <h1>${imageFileName ? "Image" : "Conversation"} Activity</h1>
+        <h1>${activityType} Activity</h1>
         ${imageBase64 ? `<img src="data:image/png;base64,${imageBase64}" alt="Lesson Image" />` : ""}
+        ${
+          escapedVideoUrl
+            ? `
+          <div class="source-block">
+            <div class="source-label">Source Video</div>
+            <a class="source-link" href="${escapedVideoUrl}">${escapedVideoUrl}</a>
+          </div>
+        `
+            : ""
+        }
 
         ${
           conversation && conversation.length > 0
@@ -174,8 +221,8 @@ export async function generatePdf({
               .map(
                 (msg, i) => `
               <div class="message ${i % 2 === 0 ? "speaker-a" : "speaker-b"}">
-                <div class="speaker-name">${msg.speaker}</div>
-                <div class="text">${msg.text}</div>
+                <div class="speaker-name">${escapeHtml(msg.speaker)}</div>
+                <div class="text">${escapeHtml(msg.text)}</div>
               </div>
             `,
               )
@@ -184,18 +231,18 @@ export async function generatePdf({
         `
             : ""
         }
-        <div class="questions-block">
+        <div>
           <h2>${imageFileName ? "Fill in the gaps" : "Test Questions"}</h2>
           ${testQuestions
             .map(
               (q, i) => `
                 <div class="question">
-                  <div><b>${i + 1}.</b> ${q.question}</div>
+                  <div><b>${i + 1}.</b> ${escapeHtml(q.question)}</div>
                   <div class="options">
                     ${q.options
                       .map(
                         (opt, idx) =>
-                          `<div class="option${idx === q.correctAnswer ? " correct" : ""}">${String.fromCharCode(97 + idx)}) ${opt}</div>`,
+                          `<div class="option${idx === q.correctAnswer ? " correct" : ""}">${String.fromCharCode(97 + idx)}) ${escapeHtml(opt)}</div>`,
                       )
                       .join("")}
                   </div>
@@ -206,7 +253,7 @@ export async function generatePdf({
         </div>
         <div class="open-question">
           <h3>Open Question</h3>
-          <div>${openQuestion}</div>
+          <div>${escapeHtml(openQuestion)}</div>
         </div>
       </body>
     </html>

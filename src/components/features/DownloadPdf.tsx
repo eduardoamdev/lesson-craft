@@ -34,9 +34,14 @@ const DownloadPdf = ({ lessonData, imageFileName }: DownloadPdfProps) => {
 
         const conversation = lessonData.conversation || [];
 
+        const videoUrl = lessonData.videoId
+          ? `https://www.youtube.com/watch?v=${lessonData.videoId}`
+          : undefined;
+
         try {
           const response = await generatePdf({
             imageFileName,
+            videoUrl,
             conversation,
             testQuestions,
             openQuestion,

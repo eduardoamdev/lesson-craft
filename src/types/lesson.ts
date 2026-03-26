@@ -11,6 +11,9 @@ export interface ConversationTurn {
 export interface LessonData {
   imageUrl?: string;
   imageFileName?: string;
+  videoId?: string;
+  age?: string;
+  level?: string;
   conversation?: Array<ConversationTurn>;
   multipleChoiceSentences?: Array<TestQuestion>;
   openQuestion?: string;

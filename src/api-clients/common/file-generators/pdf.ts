@@ -2,6 +2,7 @@ import { TestQuestion } from "@/types/lesson";
 
 interface GeneratePdfParams {
   imageFileName?: string;
+  videoUrl?: string;
   conversation?: Array<{
     speaker: string;
     text: string;
@@ -12,6 +13,7 @@ interface GeneratePdfParams {
 
 export async function generatePdf({
   imageFileName,
+  videoUrl,
   conversation,
   testQuestions,
   openQuestion,
@@ -21,6 +23,7 @@ export async function generatePdf({
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       imageFileName,
+      videoUrl,
       conversation,
       testQuestions,
       openQuestion,

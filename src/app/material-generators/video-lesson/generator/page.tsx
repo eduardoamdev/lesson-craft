@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import ActionBar from "@/components/ui/ActionBar";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
@@ -20,10 +21,10 @@ export default function VideoLessonGenerator() {
   const [age, setAge] = useState("");
   const [level, setLevel] = useState("A1");
   const [isGenerating, setIsGenerating] = useState(false);
+  const router = useRouter();
 
   const handleGenerate = async () => {
-    console.log("youtubeUrl", youtubeUrl);
-    if (!youtubeUrl) {
+    if (!youtubeUrl.trim()) {
       alert("Please provide a YouTube URL first");
       return;
     }
@@ -41,17 +42,20 @@ export default function VideoLessonGenerator() {
 
       const data = await response.json();
 
-      if (data.success) {
-        alert(
-          "Success! Video lesson generation request received. Check the server logs for data.",
-        );
-        console.log("Success response:", data);
-      } else {
-        alert("Failed to generate activity. Please try again.");
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "Generation failed");
       }
+
+      const query = encodeURIComponent(JSON.stringify(data.activityData));
+
+      router.push(`/material-generators/video-lesson/overview?data=${query}`);
     } catch (error) {
       console.error("Process error:", error);
-      alert("An error occurred during the process.");
+      alert(
+        error instanceof Error
+          ? error.message
+          : "An error occurred during the process.",
+      );
     } finally {
       setIsGenerating(false);
     }
