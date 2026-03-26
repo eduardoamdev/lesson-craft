@@ -95,10 +95,12 @@ export async function generatePdf({
             color: #4c84ff;
             margin-bottom: 0.5em;
             text-align: center;
+            margin-bottom: 60px;
           }
           h2, h3 {
             color: #4c84ff;
             margin-bottom: 0.5em;
+            margin-bottom: 30px;
           }
           img {
             max-width: 100%;
@@ -165,7 +167,7 @@ export async function generatePdf({
             break-inside: avoid;
           }
           .conversation-container {
-            margin-bottom: 40px;
+            margin-bottom: 200px;
           }
           .message {
             margin-bottom: 20px;
@@ -195,6 +197,9 @@ export async function generatePdf({
           }
           .speaker-b .speaker-name {
             color: #a78bfa;
+          }
+          .test-questions {
+            margin-bottom: 60px;
           }
         </style>
       </head>
@@ -231,7 +236,7 @@ export async function generatePdf({
         `
             : ""
         }
-        <div>
+        <div class="test-questions">
           <h2>${imageFileName ? "Fill in the gaps" : "Test Questions"}</h2>
           ${testQuestions
             .map(
