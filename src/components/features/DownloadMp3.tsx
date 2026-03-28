@@ -34,7 +34,6 @@ const DownloadMp3 = ({ lessonData }: DownloadMp3Props) => {
       const url = URL.createObjectURL(blob);
       setAudioUrl(url);
 
-      // Trigger the hidden anchor link click after a small delay to ensure state update
       setTimeout(() => {
         if (downloadRef.current) {
           downloadRef.current.click();
