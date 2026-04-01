@@ -26,6 +26,7 @@ Generate a natural conversation based on this description. The conversation shou
 2. Be appropriate for ${levelText} English level
 3. Use natural, conversational language
 4. Include realistic context and phrasing
+5. One of the speakers should be a man and the other a woman.
 
 Also generate 4 comprehension questions about the conversation, each with 4 possible answers (only one correct).
 Finally, one open question about the conclusion of the conversation with the student's own words.
